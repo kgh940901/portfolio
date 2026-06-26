@@ -48,6 +48,9 @@
   .btn.primary{ background:linear-gradient(110deg,var(--c1),var(--c4)); color:#fff; box-shadow:0 10px 30px -8px var(--c1); }
   .btn.ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.22); }
   .btn:hover{ transform:translateY(-3px); }
+  .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+  .dot-text{ width:100%; display:block; margin:4px 0 26px; }
+  .hero-tag{ font-size:clamp(16px,2.4vw,22px); color:var(--text); font-weight:700; max-width:680px; margin-bottom:14px; }
 
   .kicker{ color:var(--c3); font-weight:700; letter-spacing:2px; font-size:13px; text-transform:uppercase; margin-bottom:12px; }
   .section-title{ font-size:clamp(28px,5vw,46px); font-weight:800; letter-spacing:-1px; margin-bottom:16px; }
@@ -188,7 +191,9 @@
   <!-- HERO -->
   <header class="hero wrap" id="top">
     <span class="badge">✦ UIUX · WEB · Promotion · Brand Designer</span>
-    <h1>영감을 엔진 삼아<br /><span class="grad">변화를 몰고 오는</span><br />디자이너, 경가현입니다.</h1>
+    <h1 class="sr-only">경가현 포트폴리오 — PORTFOLIO</h1>
+    <canvas id="dotText" class="dot-text" aria-label="PORTFOLIO"></canvas>
+    <p class="hero-tag">영감을 엔진 삼아 변화를 몰고 오는 디자이너, 경가현입니다.</p>
     <p>창의성과 시장 트렌드의 균형을 통해 고객의 니즈를 정확히 파악하고, 감각적인 디자인과 실용성을 동시에 제공하는 디자이너입니다.</p>
     <div class="cta">
       <a href="#projects" class="btn primary">프로젝트 보기</a>
@@ -531,6 +536,70 @@
       });
     }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
+
+  <!-- 도트 텍스트 효과 (PORTFOLIO) -->
+  <script>
+  (function(){
+    const canvas = document.getElementById('dotText');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const TEXT = 'PORTFOLIO';
+    let dots = [], startT = 0, raf = null, W = 0, H = 0, dpr = 1;
+    function build(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const cssW = canvas.clientWidth || canvas.parentElement.clientWidth;
+      if(!cssW) return;
+      const off = document.createElement('canvas');
+      const o = off.getContext('2d');
+      let fs = 200;
+      o.font = `900 ${fs}px 'Arial Black',Arial,sans-serif`;
+      let tw = o.measureText(TEXT).width;
+      fs = fs * (cssW * 0.99) / tw;
+      o.font = `900 ${fs}px 'Arial Black',Arial,sans-serif`;
+      const cssH = Math.ceil(fs * 0.92);
+      W = Math.ceil(cssW); H = cssH;
+      off.width = W; off.height = H;
+      o.font = `900 ${fs}px 'Arial Black',Arial,sans-serif`;
+      o.fillStyle = '#fff'; o.textAlign = 'center'; o.textBaseline = 'middle';
+      o.clearRect(0,0,W,H);
+      o.fillText(TEXT, W/2, H/2);
+      const img = o.getImageData(0,0,W,H).data;
+      const gap = Math.max(5, Math.round(fs/20));
+      const maxR = gap * 0.46;
+      dots = [];
+      for(let y=0; y<H; y+=gap){
+        for(let x=0; x<W; x+=gap){
+          const a = img[(y*W + x)*4 + 3];
+          if(a > 90){ dots.push({ x, y, r: maxR * Math.min(1, a/255 + 0.25), delay: (x/W)*900 + Math.random()*260 }); }
+        }
+      }
+      canvas.style.height = cssH + 'px';
+      canvas.width = Math.ceil(W*dpr); canvas.height = Math.ceil(H*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      startT = performance.now();
+      if(raf) cancelAnimationFrame(raf);
+      loop();
+    }
+    function loop(){
+      const t = performance.now() - startT;
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle = '#fff';
+      for(const d of dots){
+        let p = (t - d.delay)/600; if(p<0) p=0; if(p>1) p=1;
+        const e = 1 - Math.pow(1-p, 3);
+        const sh = p>=1 ? 0.82 + 0.18*Math.sin(t/650 + d.x*0.05) : e;
+        ctx.globalAlpha = e * sh;
+        ctx.beginPath(); ctx.arc(d.x, d.y, d.r*e, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(loop);
+    }
+    let rt;
+    addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 200); });
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(build); } else { build(); }
+    setTimeout(build, 300);
+  })();
   </script>
 </body>
 </html>
