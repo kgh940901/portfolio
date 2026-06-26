@@ -194,10 +194,6 @@
 </style>
 </head>
 <body>
-  <div class="blob b1"></div>
-  <div class="blob b2"></div>
-  <div class="blob b3"></div>
-
   <!-- 물방울(메타볼) 합쳐짐 효과용 SVG 필터 -->
   <svg class="goo-defs" aria-hidden="true" style="position:absolute; width:0; height:0;">
     <defs>
@@ -590,7 +586,8 @@
     if(!canvas) return;
     const ctx = canvas.getContext('2d');
     const TEXT = 'PORTFOLIO';
-    let dots = [], startT = 0, raf = null, W = 0, H = 0, dpr = 1, grad = null;
+    let dots = [], startT = 0, raf = null, W = 0, H = 0, dpr = 1, grad = null, fontStr = '', gapPx = 0;
+    const HOLD = 900, FADE = 1200; // 고딕 유지시간 → 도트 전환시간
     function build(){
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       const cssW = canvas.clientWidth || canvas.parentElement.clientWidth;
@@ -602,6 +599,7 @@
       let tw = o.measureText(TEXT).width;
       fs = fs * (cssW * 0.99) / tw;
       o.font = `900 ${fs}px 'Arial Black',Arial,sans-serif`;
+      fontStr = `900 ${fs}px 'Arial Black',Arial,sans-serif`;
       const cssH = Math.ceil(fs * 0.92);
       W = Math.ceil(cssW); H = cssH;
       off.width = W; off.height = H;
@@ -611,12 +609,13 @@
       o.fillText(TEXT, W/2, H/2);
       const img = o.getImageData(0,0,W,H).data;
       const gap = Math.max(5, Math.round(fs/20));
+      gapPx = gap;
       const maxR = gap * 0.46;
       dots = [];
       for(let y=0; y<H; y+=gap){
         for(let x=0; x<W; x+=gap){
           const a = img[(y*W + x)*4 + 3];
-          if(a > 90){ dots.push({ x, y, r: maxR * Math.min(1, a/255 + 0.25), delay: (x/W)*900 + Math.random()*260 }); }
+          if(a > 90){ dots.push({ x, y, r: maxR * Math.min(1, a/255 + 0.25), delay: Math.random()*320 }); }
         }
       }
       canvas.style.height = cssH + 'px';
@@ -631,15 +630,37 @@
     function loop(){
       const t = performance.now() - startT;
       ctx.clearRect(0,0,W,H);
-      ctx.fillStyle = grad || '#fff';
-      for(const d of dots){
-        let p = (t - d.delay)/600; if(p<0) p=0; if(p>1) p=1;
-        const e = 1 - Math.pow(1-p, 3);
-        const sh = p>=1 ? 0.82 + 0.18*Math.sin(t/650 + d.x*0.05) : e;
-        ctx.globalAlpha = e * sh;
-        ctx.beginPath(); ctx.arc(d.x, d.y, d.r*e, 0, Math.PI*2); ctx.fill();
+
+      // 전체 전환 진행도 (고딕 → 도트)
+      let tp = (t - HOLD)/FADE; if(tp<0) tp=0; if(tp>1) tp=1;
+      const te = 1 - Math.pow(1-tp, 3);
+
+      // 1) 고딕체 솔리드 글자 (전환되며 서서히 사라짐)
+      if(te < 1){
+        ctx.save();
+        ctx.globalAlpha = 1 - te;
+        ctx.fillStyle = grad || '#fff';
+        ctx.font = fontStr;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(TEXT, W/2, H/2);
+        ctx.restore();
       }
-      ctx.globalAlpha = 1;
+
+      // 2) 도트 (솔리드가 흩어지듯 큰 점에서 작은 점으로 수축하며 등장)
+      if(te > 0){
+        ctx.fillStyle = grad || '#fff';
+        for(const d of dots){
+          let p = (t - HOLD - d.delay)/(FADE*0.75); if(p<0) p=0; if(p>1) p=1;
+          const e = 1 - Math.pow(1-p, 3);
+          const r = (gapPx*0.62)*(1-e) + d.r*e;        // 큰 점 → 도트 크기로 수축
+          const sh = tp>=1 ? 0.82 + 0.18*Math.sin(t/650 + d.x*0.05) : 1;
+          ctx.globalAlpha = e * sh;
+          ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
       raf = requestAnimationFrame(loop);
     }
     let rt;
@@ -656,21 +677,21 @@
     const metas = Array.prototype.slice.call(document.querySelectorAll('.cover .meta'));
     if(!cover || !metas.length) return;
     if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const conf = metas.map((el, i) => ({ el, amp: 16 + i*5, spd: 0.00007 + i*0.000012, ph: i*1.7, mf: 0.05 + i*0.022, ox:0, oy:0 }));
+    // 자동 드리프트 없음 — 각 방울이 다른 강도로 마우스를 따라오고, 벗어나면 제자리로
+    const conf = metas.map((el, i) => ({ el, mf: 0.07 + i*0.03, ox:0, oy:0 }));
     let mx = 0, my = 0, active = false, cx = 0, cy = 0;
     function setCenter(){ const r = cover.getBoundingClientRect(); cx = r.left + r.width/2; cy = r.top + r.height/2; }
     setCenter();
     addEventListener('resize', setCenter);
+    addEventListener('scroll', setCenter, { passive:true });
     cover.addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; active = true; });
     cover.addEventListener('pointerleave', () => { active = false; });
-    function frame(t){
+    function frame(){
       const tvx = active ? (mx - cx) : 0, tvy = active ? (my - cy) : 0;
       for(const c of conf){
-        const dx = Math.sin(t*c.spd + c.ph) * c.amp;
-        const dy = Math.cos(t*c.spd*1.25 + c.ph) * c.amp;
-        c.ox += (tvx*c.mf - c.ox) * 0.05;
-        c.oy += (tvy*c.mf - c.oy) * 0.05;
-        c.el.style.transform = `translate(${(dx + c.ox).toFixed(1)}px, ${(dy + c.oy).toFixed(1)}px)`;
+        c.ox += (tvx*c.mf - c.ox) * 0.06;
+        c.oy += (tvy*c.mf - c.oy) * 0.06;
+        c.el.style.transform = `translate(${c.ox.toFixed(1)}px, ${c.oy.toFixed(1)}px)`;
       }
       requestAnimationFrame(frame);
     }
