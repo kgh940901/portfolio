@@ -194,16 +194,9 @@
 </style>
 </head>
 <body>
-  <!-- 물방울(메타볼) 합쳐짐 효과용 SVG 필터 -->
-  <svg class="goo-defs" aria-hidden="true" style="position:absolute; width:0; height:0;">
-    <defs>
-      <filter id="goo">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
-        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo" />
-        <feBlend in="SourceGraphic" in2="goo" />
-      </filter>
-    </defs>
-  </svg>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
 
   <nav>
     <div class="logo"><span>경가현</span> · Gahyun</div>
@@ -220,15 +213,6 @@
 
   <!-- HERO -->
   <header class="cover" id="top">
-    <div class="goo-bg" aria-hidden="true">
-      <div class="goo-layer">
-        <span class="meta m1"></span>
-        <span class="meta m2"></span>
-        <span class="meta m3"></span>
-        <span class="meta m4"></span>
-        <span class="meta m5"></span>
-      </div>
-    </div>
     <div class="cover-content">
       <span class="badge">✦ UIUX · WEB · Promotion · Brand Designer</span>
       <h1 class="sr-only">경가현 포트폴리오 — PORTFOLIO</h1>
@@ -587,7 +571,7 @@
     const ctx = canvas.getContext('2d');
     const TEXT = 'PORTFOLIO';
     let dots = [], startT = 0, raf = null, W = 0, H = 0, dpr = 1, grad = null, fontStr = '', gapPx = 0;
-    const HOLD = 900, FADE = 1200; // 고딕 유지시간 → 도트 전환시간
+    const HOLD = 700, SWEEP = 1300, DOTFADE = 300; // 고딕 유지 → 좌→우 도트 전환
     function build(){
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       const cssW = canvas.clientWidth || canvas.parentElement.clientWidth;
@@ -631,14 +615,16 @@
       const t = performance.now() - startT;
       ctx.clearRect(0,0,W,H);
 
-      // 전체 전환 진행도 (고딕 → 도트)
-      let tp = (t - HOLD)/FADE; if(tp<0) tp=0; if(tp>1) tp=1;
-      const te = 1 - Math.pow(1-tp, 3);
+      // 좌→우로 이동하는 전환 경계선
+      let sweep = (t - HOLD)/SWEEP; if(sweep<0) sweep=0; if(sweep>1) sweep=1;
+      const sweepX = sweep * W;
 
-      // 1) 고딕체 솔리드 글자 (전환되며 서서히 사라짐)
-      if(te < 1){
+      // 1) 고딕 솔리드: 경계선 '오른쪽'만 남겨 표시 (왼쪽부터 도트로 바뀜)
+      if(sweep < 1){
         ctx.save();
-        ctx.globalAlpha = 1 - te;
+        ctx.beginPath();
+        ctx.rect(sweepX, 0, W - sweepX, H);
+        ctx.clip();
         ctx.fillStyle = grad || '#fff';
         ctx.font = fontStr;
         ctx.textAlign = 'center';
@@ -647,19 +633,18 @@
         ctx.restore();
       }
 
-      // 2) 도트 (솔리드가 흩어지듯 큰 점에서 작은 점으로 수축하며 등장)
-      if(te > 0){
-        ctx.fillStyle = grad || '#fff';
-        for(const d of dots){
-          let p = (t - HOLD - d.delay)/(FADE*0.75); if(p<0) p=0; if(p>1) p=1;
-          const e = 1 - Math.pow(1-p, 3);
-          const r = (gapPx*0.62)*(1-e) + d.r*e;        // 큰 점 → 도트 크기로 수축
-          const sh = tp>=1 ? 0.82 + 0.18*Math.sin(t/650 + d.x*0.05) : 1;
-          ctx.globalAlpha = e * sh;
-          ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, Math.PI*2); ctx.fill();
-        }
-        ctx.globalAlpha = 1;
+      // 2) 도트: 경계선이 지나간 자리부터 왼→오로 좌르르 등장
+      ctx.fillStyle = grad || '#fff';
+      for(const d of dots){
+        let p = (t - HOLD - (d.x/W)*SWEEP)/DOTFADE; if(p<0) p=0; if(p>1) p=1;
+        if(p <= 0) continue;
+        const e = 1 - Math.pow(1-p, 3);
+        const sh = sweep>=1 ? 0.82 + 0.18*Math.sin(t/650 + d.x*0.05) : 1;
+        ctx.globalAlpha = e * sh;
+        const r = d.r * (0.5 + 0.5*e);
+        ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, Math.PI*2); ctx.fill();
       }
+      ctx.globalAlpha = 1;
 
       raf = requestAnimationFrame(loop);
     }
@@ -670,33 +655,5 @@
   })();
   </script>
 
-  <!-- 물방울: 차분한 드리프트 + 마우스 따라오기 -->
-  <script>
-  (function(){
-    const cover = document.getElementById('top');
-    const metas = Array.prototype.slice.call(document.querySelectorAll('.cover .meta'));
-    if(!cover || !metas.length) return;
-    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    // 자동 드리프트 없음 — 각 방울이 다른 강도로 마우스를 따라오고, 벗어나면 제자리로
-    const conf = metas.map((el, i) => ({ el, mf: 0.07 + i*0.03, ox:0, oy:0 }));
-    let mx = 0, my = 0, active = false, cx = 0, cy = 0;
-    function setCenter(){ const r = cover.getBoundingClientRect(); cx = r.left + r.width/2; cy = r.top + r.height/2; }
-    setCenter();
-    addEventListener('resize', setCenter);
-    addEventListener('scroll', setCenter, { passive:true });
-    cover.addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; active = true; });
-    cover.addEventListener('pointerleave', () => { active = false; });
-    function frame(){
-      const tvx = active ? (mx - cx) : 0, tvy = active ? (my - cy) : 0;
-      for(const c of conf){
-        c.ox += (tvx*c.mf - c.ox) * 0.06;
-        c.oy += (tvy*c.mf - c.oy) * 0.06;
-        c.el.style.transform = `translate(${c.ox.toFixed(1)}px, ${c.oy.toFixed(1)}px)`;
-      }
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-  })();
-  </script>
 </body>
 </html>
