@@ -49,8 +49,36 @@
   .btn.ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.22); }
   .btn:hover{ transform:translateY(-3px); }
   .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
-  .dot-text{ width:100%; display:block; margin:4px 0 26px; }
-  .hero-tag{ font-size:clamp(16px,2.4vw,22px); color:var(--text); font-weight:700; max-width:680px; margin-bottom:14px; }
+
+  /* ===== 표지(COVER) + 물방울(메타볼) ===== */
+  .cover{ position:relative; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; overflow:hidden; padding:96px 0 70px; }
+  .goo-bg{ position:absolute; inset:0; z-index:0; overflow:hidden; }
+  .goo-bg::after{ content:""; position:absolute; inset:0; background:radial-gradient(70% 60% at 50% 50%, transparent, rgba(15,13,26,.55)); }
+  .goo-layer{ position:absolute; inset:-15%; filter:url(#goo); opacity:.72; }
+  .meta{ position:absolute; border-radius:50%; will-change:transform; }
+  .meta.m1{ width:340px; height:340px; background:var(--c1); left:8%;  top:24%; animation:d1 18s ease-in-out infinite; }
+  .meta.m2{ width:280px; height:280px; background:var(--c3); left:54%; top:14%; animation:d2 22s ease-in-out infinite; }
+  .meta.m3{ width:420px; height:420px; background:var(--c4); left:28%; top:44%; animation:d3 26s ease-in-out infinite; }
+  .meta.m4{ width:240px; height:240px; background:var(--c5); left:70%; top:54%; animation:d4 20s ease-in-out infinite; }
+  .meta.m5{ width:300px; height:300px; background:var(--c2); left:44%; top:60%; animation:d5 24s ease-in-out infinite; }
+  @keyframes d1{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(22vw,10vh)} 66%{transform:translate(8vw,30vh)} }
+  @keyframes d2{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(-18vw,16vh)} 66%{transform:translate(-6vw,-8vh)} }
+  @keyframes d3{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(18vw,-14vh)} 66%{transform:translate(-14vw,10vh)} }
+  @keyframes d4{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(-20vw,-12vh)} 66%{transform:translate(-8vw,-26vh)} }
+  @keyframes d5{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(14vw,-18vh)} 66%{transform:translate(-12vw,-6vh)} }
+  .cover-content{ position:relative; z-index:2; max-width:1360px; width:100%; padding:0 24px; display:flex; flex-direction:column; align-items:center; }
+  .cover-content .badge{ margin-bottom:30px; }
+  .dot-text{ width:100%; display:block; margin:0 0 26px; filter:drop-shadow(0 6px 30px rgba(0,0,0,.45)); }
+  .hero-tag{ font-size:clamp(16px,2.4vw,22px); color:var(--text); font-weight:700; max-width:680px; margin:0 auto 26px; text-align:center; }
+  .cover-content .cta{ justify-content:center; }
+  .scroll-cue{ position:absolute; bottom:28px; left:50%; transform:translateX(-50%); z-index:2; display:flex; flex-direction:column;
+    align-items:center; gap:8px; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:2px; }
+  .scroll-cue .mouse{ width:24px; height:38px; border:2px solid var(--muted); border-radius:14px; position:relative; }
+  .scroll-cue .mouse::before{ content:""; position:absolute; left:50%; top:7px; width:4px; height:7px; border-radius:2px;
+    background:var(--muted); transform:translateX(-50%); animation:scrolldot 1.6s ease-in-out infinite; }
+  @keyframes scrolldot{ 0%{ opacity:0; transform:translate(-50%,0);} 40%{ opacity:1;} 80%{ opacity:0; transform:translate(-50%,12px);} 100%{opacity:0;} }
+  @media(prefers-reduced-motion:reduce){ .meta{ animation:none !important; } .scroll-cue .mouse::before{ animation:none; } }
 
   .kicker{ color:var(--c3); font-weight:700; letter-spacing:2px; font-size:13px; text-transform:uppercase; margin-bottom:12px; }
   .section-title{ font-size:clamp(28px,5vw,46px); font-weight:800; letter-spacing:-1px; margin-bottom:16px; }
@@ -175,6 +203,17 @@
   <div class="blob b2"></div>
   <div class="blob b3"></div>
 
+  <!-- 물방울(메타볼) 합쳐짐 효과용 SVG 필터 -->
+  <svg class="goo-defs" aria-hidden="true" style="position:absolute; width:0; height:0;">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo" />
+        <feBlend in="SourceGraphic" in2="goo" />
+      </filter>
+    </defs>
+  </svg>
+
   <nav>
     <div class="logo"><span>경가현</span> · Gahyun</div>
     <ul>
@@ -189,16 +228,27 @@
   </nav>
 
   <!-- HERO -->
-  <header class="hero wrap" id="top">
-    <span class="badge">✦ UIUX · WEB · Promotion · Brand Designer</span>
-    <h1 class="sr-only">경가현 포트폴리오 — PORTFOLIO</h1>
-    <canvas id="dotText" class="dot-text" aria-label="PORTFOLIO"></canvas>
-    <p class="hero-tag">영감을 엔진 삼아 변화를 몰고 오는 디자이너, 경가현입니다.</p>
-    <p>창의성과 시장 트렌드의 균형을 통해 고객의 니즈를 정확히 파악하고, 감각적인 디자인과 실용성을 동시에 제공하는 디자이너입니다.</p>
-    <div class="cta">
-      <a href="#projects" class="btn primary">프로젝트 보기</a>
-      <a href="#contact" class="btn ghost">연락하기</a>
+  <header class="cover" id="top">
+    <div class="goo-bg" aria-hidden="true">
+      <div class="goo-layer">
+        <span class="meta m1"></span>
+        <span class="meta m2"></span>
+        <span class="meta m3"></span>
+        <span class="meta m4"></span>
+        <span class="meta m5"></span>
+      </div>
     </div>
+    <div class="cover-content">
+      <span class="badge">✦ UIUX · WEB · Promotion · Brand Designer</span>
+      <h1 class="sr-only">경가현 포트폴리오 — PORTFOLIO</h1>
+      <canvas id="dotText" class="dot-text" aria-label="PORTFOLIO"></canvas>
+      <p class="hero-tag">영감을 엔진 삼아 변화를 몰고 오는 디자이너, 경가현입니다.</p>
+      <div class="cta">
+        <a href="#projects" class="btn primary">프로젝트 보기</a>
+        <a href="#contact" class="btn ghost">연락하기</a>
+      </div>
+    </div>
+    <a href="#about" class="scroll-cue" aria-label="아래로 스크롤"><span class="mouse"></span>SCROLL</a>
   </header>
 
   <!-- ABOUT -->
