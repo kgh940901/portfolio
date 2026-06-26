@@ -55,18 +55,13 @@
     text-align:center; overflow:hidden; padding:96px 0 70px; }
   .goo-bg{ position:absolute; inset:0; z-index:0; overflow:hidden; }
   .goo-bg::after{ content:""; position:absolute; inset:0; background:radial-gradient(70% 60% at 50% 50%, transparent, rgba(15,13,26,.55)); }
-  .goo-layer{ position:absolute; inset:-15%; filter:url(#goo); opacity:.72; }
+  .goo-layer{ position:absolute; inset:-15%; filter:url(#goo); opacity:.5; }
   .meta{ position:absolute; border-radius:50%; will-change:transform; }
-  .meta.m1{ width:340px; height:340px; background:var(--c1); left:8%;  top:24%; animation:d1 18s ease-in-out infinite; }
-  .meta.m2{ width:280px; height:280px; background:var(--c3); left:54%; top:14%; animation:d2 22s ease-in-out infinite; }
-  .meta.m3{ width:420px; height:420px; background:var(--c4); left:28%; top:44%; animation:d3 26s ease-in-out infinite; }
-  .meta.m4{ width:240px; height:240px; background:var(--c5); left:70%; top:54%; animation:d4 20s ease-in-out infinite; }
-  .meta.m5{ width:300px; height:300px; background:var(--c2); left:44%; top:60%; animation:d5 24s ease-in-out infinite; }
-  @keyframes d1{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(22vw,10vh)} 66%{transform:translate(8vw,30vh)} }
-  @keyframes d2{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(-18vw,16vh)} 66%{transform:translate(-6vw,-8vh)} }
-  @keyframes d3{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(18vw,-14vh)} 66%{transform:translate(-14vw,10vh)} }
-  @keyframes d4{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(-20vw,-12vh)} 66%{transform:translate(-8vw,-26vh)} }
-  @keyframes d5{ 0%,100%{transform:translate(0,0)} 33%{transform:translate(14vw,-18vh)} 66%{transform:translate(-12vw,-6vh)} }
+  .meta.m1{ width:210px; height:210px; background:#ff9db4; left:12%; top:26%; }
+  .meta.m2{ width:170px; height:170px; background:#9fe4ff; left:56%; top:18%; }
+  .meta.m3{ width:250px; height:250px; background:#c3acff; left:30%; top:46%; }
+  .meta.m4{ width:150px; height:150px; background:#a9f2cf; left:68%; top:56%; }
+  .meta.m5{ width:190px; height:190px; background:#ffd79c; left:46%; top:60%; }
   .cover-content{ position:relative; z-index:2; max-width:1360px; width:100%; padding:0 24px; display:flex; flex-direction:column; align-items:center; }
   .cover-content .badge{ margin-bottom:30px; }
   .dot-text{ width:100%; display:block; margin:0 0 26px; filter:drop-shadow(0 6px 30px rgba(0,0,0,.45)); }
@@ -595,7 +590,7 @@
     if(!canvas) return;
     const ctx = canvas.getContext('2d');
     const TEXT = 'PORTFOLIO';
-    let dots = [], startT = 0, raf = null, W = 0, H = 0, dpr = 1;
+    let dots = [], startT = 0, raf = null, W = 0, H = 0, dpr = 1, grad = null;
     function build(){
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       const cssW = canvas.clientWidth || canvas.parentElement.clientWidth;
@@ -627,6 +622,8 @@
       canvas.style.height = cssH + 'px';
       canvas.width = Math.ceil(W*dpr); canvas.height = Math.ceil(H*dpr);
       ctx.setTransform(dpr,0,0,dpr,0,0);
+      grad = ctx.createLinearGradient(0,0,W,0);
+      grad.addColorStop(0,'#ff5e7e'); grad.addColorStop(.35,'#ffb84d'); grad.addColorStop(.7,'#9b6cff'); grad.addColorStop(1,'#4dd0ff');
       startT = performance.now();
       if(raf) cancelAnimationFrame(raf);
       loop();
@@ -634,7 +631,7 @@
     function loop(){
       const t = performance.now() - startT;
       ctx.clearRect(0,0,W,H);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = grad || '#fff';
       for(const d of dots){
         let p = (t - d.delay)/600; if(p<0) p=0; if(p>1) p=1;
         const e = 1 - Math.pow(1-p, 3);
@@ -649,6 +646,35 @@
     addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 200); });
     if(document.fonts && document.fonts.ready){ document.fonts.ready.then(build); } else { build(); }
     setTimeout(build, 300);
+  })();
+  </script>
+
+  <!-- 물방울: 차분한 드리프트 + 마우스 따라오기 -->
+  <script>
+  (function(){
+    const cover = document.getElementById('top');
+    const metas = Array.prototype.slice.call(document.querySelectorAll('.cover .meta'));
+    if(!cover || !metas.length) return;
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const conf = metas.map((el, i) => ({ el, amp: 16 + i*5, spd: 0.00007 + i*0.000012, ph: i*1.7, mf: 0.05 + i*0.022, ox:0, oy:0 }));
+    let mx = 0, my = 0, active = false, cx = 0, cy = 0;
+    function setCenter(){ const r = cover.getBoundingClientRect(); cx = r.left + r.width/2; cy = r.top + r.height/2; }
+    setCenter();
+    addEventListener('resize', setCenter);
+    cover.addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; active = true; });
+    cover.addEventListener('pointerleave', () => { active = false; });
+    function frame(t){
+      const tvx = active ? (mx - cx) : 0, tvy = active ? (my - cy) : 0;
+      for(const c of conf){
+        const dx = Math.sin(t*c.spd + c.ph) * c.amp;
+        const dy = Math.cos(t*c.spd*1.25 + c.ph) * c.amp;
+        c.ox += (tvx*c.mf - c.ox) * 0.05;
+        c.oy += (tvy*c.mf - c.oy) * 0.05;
+        c.el.style.transform = `translate(${(dx + c.ox).toFixed(1)}px, ${(dy + c.oy).toFixed(1)}px)`;
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
   })();
   </script>
 </body>
