@@ -571,7 +571,9 @@
     const ctx = canvas.getContext('2d');
     const TEXT = 'PORTFOLIO';
     let dots = [], startT = 0, raf = null, W = 0, H = 0, dpr = 1, grad = null, fontStr = '', gapPx = 0;
-    const HOLD = 700, SWEEP = 1300, DOTFADE = 300; // 고딕 유지 → 좌→우 도트 전환
+    let mX = 0, mY = 0, mTarget = 0, mAmt = 0;            // 마우스 인터랙션 상태
+    const HOLD = 350, SWEEP = 850;                        // 고딕 유지 → 좌→우(부드럽게/빠르게) 전환
+    const easeIO = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2;
     function build(){
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       const cssW = canvas.clientWidth || canvas.parentElement.clientWidth;
@@ -614,35 +616,40 @@
     function loop(){
       const t = performance.now() - startT;
       ctx.clearRect(0,0,W,H);
+      mAmt += (mTarget - mAmt) * 0.08;   // 마우스 영향 부드럽게 들어오고 빠짐
 
-      // 좌→우로 이동하는 전환 경계선
-      let sweep = (t - HOLD)/SWEEP; if(sweep<0) sweep=0; if(sweep>1) sweep=1;
-      const sweepX = sweep * W;
+      const feather = Math.max(40, W*0.16);              // 부드러운 경계 폭
+      let raw = (t - HOLD)/SWEEP; if(raw<0) raw=0; if(raw>1) raw=1;
+      const sweepX = easeIO(raw) * (W + feather);         // 이징 적용 → 자연스러운 가속/감속
 
-      // 1) 고딕 솔리드: 경계선 '오른쪽'만 남겨 표시 (왼쪽부터 도트로 바뀜)
-      if(sweep < 1){
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(sweepX, 0, W - sweepX, H);
-        ctx.clip();
+      // 1) 고딕 솔리드 — 지나간 왼쪽을 그라데이션으로 부드럽게 지움
+      if(raw < 1){
         ctx.fillStyle = grad || '#fff';
-        ctx.font = fontStr;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.font = fontStr; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(TEXT, W/2, H/2);
-        ctx.restore();
+        ctx.globalCompositeOperation = 'destination-out';
+        const eg = ctx.createLinearGradient(sweepX - feather, 0, sweepX, 0);
+        eg.addColorStop(0, 'rgba(0,0,0,1)'); eg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = eg; ctx.fillRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'source-over';
       }
 
-      // 2) 도트: 경계선이 지나간 자리부터 왼→오로 좌르르 등장
+      // 2) 도트 — 경계를 따라 부드럽게 등장 + 마우스 근처 점들이 밀려남
       ctx.fillStyle = grad || '#fff';
+      const R = Math.max(110, H*0.62), MAXP = gapPx*2.2;
       for(const d of dots){
-        let p = (t - HOLD - (d.x/W)*SWEEP)/DOTFADE; if(p<0) p=0; if(p>1) p=1;
-        if(p <= 0) continue;
-        const e = 1 - Math.pow(1-p, 3);
-        const sh = sweep>=1 ? 0.82 + 0.18*Math.sin(t/650 + d.x*0.05) : 1;
+        let lp = (sweepX - d.x)/feather; if(lp<0) lp=0; if(lp>1) lp=1;
+        if(lp <= 0) continue;
+        const e = easeIO(lp);
+        let px = d.x, py = d.y;
+        if(mAmt > 0.002){
+          const ax = d.x - mX, ay = d.y - mY, dist = Math.hypot(ax, ay) || 1;
+          if(dist < R){ const f = 1 - dist/R; const push = f*f*MAXP*mAmt; px += (ax/dist)*push; py += (ay/dist)*push; }
+        }
+        const sh = raw>=1 ? 0.82 + 0.18*Math.sin(t/650 + d.x*0.05) : 1;
         ctx.globalAlpha = e * sh;
-        const r = d.r * (0.5 + 0.5*e);
-        ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, Math.PI*2); ctx.fill();
+        const r = d.r * (0.45 + 0.55*e);
+        ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI*2); ctx.fill();
       }
       ctx.globalAlpha = 1;
 
@@ -650,6 +657,8 @@
     }
     let rt;
     addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 200); });
+    canvas.addEventListener('pointermove', e => { const r = canvas.getBoundingClientRect(); mX = e.clientX - r.left; mY = e.clientY - r.top; mTarget = 1; });
+    canvas.addEventListener('pointerleave', () => { mTarget = 0; });
     if(document.fonts && document.fonts.ready){ document.fonts.ready.then(build); } else { build(); }
     setTimeout(build, 300);
   })();
