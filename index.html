@@ -482,7 +482,7 @@
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
     // 벌집 배경: 부드러운 마우스 패럴럭스(이징) + 잔잔한 부유
-    // 인트로 배경: 떠다니는 육각형 파티클 (canvas)
+    // 인트로 배경: 공중에 떠다니는 독립 육각형 파티클 (canvas, 깊이별 3D parallax)
     (function(){
       const canvas = document.getElementById('hexCanvas');
       if(!canvas) return;
@@ -490,44 +490,48 @@
       const hero = document.getElementById('top');
       let W=0, H=0, DPR=1, hexes=[], mx=0.5, my=0.5, tmx=0.5, tmy=0.5;
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const rand = (a,b)=> a + Math.random()*(b-a);
+      const TAU=Math.PI*2, rand=(a,b)=>a+Math.random()*(b-a);
       function init(){
         DPR = Math.min(window.devicePixelRatio||1, 2);
         W = canvas.clientWidth || hero.clientWidth; H = canvas.clientHeight || hero.clientHeight;
         if(!W || !H) return;
         canvas.width = Math.round(W*DPR); canvas.height = Math.round(H*DPR); ctx.setTransform(DPR,0,0,DPR,0,0);
-        const count = W<700 ? 14 : 26;
+        const count = W<700 ? 7 : 12;     // 적게, 여백 있게
         hexes = [];
         for(let i=0;i<count;i++){
-          hexes.push({ x:rand(0,W), y:rand(0,H), r:rand(28,120), rot:rand(0,Math.PI), vr:rand(-0.0005,0.0005),
-            vx:rand(-0.06,0.06), vy:rand(-0.06,0.06), op:rand(0.08,0.26), lw:rand(0.8,1.9),
-            blur:Math.random()<0.32, depth:rand(0.25,1) });
+          const depth = rand(0,1);         // 0 멀리 ~ 1 가까이
+          hexes.push({ x:rand(0.05,0.95)*W, y:rand(0.08,0.92)*H, depth,
+            r:34 + depth*depth*130, rot:rand(0,TAU), vr:rand(-0.0004,0.0004),
+            vx:rand(-1,1)*(0.02+depth*0.05), vy:rand(-1,1)*(0.02+depth*0.05),
+            op:0.05+depth*0.13, lw:0.7+depth*1.0, glow:depth>0.55, par:18+depth*75,
+            bp:rand(0,TAU), ba:rand(4,16), bs:rand(0.0002,0.0006) });
         }
+        hexes.sort((a,b)=>a.depth-b.depth);  // 먼 것 먼저, 가까운 것 위로
       }
-      function drawHex(h, ox, oy){
+      function drawHex(h, t){
+        const ox=(mx-0.5)*h.par, oy=(my-0.5)*h.par + (reduce?0:Math.sin(t*h.bs+h.bp)*h.ba);
         ctx.save();
-        ctx.translate(h.x + ox*h.depth, h.y + oy*h.depth); ctx.rotate(h.rot);
+        ctx.translate(h.x+ox, h.y+oy); ctx.rotate(h.rot);
         ctx.beginPath();
         for(let k=0;k<6;k++){ const a=Math.PI/3*k+Math.PI/6, px=Math.cos(a)*h.r, py=Math.sin(a)*h.r; k?ctx.lineTo(px,py):ctx.moveTo(px,py); }
-        ctx.closePath(); ctx.lineWidth=h.lw; ctx.strokeStyle='rgba(196,208,238,'+h.op+')';
-        if(h.blur){ ctx.shadowColor='rgba(150,175,235,'+(h.op+0.05)+')'; ctx.shadowBlur=16; }
+        ctx.closePath(); ctx.lineWidth=h.lw; ctx.strokeStyle='rgba(200,212,240,'+h.op+')';
+        if(h.glow){ ctx.shadowColor='rgba(150,180,240,'+(h.op*0.6)+')'; ctx.shadowBlur=10; }
         ctx.stroke(); ctx.restore();
       }
-      function loop(){
+      function loop(t){
         if(!W){ init(); requestAnimationFrame(loop); return; }
         ctx.clearRect(0,0,W,H);
-        mx += (tmx-mx)*0.04; my += (tmy-my)*0.04;
-        const ox=(mx-0.5)*46, oy=(my-0.5)*46;
+        mx += (tmx-mx)*0.035; my += (tmy-my)*0.035;
         for(const h of hexes){
-          if(!reduce){ h.x+=h.vx; h.y+=h.vy; h.rot+=h.vr; const m=h.r+60;
+          if(!reduce){ h.x+=h.vx; h.y+=h.vy; h.rot+=h.vr; const m=h.r+80;
             if(h.x<-m)h.x=W+m; else if(h.x>W+m)h.x=-m; if(h.y<-m)h.y=H+m; else if(h.y>H+m)h.y=-m; }
-          drawHex(h, ox, oy);
+          drawHex(h, t);
         }
         requestAnimationFrame(loop);
       }
       addEventListener('pointermove', e=>{ tmx=e.clientX/window.innerWidth; tmy=e.clientY/window.innerHeight; }, {passive:true});
       let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(init, 200); });
-      init(); loop();
+      init(); requestAnimationFrame(loop);
     })();
 
     // 스크롤 텍스트 하이라이트
