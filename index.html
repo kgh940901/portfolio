@@ -31,9 +31,10 @@
   .loader{ position:fixed; inset:0; z-index:9999; background:#000; display:flex; align-items:center; justify-content:center; }
   .loader.done{ transform:translateY(-100%); transition:transform .85s cubic-bezier(.76,0,.24,1); }
   .loader-words{ position:relative; overflow:hidden; width:min(82vw,680px); font-size:clamp(30px,5.5vw,58px); height:1.4em; }
-  .loader-word{ position:absolute; left:0; right:0; top:0; height:1.4em; display:flex; align-items:center; justify-content:center; font-size:inherit; font-weight:600; letter-spacing:-1px; line-height:1; color:#f2f2f2; opacity:0; transform:translateY(115%); transition:transform .38s cubic-bezier(.33,0,.2,1), opacity .28s ease; will-change:opacity, transform; }
-  .loader-word.show{ opacity:1; transform:translateY(0); }
-  .loader-word.exit{ opacity:0; transform:translateY(-115%); }
+  .loader-word{ position:absolute; left:0; right:0; top:0; height:1.4em; display:flex; align-items:center; justify-content:center; font-size:inherit; font-weight:600; letter-spacing:-1px; line-height:1; color:#f2f2f2; }
+  .loader-word .lchar{ display:inline-block; transform:translateY(120%); opacity:0; transition:transform .4s cubic-bezier(.33,0,.2,1), opacity .3s ease; will-change:transform, opacity; }
+  .loader-word.show .lchar{ transform:translateY(0); opacity:1; }
+  .loader-word.exit .lchar{ transform:translateY(-120%); opacity:0; }
 
   nav{ position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:20px 30px; mix-blend-mode:difference; }
   nav .logo{ font-weight:800; font-size:16px; letter-spacing:1px; text-transform:uppercase; color:#fff; }
@@ -210,7 +211,7 @@
   </defs></svg>
 
   <!-- 로딩 인사말 -->
-  <div class="loader" id="loader"><div class="loader-words"><span class="loader-word" id="lw0">안녕하세요</span><span class="loader-word" id="lw1"></span></div></div>
+  <div class="loader" id="loader"><div class="loader-words"><span class="loader-word" id="lw0"></span><span class="loader-word" id="lw1"></span></div></div>
 
   <nav>
     <div class="logo">경가현 · Gahyun</div>
@@ -546,17 +547,28 @@
       document.body.classList.add('loading');
       // 한국어 가장 길게 → 영어 → 중국어 → 일본어. 전환은 두 글자가 겹쳐 부드럽게 이어짐(크로스페이드)
       const seq = [
-        { t:'안녕하세요', d:920 }, { t:'Hello', d:560 }, { t:'你好', d:520 }, { t:'こんにちは', d:600 }
+        { t:'안녕하세요', d:1000 }, { t:'Hello', d:600 }, { t:'你好', d:540 }, { t:'こんにちは', d:640 }
       ];
+      // 글자를 한 자씩 스팬으로 쪼개고, 순차 등장하도록 transition-delay 부여
+      function build(el, text){
+        el.innerHTML = '';
+        Array.prototype.forEach.call(text, (ch, idx) => {
+          const s = document.createElement('span');
+          s.className = 'lchar';
+          s.textContent = ch;
+          s.style.transitionDelay = (idx * 0.05) + 's';
+          el.appendChild(s);
+        });
+      }
       let i = 0, active = 0;
       function step(){
         const cur = seq[i];
         const inEl = lw[active], outEl = lw[active ^ 1];
-        inEl.classList.remove('exit');  // 아래(마스크 밑)에서 시작
-        inEl.textContent = cur.t;
-        void inEl.offsetWidth;          // 리플로우로 전환 확실히
-        inEl.classList.add('show');     // 아래→위로 떠오름
-        outEl.classList.remove('show'); outEl.classList.add('exit'); // 이전 글자는 위로 솟아 빠짐(겹침)
+        outEl.classList.remove('show'); outEl.classList.add('exit');   // 이전 글자 위로 빠짐
+        inEl.classList.remove('exit', 'show');
+        build(inEl, cur.t);             // 새 글자(아래에서 시작) 빌드
+        void inEl.offsetWidth;          // 리플로우로 초기 위치 확정
+        inEl.classList.add('show');     // 한 글자씩 아래→위로 떠오름
         active ^= 1; i++;
         setTimeout(i < seq.length ? step : finish, cur.d);
       }
