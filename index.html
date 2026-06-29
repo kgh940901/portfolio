@@ -34,6 +34,24 @@
   /* progress bar */
   .scroll-progress{ position:fixed; top:0; left:0; height:2px; width:100%; transform:scaleX(0); transform-origin:left; z-index:100; background:#fff; will-change:transform; }
 
+  /* ===== 로딩 인사말 + 하단 독 + 시계 ===== */
+  body.loading{ overflow:hidden; }
+  .loader{ position:fixed; inset:0; z-index:9999; background:#000; display:flex; align-items:center; justify-content:center; }
+  .loader.done{ transform:translateY(-100%); transition:transform .85s cubic-bezier(.76,0,.24,1); }
+  .loader-word{ color:#f2f2f2; font-size:clamp(30px,5.5vw,60px); font-weight:600; letter-spacing:-1px; opacity:0; transform:translateY(16px); }
+  .loader-word.show{ opacity:1; transform:none; transition:opacity .34s ease, transform .34s ease; }
+  .loader-word.hide{ opacity:0; transform:translateY(-16px); transition:opacity .3s ease, transform .3s ease; }
+  .nav-clock{ font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:#fff; }
+  .dock{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:4px;
+    padding:7px; border-radius:999px; background:rgba(18,18,18,.72); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+    border:1px solid var(--line); box-shadow:0 12px 40px rgba(0,0,0,.5); opacity:0; animation:dockIn .8s ease forwards; animation-delay:3.4s; }
+  .dock a{ padding:10px 17px; border-radius:999px; font-size:13px; font-weight:600; letter-spacing:.3px; color:var(--muted); transition:.2s; }
+  .dock a:hover{ color:var(--text); background:rgba(255,255,255,.07); }
+  .dock .dock-cta{ background:var(--text); color:#000; }
+  .dock .dock-cta:hover{ background:#fff; }
+  @keyframes dockIn{ to{ opacity:1; } }
+  @media(max-width:560px){ .dock{ gap:2px; padding:5px; } .dock a{ padding:8px 11px; font-size:12px; } }
+
   /* ===== COVER ===== */
   .cover{ position:relative; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; overflow:hidden; padding:120px 24px 80px; perspective:1400px; }
@@ -189,16 +207,22 @@
 <body>
   <div class="scroll-progress" id="sprog"></div>
 
+  <!-- 로딩 인사말 -->
+  <div class="loader" id="loader"><span class="loader-word" id="loaderWord">안녕하세요</span></div>
+
   <nav>
     <div class="logo">경가현 · Gahyun</div>
-    <ul>
-      <li><a href="#about">About</a></li>
-      <li><a href="#experience">Experience</a></li>
-      <li><a href="#work">Work</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
+    <div class="nav-clock" id="clock">GIMPO, KR</div>
   </nav>
+
+  <!-- 하단 플로팅 독 -->
+  <div class="dock">
+    <a href="#top">Home</a>
+    <a href="#about">About</a>
+    <a href="#work">Work</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact" class="dock-cta">Contact</a>
+  </div>
 
   <!-- COVER -->
   <header class="cover" id="top">
@@ -212,7 +236,6 @@
         <a href="#contact" class="btn ghost">Get in touch</a>
       </div>
     </div>
-    <a href="#statement" class="scroll-cue"><span class="mouse"></span>Scroll</a>
   </header>
 
   <!-- MARQUEE -->
@@ -528,6 +551,35 @@
     addEventListener('scroll', onScroll, { passive:true });
     addEventListener('resize', onScroll);
     onScroll();
+
+    // 실시간 시계 (위치 · 시간)
+    const clk = document.getElementById('clock');
+    function tick(){ if(!clk) return; const d = new Date(); const t = d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', second:'2-digit' }); clk.textContent = 'GIMPO, KR — ' + t; }
+    tick(); setInterval(tick, 1000);
+
+    // 로딩 인사말: 안녕하세요 → Hello → 你好 → こんにちは → 공개
+    (function(){
+      const loader = document.getElementById('loader');
+      const word = document.getElementById('loaderWord');
+      if(!loader || !word){ return; }
+      document.body.classList.add('loading');
+      const greetings = ['안녕하세요', 'Hello', '你好', 'こんにちは'];
+      let i = 0;
+      function showWord(){
+        word.textContent = greetings[i];
+        word.classList.remove('hide'); word.classList.add('show');
+        setTimeout(() => { word.classList.remove('show'); word.classList.add('hide'); }, 560);
+        setTimeout(() => { i++; (i < greetings.length) ? showWord() : finish(); }, 760);
+      }
+      function finish(){
+        loader.classList.add('done');
+        document.body.classList.remove('loading');
+        document.body.classList.add('loaded');
+        window.dispatchEvent(new Event('loaderDone'));
+        setTimeout(() => { loader.style.display = 'none'; }, 900);
+      }
+      setTimeout(showWord, 280);
+    })();
   </script>
 
   <!-- 도트 텍스트 효과 (PORTFOLIO): 고딕 → 좌→우 도트 전환 + 마우스 인터랙션 -->
@@ -607,6 +659,7 @@
     canvas.addEventListener('pointerleave', () => { mTarget = 0; });
     if(document.fonts && document.fonts.ready){ document.fonts.ready.then(build); } else { build(); }
     setTimeout(build, 300);
+    addEventListener('loaderDone', () => build());   // 로딩 끝나면 도트 애니메이션 재생
   })();
   </script>
 </body>
