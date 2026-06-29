@@ -85,6 +85,7 @@
   .scard ul{ list-style:none; columns:2; gap:10px; }
   .scard li{ color:var(--muted); font-size:14px; padding:5px 0; display:flex; align-items:center; gap:9px; -webkit-column-break-inside:avoid; break-inside:avoid; }
   .scard .ico{ width:16px; height:16px; flex:0 0 16px; color:var(--accent); }
+  .scard .brand{ width:17px; height:17px; flex:0 0 17px; object-fit:contain; }
   .skills-media{ position:sticky; top:100px; }
   .skills-media .sticky-img{ border-radius:22px; overflow:hidden; aspect-ratio:3/4; border:1px solid var(--line); box-shadow:0 30px 80px rgba(0,0,0,.6); }
   .skills-media .sticky-img img{ width:100%; height:100%; object-fit:cover; }
@@ -106,12 +107,14 @@
 
   /* ===== CAREER rows + scroll highlight ===== */
   .crows{ border-top:1px solid var(--line); }
-  .crow{ display:grid; grid-template-columns:1fr 1fr auto; gap:14px; align-items:center; padding:26px 4px; border-bottom:1px solid var(--line); transition:padding-left .3s, background .3s; }
-  .crow:hover{ padding-left:18px; background:rgba(255,255,255,.02); }
+  .crow{ display:grid; grid-template-columns:1fr 1fr auto; gap:6px 14px; align-items:center; padding:28px 4px; border-bottom:1px solid var(--line); transition:padding-left .3s, background .3s; }
+  .crow:hover{ padding-left:14px; background:rgba(255,255,255,.02); }
   .crow .cn{ font-size:clamp(20px,2.6vw,30px); font-weight:800; letter-spacing:-.8px; }
   .crow .cr{ color:var(--muted); font-size:14px; }
   .crow .cd{ color:var(--muted); font-size:14px; text-align:right; }
-  @media(max-width:680px){ .crow{ grid-template-columns:1fr; gap:4px; } .crow .cd{ text-align:left; } }
+  .crow .ctasks{ grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+  .crow .ctasks span{ font-size:13px; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:6px 13px; }
+  @media(max-width:680px){ .crow{ grid-template-columns:1fr; gap:4px; } .crow .cd{ text-align:left; } .crow .ctasks{ margin-top:12px; } }
   .stmt-sec{ padding:160px 24px; }
   .stmt2{ font-size:clamp(26px,4.2vw,54px); font-weight:800; letter-spacing:-1px; line-height:1.5; max-width:1060px; }
   .stmt2 .w{ color:#555; transition:color .35s ease; }
@@ -205,7 +208,7 @@
 
   <nav>
     <div class="logo">경가현 · Gahyun</div>
-    <div class="nav-clock">Portfolio ’25</div>
+    <div class="nav-clock">Portfolio ’26</div>
   </nav>
 
   <!-- 하단 플로팅 독 -->
@@ -243,10 +246,10 @@
         <div class="skills-cards">
           <article class="scard"><p class="hand">Top performing</p><h3>01. Web Design</h3>
             <p>반응형·모바일 친화적이며 사용성과 속도를 고려한 웹사이트를 디자인하고 직접 코딩합니다.</p>
-            <ul><li><svg class="ico"><use href="#i-pen"/></svg>Figma</li><li><svg class="ico"><use href="#i-image"/></svg>Photoshop</li><li><svg class="ico"><use href="#i-code"/></svg>HTML5</li><li><svg class="ico"><use href="#i-code"/></svg>CSS3 / SCSS</li><li><svg class="ico"><use href="#i-code"/></svg>jQuery</li><li><svg class="ico"><use href="#i-code"/></svg>JavaScript</li><li><svg class="ico"><use href="#i-web"/></svg>카페24</li><li><svg class="ico"><use href="#i-mobile"/></svg>반응형 웹</li></ul></article>
+            <ul><li><img class="brand" alt="Figma" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg">Figma</li><li><img class="brand" alt="Photoshop" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-plain.svg">Photoshop</li><li><img class="brand" alt="HTML5" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg">HTML5</li><li><img class="brand" alt="CSS3" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg">CSS3 / SCSS</li><li><img class="brand" alt="jQuery" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jquery/jquery-original.svg">jQuery</li><li><img class="brand" alt="JavaScript" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg">JavaScript</li><li><svg class="ico"><use href="#i-web"/></svg>카페24</li><li><svg class="ico"><use href="#i-mobile"/></svg>반응형 웹</li></ul></article>
           <article class="scard"><p class="hand">Brand identity</p><h3>02. Brand Design</h3>
             <p>브랜드의 본질을 시각 언어로 정의합니다. 로고·BI/CI·패키지까지 일관된 아이덴티티를 구축합니다.</p>
-            <ul><li><svg class="ico"><use href="#i-tag"/></svg>브랜드 아이덴티티</li><li><svg class="ico"><use href="#i-tag"/></svg>로고</li><li><svg class="ico"><use href="#i-tag"/></svg>BI / CI</li><li><svg class="ico"><use href="#i-layout"/></svg>패키지</li><li><svg class="ico"><use href="#i-pen"/></svg>Illustrator</li><li><svg class="ico"><use href="#i-type"/></svg>타이포그래피</li></ul></article>
+            <ul><li><svg class="ico"><use href="#i-tag"/></svg>브랜드 아이덴티티</li><li><svg class="ico"><use href="#i-tag"/></svg>로고</li><li><svg class="ico"><use href="#i-tag"/></svg>BI / CI</li><li><svg class="ico"><use href="#i-layout"/></svg>패키지</li><li><img class="brand" alt="Illustrator" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/illustrator/illustrator-plain.svg">Illustrator</li><li><svg class="ico"><use href="#i-type"/></svg>타이포그래피</li></ul></article>
           <article class="scard"><p class="hand">Conversion</p><h3>03. Promotion Design</h3>
             <p>구매 전환을 끌어올리는 프로모션·이벤트 디자인. 랜딩부터 상세페이지·광고소재까지.</p>
             <ul><li><svg class="ico"><use href="#i-layout"/></svg>랜딩 페이지</li><li><svg class="ico"><use href="#i-mega"/></svg>이벤트 배너</li><li><svg class="ico"><use href="#i-layout"/></svg>상세페이지</li><li><svg class="ico"><use href="#i-image"/></svg>광고소재</li><li><svg class="ico"><use href="#i-mega"/></svg>롤링 배너</li><li><svg class="ico"><use href="#i-type"/></svg>인쇄물</li></ul></article>
@@ -289,9 +292,18 @@
       <p class="hand-label reveal">/ Career</p>
       <h2 class="big-h reveal">Worked <span class="acc">with</span></h2>
       <div class="crows" style="margin-top:40px;">
-        <div class="crow reveal"><div class="cn">주식회사 센스맘</div><div class="cr">마케팅본부 · 사원/팀원</div><div class="cd">2025.02 — 재직중</div></div>
-        <div class="crow reveal"><div class="cn">주식회사 트립일레븐</div><div class="cr">컨텐츠팀 · 사원/파트장</div><div class="cd">2022.02 — 2024.08</div></div>
-        <div class="crow reveal"><div class="cn">(주)엘원에이치</div><div class="cr">디자인팀 · 사원</div><div class="cd">2019.03 — 2019.12</div></div>
+        <div class="crow reveal">
+          <div class="cn">주식회사 센스맘</div><div class="cr">마케팅본부 · 사원/팀원</div><div class="cd">2025.02 — 재직중</div>
+          <div class="ctasks"><span>자사 홈페이지·상세페이지 리뉴얼 및 코딩 유지보수</span><span>광고소재 / 인쇄물 디자인</span><span>상세페이지 기획 및 프로모션 디자인</span><span>유통채널 관리 (오픈마켓·쇼핑몰)</span><span>사진 품질 개선 및 색감 보정</span></div>
+        </div>
+        <div class="crow reveal">
+          <div class="cn">주식회사 트립일레븐</div><div class="cr">컨텐츠팀 · 사원/파트장</div><div class="cd">2022.02 — 2024.08</div>
+          <div class="ctasks"><span>펜션 템플릿 홈페이지 디자인</span><span>웹사이트 디자인·템플릿 제작 프로세스 개선</span><span>디자인 가이드라인 수립 및 문서화</span><span>홈페이지 HTML·CSS 코드 수정</span><span>프로모션·팝업 등 이벤트 페이지 제작</span><span>사진 품질 개선 및 색감 보정</span></div>
+        </div>
+        <div class="crow reveal">
+          <div class="cn">(주)엘원에이치</div><div class="cr">디자인팀 · 사원</div><div class="cd">2019.03 — 2019.12</div>
+          <div class="ctasks"><span>자사 홈페이지 유지보수 및 관리</span><span>상세페이지 기획 및 디자인</span><span>웹 / 출력물 디자인</span><span>유통채널 관리 (오픈마켓·쇼핑몰)</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -444,7 +456,7 @@
     </div>
     <div class="foot-contact"><a href="mailto:kgh940901@naver.com">kgh940901@naver.com</a></div>
     <div class="foot-phone">010.3609.8140</div>
-    <div class="foot-bottom"><span>© 2025 Gahyun Kyoung</span><span>All rights reserved.</span></div>
+    <div class="foot-bottom"><span>© 2026 Gahyun Kyoung</span><span>All rights reserved.</span></div>
   </section>
 
   <script>
