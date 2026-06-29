@@ -31,8 +31,8 @@
   .loader{ position:fixed; inset:0; z-index:9999; background:#000; display:flex; align-items:center; justify-content:center; }
   .loader.done{ transform:translateY(-100%); transition:transform .85s cubic-bezier(.76,0,.24,1); }
   .loader-word{ color:#f2f2f2; font-size:clamp(30px,5.5vw,60px); font-weight:600; letter-spacing:-1px; opacity:0; transform:translateY(16px); }
-  .loader-word.show{ opacity:1; transform:none; transition:opacity .34s ease, transform .34s ease; }
-  .loader-word.hide{ opacity:0; transform:translateY(-16px); transition:opacity .3s ease, transform .3s ease; }
+  .loader-word.show{ opacity:1; transform:none; transition:opacity .22s ease, transform .22s ease; }
+  .loader-word.hide{ opacity:0; transform:translateY(-14px); transition:opacity .18s ease, transform .18s ease; }
 
   nav{ position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:20px 30px; mix-blend-mode:difference; }
   nav .logo{ font-weight:800; font-size:16px; letter-spacing:1px; text-transform:uppercase; color:#fff; }
@@ -52,8 +52,7 @@
   .hero{ position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:120px 24px 150px; }
   .hex-bg{ position:absolute; inset:-12%; z-index:0;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='%23ffffff' fill-opacity='0.07' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 24.75v-15l12.99-7.5zM3 17.9v11.7l10 5.78V23.7L3 17.9zm22 0l-10 5.8v11.7l10-5.78V17.9zM13.5 1.45l-10 5.77 10 5.78 10-5.78-10-5.77z'/%3E%3C/g%3E%3C/svg%3E");
-    background-size:60px 105px; animation:hexmove 36s linear infinite; will-change:background-position, transform; }
-  @keyframes hexmove{ to{ background-position:360px 630px; } }
+    background-size:62px 108px; will-change:transform; }
   .hero::after{ content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(60% 55% at 50% 50%, transparent, rgba(10,10,10,.85)); pointer-events:none; }
   .hero-inner{ position:relative; z-index:2; display:flex; align-items:center; justify-content:center; gap:clamp(8px,2vw,44px); width:100%; max-width:1400px; }
   .hero-side{ flex:1; display:flex; flex-direction:column; }
@@ -229,13 +228,13 @@
     <div class="hex-bg" id="hex"></div>
     <div class="hero-inner">
       <div class="hero-side left">
-        <span class="hero-label ha d1">UIUX · Web · Brand Designer</span>
-        <span class="hero-name ha d1">GAHYUN</span>
+        <span class="hero-label ha d1">경가현 · Gahyun Kyoung</span>
+        <span class="hero-name ha d1">PORT</span>
       </div>
       <div class="hero-portrait ha"><img alt="경가현 portrait" src="https://picsum.photos/seed/gahyun-portrait/640/820"></div>
       <div class="hero-side right">
-        <span class="hero-label ha d2">Designer &amp; Creator</span>
-        <span class="hero-name ha d2">KYOUNG</span>
+        <span class="hero-label ha d2">UIUX · Web · Brand Designer</span>
+        <span class="hero-name ha d2">FOLIO</span>
       </div>
     </div>
   </header>
@@ -478,9 +477,17 @@
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
-    // 벌집 배경 마우스 패럴럭스
+    // 벌집 배경: 부드러운 마우스 패럴럭스(이징) + 잔잔한 부유
     const hex = document.getElementById('hex');
-    addEventListener('pointermove', e => { if(!hex) return; const x = (e.clientX/innerWidth - .5), y = (e.clientY/innerHeight - .5); hex.style.transform = 'translate(' + (x*-26) + 'px,' + (y*-26) + 'px)'; }, { passive:true });
+    let htx = 0, hty = 0, hx = 0, hy = 0;
+    addEventListener('pointermove', e => { htx = (e.clientX/innerWidth - .5) * -40; hty = (e.clientY/innerHeight - .5) * -40; }, { passive:true });
+    function heroLoop(t){
+      hx += (htx - hx) * 0.035; hy += (hty - hy) * 0.035;
+      const fx = Math.sin(t * 0.00017) * 13, fy = Math.cos(t * 0.00013) * 10;
+      if(hex) hex.style.transform = 'translate3d(' + (hx + fx).toFixed(2) + 'px,' + (hy + fy).toFixed(2) + 'px,0) scale(1.07)';
+      requestAnimationFrame(heroLoop);
+    }
+    requestAnimationFrame(heroLoop);
 
     // 스크롤 텍스트 하이라이트
     (function(){
@@ -499,17 +506,22 @@
       function reveal(){ document.body.classList.remove('loading'); document.body.classList.add('loaded'); }
       if(!loader || !word){ reveal(); return; }
       document.body.classList.add('loading');
-      const greetings = ['안녕하세요', 'Hello', '你好', 'こんにちは'];
+      // 한·영·중·일 = 인트로(천천히), 러·독·불 = 빠르게 스쳐 지나감
+      const seq = [
+        { t:'안녕하세요', d:820 }, { t:'Hello', d:820 }, { t:'你好', d:820 }, { t:'こんにちは', d:820 },
+        { t:'Здравствуйте', d:300 }, { t:'Hallo', d:300 }, { t:'Bonjour', d:300 }
+      ];
       let i = 0;
       function showWord(){
-        word.textContent = greetings[i];
+        const cur = seq[i];
+        word.textContent = cur.t;
         word.classList.remove('hide'); word.classList.add('show');
-        setTimeout(() => { word.classList.remove('show'); word.classList.add('hide'); }, 560);
-        setTimeout(() => { i++; (i < greetings.length) ? showWord() : finish(); }, 760);
+        setTimeout(() => { word.classList.remove('show'); word.classList.add('hide'); }, Math.max(130, cur.d - 150));
+        setTimeout(() => { i++; (i < seq.length) ? showWord() : finish(); }, cur.d);
       }
       function finish(){ loader.classList.add('done'); reveal(); setTimeout(() => { loader.style.display = 'none'; }, 900); }
-      setTimeout(showWord, 280);
-      setTimeout(() => { if(!document.body.classList.contains('loaded')){ finish(); } }, 6000); // 안전장치
+      setTimeout(showWord, 260);
+      setTimeout(() => { if(!document.body.classList.contains('loaded')){ finish(); } }, 8000); // 안전장치
     })();
   </script>
 </body>
