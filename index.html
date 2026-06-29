@@ -51,9 +51,11 @@
   /* ===== HERO (벌집 배경 + 이름 분할 + 인물) ===== */
   .hero{ position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:120px 24px 150px; }
   .hex-bg{ position:absolute; inset:-12%; z-index:0;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='%23ffffff' fill-opacity='0.07' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 24.75v-15l12.99-7.5zM3 17.9v11.7l10 5.78V23.7L3 17.9zm22 0l-10 5.8v11.7l10-5.78V17.9zM13.5 1.45l-10 5.77 10 5.78 10-5.78-10-5.77z'/%3E%3C/g%3E%3C/svg%3E");
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='%23ffffff' fill-opacity='0.09' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 24.75v-15l12.99-7.5zM3 17.9v11.7l10 5.78V23.7L3 17.9zm22 0l-10 5.8v11.7l10-5.78V17.9zM13.5 1.45l-10 5.77 10 5.78 10-5.78-10-5.77z'/%3E%3C/g%3E%3C/svg%3E");
     background-size:62px 108px; will-change:transform; }
   .hero::after{ content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(60% 55% at 50% 50%, transparent, rgba(10,10,10,.85)); pointer-events:none; }
+  .hex-glow{ position:absolute; top:0; left:0; width:820px; height:820px; margin:-410px 0 0 -410px; z-index:1; pointer-events:none;
+    background:radial-gradient(circle, rgba(255,255,255,.14), rgba(255,255,255,.045) 32%, transparent 62%); mix-blend-mode:screen; will-change:transform; }
   .hero-inner{ position:relative; z-index:2; display:flex; align-items:center; justify-content:center; gap:clamp(8px,2vw,44px); width:100%; max-width:1400px; }
   .hero-side{ flex:1; display:flex; flex-direction:column; }
   .hero-side.left{ align-items:flex-end; text-align:right; }
@@ -226,6 +228,7 @@
   <!-- HERO -->
   <header class="hero" id="top">
     <div class="hex-bg" id="hex"></div>
+    <div class="hex-glow" id="hexglow"></div>
     <div class="hero-inner">
       <div class="hero-side left">
         <span class="hero-label ha d1">경가현 · Gahyun Kyoung</span>
@@ -479,12 +482,21 @@
 
     // 벌집 배경: 부드러운 마우스 패럴럭스(이징) + 잔잔한 부유
     const hex = document.getElementById('hex');
+    const glow = document.getElementById('hexglow');
     let htx = 0, hty = 0, hx = 0, hy = 0;
-    addEventListener('pointermove', e => { htx = (e.clientX/innerWidth - .5) * -40; hty = (e.clientY/innerHeight - .5) * -40; }, { passive:true });
+    let gtx = innerWidth * 0.5, gty = innerHeight * 0.42, gx = gtx, gy = gty;
+    addEventListener('pointermove', e => {
+      htx = (e.clientX/innerWidth - .5) * -40; hty = (e.clientY/innerHeight - .5) * -40;
+      gtx = e.clientX; gty = e.clientY;
+    }, { passive:true });
+    addEventListener('resize', () => { gtx = innerWidth * 0.5; gty = innerHeight * 0.42; });
     function heroLoop(t){
       hx += (htx - hx) * 0.035; hy += (hty - hy) * 0.035;
       const fx = Math.sin(t * 0.00017) * 13, fy = Math.cos(t * 0.00013) * 10;
       if(hex) hex.style.transform = 'translate3d(' + (hx + fx).toFixed(2) + 'px,' + (hy + fy).toFixed(2) + 'px,0) scale(1.07)';
+      gx += (gtx - gx) * 0.06; gy += (gty - gy) * 0.06;
+      const dfx = Math.sin(t * 0.00012) * 42, dfy = Math.cos(t * 0.0001) * 30;
+      if(glow) glow.style.transform = 'translate3d(' + (gx + dfx).toFixed(1) + 'px,' + (gy + dfy).toFixed(1) + 'px,0)';
       requestAnimationFrame(heroLoop);
     }
     requestAnimationFrame(heroLoop);
@@ -508,8 +520,8 @@
       document.body.classList.add('loading');
       // 한·영·중·일 = 인트로(천천히), 러·독·불 = 빠르게 스쳐 지나감
       const seq = [
-        { t:'안녕하세요', d:820 }, { t:'Hello', d:820 }, { t:'你好', d:820 }, { t:'こんにちは', d:820 },
-        { t:'Здравствуйте', d:300 }, { t:'Hallo', d:300 }, { t:'Bonjour', d:300 }
+        { t:'안녕하세요', d:820 }, { t:'Hello', d:820 },
+        { t:'你好', d:220 }, { t:'こんにちは', d:220 }, { t:'Здравствуйте', d:220 }, { t:'Hallo', d:220 }, { t:'Bonjour', d:220 }
       ];
       let i = 0;
       function showWord(){
