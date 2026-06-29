@@ -52,7 +52,15 @@
 
   /* ===== HERO (벌집 배경 + 이름 분할 + 인물) ===== */
   .hero{ position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:120px 24px 150px; background:radial-gradient(120% 100% at 50% 30%, #10131c, #07080c); }
-  .hex-bg{ position:absolute; inset:0; z-index:0; width:100%; height:100%; display:block; }
+  .hero-visual{ position:absolute; inset:0; z-index:0; overflow:hidden; }
+  .hero-visual .hv{ position:absolute; border-radius:50%; filter:blur(100px); will-change:transform; }
+  .hero-visual .g1{ width:48vw; height:48vw; background:#16243f; top:-14%; left:-6%; opacity:.55; animation:hvd1 24s ease-in-out infinite; }
+  .hero-visual .g2{ width:44vw; height:44vw; background:#241a3a; bottom:-16%; right:-6%; opacity:.5; animation:hvd2 30s ease-in-out infinite; }
+  .hero-visual .g3{ width:36vw; height:36vw; background:#0f2a44; top:28%; left:42%; opacity:.34; animation:hvd3 27s ease-in-out infinite; }
+  @keyframes hvd1{ 0%,100%{transform:translate(0,0)} 50%{transform:translate(9%,12%)} }
+  @keyframes hvd2{ 0%,100%{transform:translate(0,0)} 50%{transform:translate(-11%,-9%)} }
+  @keyframes hvd3{ 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(7%,-11%) scale(1.12)} }
+  @media(prefers-reduced-motion:reduce){ .hero-visual .hv{ animation:none !important; } }
   .hero::after{ content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(62% 58% at 50% 50%, transparent, rgba(6,7,11,.62)); pointer-events:none; }
   .hero-inner{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:clamp(6px,1.4vw,28px); width:100%; max-width:1560px; }
   .hero-side{ flex:1; display:flex; flex-direction:column; }
@@ -226,13 +234,13 @@
 
   <!-- HERO -->
   <header class="hero" id="top">
-    <canvas class="hex-bg" id="hexCanvas" aria-hidden="true"></canvas>
+    <div class="hero-visual" aria-hidden="true"><span class="hv g1"></span><span class="hv g2"></span><span class="hv g3"></span></div>
     <div class="hero-inner">
       <div class="hero-side left">
         <span class="hero-label ha d1">경가현 · Gahyun Kyoung</span>
         <span class="hero-name ha d1">PORT</span>
       </div>
-      <div class="hero-portrait ha"><img alt="경가현 portrait" src="https://picsum.photos/seed/gahyun-portrait/640/820"></div>
+      <div class="hero-portrait ha"><img alt="경가현 portrait" src="assets/portrait.jpg"></div>
       <div class="hero-side right">
         <span class="hero-label ha d2">UIUX · Web · Brand Designer</span>
         <span class="hero-name ha d2">FOLIO</span>
@@ -266,7 +274,7 @@
             <ul><li><svg class="ico"><use href="#i-spark"/></svg>AI 툴 (MidJourney·ChatGPT·Gamma)</li><li><svg class="ico"><use href="#i-image"/></svg>포스터·티켓</li><li><svg class="ico"><use href="#i-type"/></svg>브로슈어</li><li><svg class="ico"><use href="#i-layout"/></svg>UIUX 설계</li><li><svg class="ico"><use href="#i-image"/></svg>콘텐츠 디자인</li><li><svg class="ico"><use href="#i-pen"/></svg>일러스트</li></ul></article>
         </div>
         <div class="skills-media">
-          <div class="sticky-img"><img alt="작업 미리보기" src="https://picsum.photos/seed/gh-skillshot/680/900"></div>
+          <div class="sticky-img"><img alt="작업 미리보기" src="assets/skillshot.jpg"></div>
         </div>
       </div>
     </div>
@@ -282,14 +290,14 @@
       </div>
       <p class="lede reveal">디자인을 향한 몰입을 보여주는, 엄선한 프로젝트들이에요.</p>
       <div class="pf-grid">
-        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="센스맘 공식몰 리뉴얼" src="https://picsum.photos/seed/gh-shop/900/620"></div><div class="pf-meta"><h3>센스맘 공식몰 리뉴얼</h3><span>UIUX · Web</span></div></article>
-        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="Bobbi Brown" src="https://picsum.photos/seed/gh-beauty/900/620"></div><div class="pf-meta"><h3>Bobbi Brown</h3><span>Web Design</span></div></article>
-        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="PATAGONIA" src="https://picsum.photos/seed/gh-outdoor/900/620"></div><div class="pf-meta"><h3>PATAGONIA</h3><span>Web Design</span></div></article>
-        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="Hermitage Museum" src="https://picsum.photos/seed/gh-museum/900/620"></div><div class="pf-meta"><h3>Hermitage Museum</h3><span>Web Design</span></div></article>
-        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="PEONY CAKE" src="https://picsum.photos/seed/gh-cake/900/620"></div><div class="pf-meta"><h3>PEONY CAKE</h3><span>Branding</span></div></article>
-        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="Promotion Design" src="https://picsum.photos/seed/gh-promo/900/620"></div><div class="pf-meta"><h3>Promotion Design</h3><span>Promotion</span></div></article>
-        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="Visual Design" src="https://picsum.photos/seed/gh-visual/900/620"></div><div class="pf-meta"><h3>Visual Design</h3><span>Graphic</span></div></article>
-        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="PENSION / KIDS" src="https://picsum.photos/seed/gh-pension/900/620"></div><div class="pf-meta"><h3>Pension &amp; Kids Pension</h3><span>Web Design</span></div></article>
+        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="센스맘 공식몰 리뉴얼" src="assets/work-sensemom.jpg"></div><div class="pf-meta"><h3>센스맘 공식몰 리뉴얼</h3><span>UIUX · Web</span></div></article>
+        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="Bobbi Brown" src="assets/work-bobbi.jpg"></div><div class="pf-meta"><h3>Bobbi Brown</h3><span>Web Design</span></div></article>
+        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="PATAGONIA" src="assets/work-patagonia.jpg"></div><div class="pf-meta"><h3>PATAGONIA</h3><span>Web Design</span></div></article>
+        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="Hermitage Museum" src="assets/work-hermitage.jpg"></div><div class="pf-meta"><h3>Hermitage Museum</h3><span>Web Design</span></div></article>
+        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="PEONY CAKE" src="assets/work-peony.jpg"></div><div class="pf-meta"><h3>PEONY CAKE</h3><span>Branding</span></div></article>
+        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="Promotion Design" src="assets/work-promotion.jpg"></div><div class="pf-meta"><h3>Promotion Design</h3><span>Promotion</span></div></article>
+        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="Visual Design" src="assets/work-visual.jpg"></div><div class="pf-meta"><h3>Visual Design</h3><span>Graphic</span></div></article>
+        <article class="pf-card reveal"><div class="pf-thumb"><img loading="lazy" alt="PENSION / KIDS" src="assets/work-pension.jpg"></div><div class="pf-meta"><h3>Pension &amp; Kids Pension</h3><span>Web Design</span></div></article>
       </div>
     </div>
   </section>
@@ -482,57 +490,7 @@
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
     // 벌집 배경: 부드러운 마우스 패럴럭스(이징) + 잔잔한 부유
-    // 인트로 배경: 공중에 떠다니는 독립 육각형 파티클 (canvas, 깊이별 3D parallax)
-    (function(){
-      const canvas = document.getElementById('hexCanvas');
-      if(!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const hero = document.getElementById('top');
-      let W=0, H=0, DPR=1, hexes=[], mx=0.5, my=0.5, tmx=0.5, tmy=0.5;
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const TAU=Math.PI*2, rand=(a,b)=>a+Math.random()*(b-a);
-      function init(){
-        DPR = Math.min(window.devicePixelRatio||1, 2);
-        W = canvas.clientWidth || hero.clientWidth; H = canvas.clientHeight || hero.clientHeight;
-        if(!W || !H) return;
-        canvas.width = Math.round(W*DPR); canvas.height = Math.round(H*DPR); ctx.setTransform(DPR,0,0,DPR,0,0);
-        const count = W<700 ? 7 : 12;     // 적게, 여백 있게
-        hexes = [];
-        for(let i=0;i<count;i++){
-          const depth = rand(0,1);         // 0 멀리 ~ 1 가까이
-          hexes.push({ x:rand(0.05,0.95)*W, y:rand(0.08,0.92)*H, depth,
-            r:34 + depth*depth*130, rot:rand(0,TAU), vr:rand(-0.0004,0.0004),
-            vx:rand(-1,1)*(0.02+depth*0.05), vy:rand(-1,1)*(0.02+depth*0.05),
-            op:0.05+depth*0.13, lw:0.7+depth*1.0, glow:depth>0.55, par:18+depth*75,
-            bp:rand(0,TAU), ba:rand(4,16), bs:rand(0.0002,0.0006) });
-        }
-        hexes.sort((a,b)=>a.depth-b.depth);  // 먼 것 먼저, 가까운 것 위로
-      }
-      function drawHex(h, t){
-        const ox=(mx-0.5)*h.par, oy=(my-0.5)*h.par + (reduce?0:Math.sin(t*h.bs+h.bp)*h.ba);
-        ctx.save();
-        ctx.translate(h.x+ox, h.y+oy); ctx.rotate(h.rot);
-        ctx.beginPath();
-        for(let k=0;k<6;k++){ const a=Math.PI/3*k+Math.PI/6, px=Math.cos(a)*h.r, py=Math.sin(a)*h.r; k?ctx.lineTo(px,py):ctx.moveTo(px,py); }
-        ctx.closePath(); ctx.lineWidth=h.lw; ctx.strokeStyle='rgba(200,212,240,'+h.op+')';
-        if(h.glow){ ctx.shadowColor='rgba(150,180,240,'+(h.op*0.6)+')'; ctx.shadowBlur=10; }
-        ctx.stroke(); ctx.restore();
-      }
-      function loop(t){
-        if(!W){ init(); requestAnimationFrame(loop); return; }
-        ctx.clearRect(0,0,W,H);
-        mx += (tmx-mx)*0.035; my += (tmy-my)*0.035;
-        for(const h of hexes){
-          if(!reduce){ h.x+=h.vx; h.y+=h.vy; h.rot+=h.vr; const m=h.r+80;
-            if(h.x<-m)h.x=W+m; else if(h.x>W+m)h.x=-m; if(h.y<-m)h.y=H+m; else if(h.y>H+m)h.y=-m; }
-          drawHex(h, t);
-        }
-        requestAnimationFrame(loop);
-      }
-      addEventListener('pointermove', e=>{ tmx=e.clientX/window.innerWidth; tmy=e.clientY/window.innerHeight; }, {passive:true});
-      let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(init, 200); });
-      init(); requestAnimationFrame(loop);
-    })();
+    // (인트로 배경은 CSS 글로우 비주얼로 대체 — 육각형 canvas 제거됨)
 
     // 스크롤 텍스트 하이라이트
     (function(){
