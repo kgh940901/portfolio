@@ -549,14 +549,14 @@
       const seq = [
         { t:'안녕하세요', d:1000 }, { t:'Hello', d:600 }, { t:'你好', d:540 }, { t:'こんにちは', d:640 }
       ];
-      // 글자를 한 자씩 스팬으로 쪼개고, 순차 등장하도록 transition-delay 부여
-      function build(el, text){
+      // 글자를 스팬으로 쪼갬. stagger=true면 한 글자씩 순차, false면 통째로 한 번에
+      function build(el, text, stagger){
         el.innerHTML = '';
         Array.prototype.forEach.call(text, (ch, idx) => {
           const s = document.createElement('span');
           s.className = 'lchar';
           s.textContent = ch;
-          s.style.transitionDelay = (idx * 0.05) + 's';
+          s.style.transitionDelay = (stagger ? idx * 0.07 : 0) + 's';
           el.appendChild(s);
         });
       }
@@ -566,9 +566,9 @@
         const inEl = lw[active], outEl = lw[active ^ 1];
         outEl.classList.remove('show'); outEl.classList.add('exit');   // 이전 글자 위로 빠짐
         inEl.classList.remove('exit', 'show');
-        build(inEl, cur.t);             // 새 글자(아래에서 시작) 빌드
+        build(inEl, cur.t, i === 0);    // 첫 단어(안녕하세요)만 한 글자씩, 나머진 한 번에
         void inEl.offsetWidth;          // 리플로우로 초기 위치 확정
-        inEl.classList.add('show');     // 한 글자씩 아래→위로 떠오름
+        inEl.classList.add('show');     // 아래→위로 떠오름
         active ^= 1; i++;
         setTimeout(i < seq.length ? step : finish, cur.d);
       }
