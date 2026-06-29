@@ -30,10 +30,10 @@
   body.loading{ overflow:hidden; }
   .loader{ position:fixed; inset:0; z-index:9999; background:#000; display:flex; align-items:center; justify-content:center; }
   .loader.done{ transform:translateY(-100%); transition:transform .85s cubic-bezier(.76,0,.24,1); }
-  .loader-words{ position:relative; overflow:hidden; width:min(82vw,640px); height:1.4em; }
-  .loader-word{ position:absolute; left:0; right:0; top:0; text-align:center; color:#f2f2f2; font-size:clamp(30px,5.5vw,60px); font-weight:600; letter-spacing:-1px; line-height:1.4; opacity:0; transform:translateY(110%); transition:transform .55s cubic-bezier(.33,0,.2,1), opacity .4s ease; will-change:opacity, transform; }
+  .loader-words{ position:relative; overflow:hidden; width:min(82vw,680px); font-size:clamp(30px,5.5vw,58px); height:1.4em; }
+  .loader-word{ position:absolute; left:0; right:0; top:0; height:1.4em; display:flex; align-items:center; justify-content:center; font-size:inherit; font-weight:600; letter-spacing:-1px; line-height:1; color:#f2f2f2; opacity:0; transform:translateY(115%); transition:transform .38s cubic-bezier(.33,0,.2,1), opacity .28s ease; will-change:opacity, transform; }
   .loader-word.show{ opacity:1; transform:translateY(0); }
-  .loader-word.exit{ opacity:0; transform:translateY(-110%); }
+  .loader-word.exit{ opacity:0; transform:translateY(-115%); }
 
   nav{ position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:20px 30px; mix-blend-mode:difference; }
   nav .logo{ font-weight:800; font-size:16px; letter-spacing:1px; text-transform:uppercase; color:#fff; }
@@ -546,7 +546,7 @@
       document.body.classList.add('loading');
       // 한국어 가장 길게 → 영어 → 중국어 → 일본어. 전환은 두 글자가 겹쳐 부드럽게 이어짐(크로스페이드)
       const seq = [
-        { t:'안녕하세요', d:900 }, { t:'Hello', d:480 }, { t:'你好', d:440 }, { t:'こんにちは', d:500 }
+        { t:'안녕하세요', d:920 }, { t:'Hello', d:560 }, { t:'你好', d:520 }, { t:'こんにちは', d:600 }
       ];
       let i = 0, active = 0;
       function step(){
