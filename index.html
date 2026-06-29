@@ -34,7 +34,7 @@
   .loader-word{ position:absolute; left:0; right:0; top:0; height:1.4em; display:flex; align-items:center; justify-content:center; font-size:inherit; font-weight:600; letter-spacing:-1px; line-height:1; color:#f2f2f2; }
   .loader-word .lchar{ display:inline-block; transform:translateY(120%); opacity:0; transition:transform .4s cubic-bezier(.33,0,.2,1), opacity .3s ease; will-change:transform, opacity; }
   .loader-word.show .lchar{ transform:translateY(0); opacity:1; }
-  .loader-word.exit .lchar{ transform:translateY(-120%); opacity:0; }
+  .loader-word.exit .lchar{ transform:translateY(-120%); opacity:0; transition-delay:0s !important; transition-duration:.32s; }
 
   nav{ position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:20px 30px; mix-blend-mode:difference; }
   nav .logo{ font-weight:800; font-size:16px; letter-spacing:1px; text-transform:uppercase; color:#fff; }
@@ -51,12 +51,9 @@
   @media(max-width:600px){ .dock{ gap:1px; padding:5px; } .dock a{ padding:8px 11px; font-size:12px; } }
 
   /* ===== HERO (벌집 배경 + 이름 분할 + 인물) ===== */
-  .hero{ position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:120px 24px 150px; perspective:1100px; }
-  .hex-bg{ position:absolute; inset:-22%; z-index:0; will-change:transform; transform-style:preserve-3d; transform-origin:50% 50%; }
-  .hex-bg svg{ width:100%; height:100%; display:block; }
-  .hero::after{ content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(60% 55% at 50% 50%, transparent, rgba(10,10,10,.85)); pointer-events:none; }
-  .hex-glow{ position:absolute; top:0; left:0; width:820px; height:820px; margin:-410px 0 0 -410px; z-index:1; pointer-events:none;
-    background:radial-gradient(circle, rgba(255,255,255,.14), rgba(255,255,255,.045) 32%, transparent 62%); mix-blend-mode:screen; will-change:transform; }
+  .hero{ position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:120px 24px 150px; background:radial-gradient(120% 100% at 50% 30%, #10131c, #07080c); }
+  .hex-bg{ position:absolute; inset:0; z-index:0; width:100%; height:100%; display:block; }
+  .hero::after{ content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(62% 58% at 50% 50%, transparent, rgba(6,7,11,.62)); pointer-events:none; }
   .hero-inner{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:clamp(6px,1.4vw,28px); width:100%; max-width:1560px; }
   .hero-side{ flex:1; display:flex; flex-direction:column; }
   .hero-side.left{ align-items:flex-end; text-align:right; }
@@ -229,28 +226,7 @@
 
   <!-- HERO -->
   <header class="hero" id="top">
-    <div class="hex-bg" id="hex" aria-hidden="true">
-      <svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 1380 800" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="hexCell" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#24242e"/><stop offset="55%" stop-color="#141418"/><stop offset="100%" stop-color="#0c0c10"/>
-          </linearGradient>
-          <linearGradient id="hexEdge" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#3a3a46"/><stop offset="100%" stop-color="#000000"/>
-          </linearGradient>
-          <pattern id="hexPat" width="138" height="79.674" patternUnits="userSpaceOnUse">
-            <g fill="url(#hexCell)" stroke="url(#hexEdge)" stroke-width="1.6">
-              <path d="M-45 39.84 L-22.5 0.84 L22.5 0.84 L45 39.84 L22.5 78.84 L-22.5 78.84 Z"/>
-              <path d="M93 39.84 L115.5 0.84 L160.5 0.84 L183 39.84 L160.5 78.84 L115.5 78.84 Z"/>
-              <path d="M24 0 L46.5 -39 L91.5 -39 L114 0 L91.5 39 L46.5 39 Z"/>
-              <path d="M24 79.674 L46.5 40.674 L91.5 40.674 L114 79.674 L91.5 118.674 L46.5 118.674 Z"/>
-            </g>
-          </pattern>
-        </defs>
-        <rect width="1380" height="800" fill="url(#hexPat)"/>
-      </svg>
-    </div>
-    <div class="hex-glow" id="hexglow"></div>
+    <canvas class="hex-bg" id="hexCanvas" aria-hidden="true"></canvas>
     <div class="hero-inner">
       <div class="hero-side left">
         <span class="hero-label ha d1">경가현 · Gahyun Kyoung</span>
@@ -506,26 +482,53 @@
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
     // 벌집 배경: 부드러운 마우스 패럴럭스(이징) + 잔잔한 부유
-    const hex = document.getElementById('hex');
-    const glow = document.getElementById('hexglow');
-    let rxT = 0, ryT = 0, rx = 0, ry = 0;   // 3D 기울임 목표/현재
-    let gtx = innerWidth * 0.5, gty = innerHeight * 0.42, gx = gtx, gy = gty;
-    addEventListener('pointermove', e => {
-      ryT = (e.clientX/innerWidth - .5) * 12;
-      rxT = -(e.clientY/innerHeight - .5) * 12;
-      gtx = e.clientX; gty = e.clientY;
-    }, { passive:true });
-    addEventListener('resize', () => { gtx = innerWidth * 0.5; gty = innerHeight * 0.42; });
-    function heroLoop(t){
-      rx += (rxT - rx) * 0.045; ry += (ryT - ry) * 0.045;
-      const fy = Math.sin(t * 0.0006) * 24, fx = Math.cos(t * 0.0004) * 13;  // 잔잔한 위아래 부유
-      if(hex) hex.style.transform = 'rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translate3d(' + fx.toFixed(1) + 'px,' + fy.toFixed(1) + 'px,0) scale(1.18)';
-      gx += (gtx - gx) * 0.06; gy += (gty - gy) * 0.06;
-      const dfx = Math.sin(t * 0.00012) * 42, dfy = Math.cos(t * 0.0001) * 30;
-      if(glow) glow.style.transform = 'translate3d(' + (gx + dfx).toFixed(1) + 'px,' + (gy + dfy).toFixed(1) + 'px,0)';
-      requestAnimationFrame(heroLoop);
-    }
-    requestAnimationFrame(heroLoop);
+    // 인트로 배경: 떠다니는 육각형 파티클 (canvas)
+    (function(){
+      const canvas = document.getElementById('hexCanvas');
+      if(!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const hero = document.getElementById('top');
+      let W=0, H=0, DPR=1, hexes=[], mx=0.5, my=0.5, tmx=0.5, tmy=0.5;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const rand = (a,b)=> a + Math.random()*(b-a);
+      function init(){
+        DPR = Math.min(window.devicePixelRatio||1, 2);
+        W = canvas.clientWidth || hero.clientWidth; H = canvas.clientHeight || hero.clientHeight;
+        if(!W || !H) return;
+        canvas.width = Math.round(W*DPR); canvas.height = Math.round(H*DPR); ctx.setTransform(DPR,0,0,DPR,0,0);
+        const count = W<700 ? 14 : 26;
+        hexes = [];
+        for(let i=0;i<count;i++){
+          hexes.push({ x:rand(0,W), y:rand(0,H), r:rand(28,120), rot:rand(0,Math.PI), vr:rand(-0.0005,0.0005),
+            vx:rand(-0.06,0.06), vy:rand(-0.06,0.06), op:rand(0.08,0.26), lw:rand(0.8,1.9),
+            blur:Math.random()<0.32, depth:rand(0.25,1) });
+        }
+      }
+      function drawHex(h, ox, oy){
+        ctx.save();
+        ctx.translate(h.x + ox*h.depth, h.y + oy*h.depth); ctx.rotate(h.rot);
+        ctx.beginPath();
+        for(let k=0;k<6;k++){ const a=Math.PI/3*k+Math.PI/6, px=Math.cos(a)*h.r, py=Math.sin(a)*h.r; k?ctx.lineTo(px,py):ctx.moveTo(px,py); }
+        ctx.closePath(); ctx.lineWidth=h.lw; ctx.strokeStyle='rgba(196,208,238,'+h.op+')';
+        if(h.blur){ ctx.shadowColor='rgba(150,175,235,'+(h.op+0.05)+')'; ctx.shadowBlur=16; }
+        ctx.stroke(); ctx.restore();
+      }
+      function loop(){
+        if(!W){ init(); requestAnimationFrame(loop); return; }
+        ctx.clearRect(0,0,W,H);
+        mx += (tmx-mx)*0.04; my += (tmy-my)*0.04;
+        const ox=(mx-0.5)*46, oy=(my-0.5)*46;
+        for(const h of hexes){
+          if(!reduce){ h.x+=h.vx; h.y+=h.vy; h.rot+=h.vr; const m=h.r+60;
+            if(h.x<-m)h.x=W+m; else if(h.x>W+m)h.x=-m; if(h.y<-m)h.y=H+m; else if(h.y>H+m)h.y=-m; }
+          drawHex(h, ox, oy);
+        }
+        requestAnimationFrame(loop);
+      }
+      addEventListener('pointermove', e=>{ tmx=e.clientX/window.innerWidth; tmy=e.clientY/window.innerHeight; }, {passive:true});
+      let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(init, 200); });
+      init(); loop();
+    })();
 
     // 스크롤 텍스트 하이라이트
     (function(){
