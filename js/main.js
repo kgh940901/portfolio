@@ -61,7 +61,7 @@
       let rx=window.innerWidth/2, ry=window.innerHeight/2, tx=rx, ty=ry;
       addEventListener('pointermove', e=>{ tx=e.clientX; ty=e.clientY; dot.style.transform='translate('+tx+'px,'+ty+'px)'; }, {passive:true});
       (function loop(){ rx+=(tx-rx)*0.18; ry+=(ty-ry)*0.18; ring.style.transform='translate('+rx+'px,'+ry+'px)'; requestAnimationFrame(loop); })();
-      document.querySelectorAll('a, button, summary, .dock a, .pf-card, .ab, .pf-btn').forEach(el=>{
+      document.querySelectorAll('a, button, summary, .dock a, .pf-card, .ab, .pf-btn, .hero-name').forEach(el=>{
         el.addEventListener('pointerenter',()=>ring.classList.add('big'));
         el.addEventListener('pointerleave',()=>ring.classList.remove('big'));
       });
