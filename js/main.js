@@ -1,3 +1,16 @@
+// ===== 섹션 파일(sections/*.html)을 불러와 조립한 뒤 초기화 =====
+(function(){
+  var incs = Array.prototype.slice.call(document.querySelectorAll('[data-inc]'));
+  if(!incs.length){ initSite(); return; }
+  Promise.all(incs.map(function(n){
+    return fetch(n.getAttribute('data-inc'))
+      .then(function(r){ return r.text(); })
+      .then(function(html){ n.outerHTML = html; })
+      .catch(function(err){ console.warn('include failed', n.getAttribute('data-inc'), err); });
+  })).then(function(){ initSite(); });
+})();
+
+function initSite(){
     // 스크롤 등장
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), (i % 4) * 70); io.unobserve(e.target); } });
@@ -116,3 +129,5 @@
       setTimeout(step, 100);
       setTimeout(() => { if(!document.body.classList.contains('loaded')){ finish(); } }, 7000); // 안전장치
     })();
+
+}
