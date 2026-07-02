@@ -100,6 +100,7 @@
   .tool-card ul{ list-style:none; display:flex; flex-direction:column; gap:11px; }
   .tool-card li{ font-size:14px; color:var(--muted); display:flex; align-items:center; gap:9px; }
   .tool-card li .brand{ width:16px; height:16px; object-fit:contain; flex:0 0 16px; }
+  .tool-card li .ico{ width:16px; height:16px; flex:0 0 16px; color:var(--accent); }
 
   /* ===== PORTFOLIO grid ===== */
   .pf-head{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; }
