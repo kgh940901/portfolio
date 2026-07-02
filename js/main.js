@@ -18,13 +18,13 @@
       const PAL=['#c8407a','#e6c49a','#2f86ad','#8a3b6b','#e0913a','#4657a8','#d9d2c6'];
       const rand=(a,b)=>a+Math.random()*(b-a);
       function field(x,y){ return (Math.sin(x*0.0016+t*0.00022)+Math.cos(y*0.0016-t*0.00016)+Math.sin((x+y)*0.0011+t*0.00012))*Math.PI; }
-      function spawn(p){ p.x=rand(0,W); p.y=rand(0,H); p.px=p.x; p.py=p.y; p.life=rand(60,220); p.col=PAL[(Math.random()*PAL.length)|0]; p.sp=rand(1.4,3.4); }
+      function spawn(p){ p.x=rand(0,W); p.y=rand(0,H); p.px=p.x; p.py=p.y; p.life=rand(80,240); p.col=PAL[(Math.random()*PAL.length)|0]; p.sp=rand(0.6,1.7); }
       function init(){
         DPR=Math.min(window.devicePixelRatio||1,1.5);
         W=c.clientWidth||hero.clientWidth; H=c.clientHeight||hero.clientHeight; if(!W||!H) return;
         c.width=Math.round(W*DPR); c.height=Math.round(H*DPR); ctx.setTransform(DPR,0,0,DPR,0,0);
         ctx.fillStyle='#06070b'; ctx.fillRect(0,0,W,H);
-        const n = W<700?900:2200; parts=[];
+        const n = W<700?420:950; parts=[];
         for(let i=0;i<n;i++){ const p={}; spawn(p); p.px=p.x; p.py=p.y; parts.push(p); }
       }
       function frame(){
@@ -38,9 +38,9 @@
         for(const p of parts){
           let a=field(p.x,p.y);
           const dx=p.x-mx, dy=p.y-my, d2=dx*dx+dy*dy;
-          if(d2<52900){ const d=Math.sqrt(d2)||1; a+=Math.atan2(dy,dx)*0.8*(1-d/230); }
+          if(d2<52900){ const d=Math.sqrt(d2)||1; a+=Math.atan2(dy,dx)*0.5*(1-d/230); }
           p.px=p.x; p.py=p.y; p.x+=Math.cos(a)*p.sp; p.y+=Math.sin(a)*p.sp;
-          ctx.strokeStyle=p.col; ctx.globalAlpha=0.42;
+          ctx.strokeStyle=p.col; ctx.globalAlpha=0.2;
           ctx.beginPath(); ctx.moveTo(p.px,p.py); ctx.lineTo(p.x,p.y); ctx.stroke();
           if(--p.life<0 || p.x<0||p.x>W||p.y<0||p.y>H) spawn(p);
         }
