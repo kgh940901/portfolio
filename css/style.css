@@ -44,15 +44,14 @@
 
   /* ===== HERO (벌집 배경 + 이름 분할 + 인물) ===== */
   .hero{ position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:120px 24px 150px; background:radial-gradient(120% 100% at 50% 30%, #10131c, #07080c); }
-  .hero-visual{ position:absolute; inset:0; z-index:0; overflow:hidden; }
-  .hero-visual .hv{ position:absolute; border-radius:50%; filter:blur(100px); will-change:transform; }
-  .hero-visual .g1{ width:48vw; height:48vw; background:#16243f; top:-14%; left:-6%; opacity:.55; animation:hvd1 24s ease-in-out infinite; }
-  .hero-visual .g2{ width:44vw; height:44vw; background:#241a3a; bottom:-16%; right:-6%; opacity:.5; animation:hvd2 30s ease-in-out infinite; }
-  .hero-visual .g3{ width:36vw; height:36vw; background:#0f2a44; top:28%; left:42%; opacity:.34; animation:hvd3 27s ease-in-out infinite; }
-  @keyframes hvd1{ 0%,100%{transform:translate(0,0)} 50%{transform:translate(9%,12%)} }
-  @keyframes hvd2{ 0%,100%{transform:translate(0,0)} 50%{transform:translate(-11%,-9%)} }
-  @keyframes hvd3{ 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(7%,-11%) scale(1.12)} }
-  @media(prefers-reduced-motion:reduce){ .hero-visual .hv{ animation:none !important; } }
+  .hero-flow{ position:absolute; inset:0; z-index:0; width:100%; height:100%; display:block; }
+  /* 커스텀 커서 (마우스 포인터) */
+  .cur-dot, .cur-ring{ position:fixed; top:0; left:0; border-radius:50%; pointer-events:none; z-index:10000; opacity:0; transition:opacity .3s; will-change:transform; }
+  .cur-dot{ width:7px; height:7px; margin:-3.5px 0 0 -3.5px; background:#fff; box-shadow:0 0 12px rgba(255,255,255,.85); }
+  .cur-ring{ width:38px; height:38px; margin:-19px 0 0 -19px; border:1.5px solid rgba(255,255,255,.55); transition:width .22s, height .22s, margin .22s, opacity .3s, border-color .22s; }
+  .cursor-on .cur-dot, .cursor-on .cur-ring{ opacity:1; }
+  .cursor-on, .cursor-on a, .cursor-on button, .cursor-on summary{ cursor:none; }
+  .cur-ring.big{ width:66px; height:66px; margin:-33px 0 0 -33px; border-color:rgba(255,122,26,.85); }
   .hero::after{ content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(62% 58% at 50% 50%, transparent, rgba(6,7,11,.62)); pointer-events:none; }
   .hero-inner{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:clamp(6px,1.4vw,28px); width:100%; max-width:1560px; }
   .hero-side{ flex:1; display:flex; flex-direction:column; }

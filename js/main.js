@@ -9,8 +9,63 @@
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
-    // 벌집 배경: 부드러운 마우스 패럴럭스(이징) + 잔잔한 부유
-    // (인트로 배경은 CSS 글로우 비주얼로 대체 — 육각형 canvas 제거됨)
+    // 인트로 배경: 플로우 필드 파티클 (Refik 스타일 흐르는 비주얼)
+    (function(){
+      const c = document.getElementById('flowCanvas'); if(!c) return;
+      const ctx = c.getContext('2d'); const hero = document.getElementById('top');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let W=0, H=0, DPR=1, parts=[], t=0, mx=-999, my=-999;
+      const PAL=['#c8407a','#e6c49a','#2f86ad','#8a3b6b','#e0913a','#4657a8','#d9d2c6'];
+      const rand=(a,b)=>a+Math.random()*(b-a);
+      function field(x,y){ return (Math.sin(x*0.0016+t*0.00022)+Math.cos(y*0.0016-t*0.00016)+Math.sin((x+y)*0.0011+t*0.00012))*Math.PI; }
+      function spawn(p){ p.x=rand(0,W); p.y=rand(0,H); p.px=p.x; p.py=p.y; p.life=rand(60,220); p.col=PAL[(Math.random()*PAL.length)|0]; p.sp=rand(1.4,3.4); }
+      function init(){
+        DPR=Math.min(window.devicePixelRatio||1,1.5);
+        W=c.clientWidth||hero.clientWidth; H=c.clientHeight||hero.clientHeight; if(!W||!H) return;
+        c.width=Math.round(W*DPR); c.height=Math.round(H*DPR); ctx.setTransform(DPR,0,0,DPR,0,0);
+        ctx.fillStyle='#06070b'; ctx.fillRect(0,0,W,H);
+        const n = W<700?900:2200; parts=[];
+        for(let i=0;i<n;i++){ const p={}; spawn(p); p.px=p.x; p.py=p.y; parts.push(p); }
+      }
+      function frame(){
+        if(!W){ init(); requestAnimationFrame(frame); return; }
+        const rc=hero.getBoundingClientRect();
+        if(rc.bottom<0 || rc.top>window.innerHeight){ requestAnimationFrame(frame); return; } // 화면 밖이면 정지
+        t+=16;
+        ctx.globalCompositeOperation='source-over';
+        ctx.fillStyle='rgba(6,7,11,0.025)'; ctx.fillRect(0,0,W,H);
+        ctx.globalCompositeOperation='lighter'; ctx.lineWidth=1.4; ctx.lineCap='round';
+        for(const p of parts){
+          let a=field(p.x,p.y);
+          const dx=p.x-mx, dy=p.y-my, d2=dx*dx+dy*dy;
+          if(d2<52900){ const d=Math.sqrt(d2)||1; a+=Math.atan2(dy,dx)*0.8*(1-d/230); }
+          p.px=p.x; p.py=p.y; p.x+=Math.cos(a)*p.sp; p.y+=Math.sin(a)*p.sp;
+          ctx.strokeStyle=p.col; ctx.globalAlpha=0.42;
+          ctx.beginPath(); ctx.moveTo(p.px,p.py); ctx.lineTo(p.x,p.y); ctx.stroke();
+          if(--p.life<0 || p.x<0||p.x>W||p.y<0||p.y>H) spawn(p);
+        }
+        ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+        requestAnimationFrame(frame);
+      }
+      addEventListener('pointermove', e=>{ const r=c.getBoundingClientRect(); mx=e.clientX-r.left; my=e.clientY-r.top; }, {passive:true});
+      let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(init,200); });
+      init(); requestAnimationFrame(frame);
+    })();
+
+    // 커스텀 마우스 커서 (점 + 링)
+    (function(){
+      if(!matchMedia('(pointer:fine)').matches) return;
+      const dot=document.getElementById('curDot'), ring=document.getElementById('curRing');
+      if(!dot||!ring) return;
+      document.body.classList.add('cursor-on');
+      let rx=window.innerWidth/2, ry=window.innerHeight/2, tx=rx, ty=ry;
+      addEventListener('pointermove', e=>{ tx=e.clientX; ty=e.clientY; dot.style.transform='translate('+tx+'px,'+ty+'px)'; }, {passive:true});
+      (function loop(){ rx+=(tx-rx)*0.18; ry+=(ty-ry)*0.18; ring.style.transform='translate('+rx+'px,'+ry+'px)'; requestAnimationFrame(loop); })();
+      document.querySelectorAll('a, button, summary, .dock a, .pf-card, .ab, .pf-btn').forEach(el=>{
+        el.addEventListener('pointerenter',()=>ring.classList.add('big'));
+        el.addEventListener('pointerleave',()=>ring.classList.remove('big'));
+      });
+    })();
 
     // 스크롤 텍스트 하이라이트
     (function(){
