@@ -76,6 +76,27 @@ function initSite(){
         el.addEventListener('pointerenter',()=>dot.classList.add('hover'));
         el.addEventListener('pointerleave',()=>dot.classList.remove('hover'));
       });
+
+      // 볼록렌즈 돋보기: 프로젝트 이미지 위에서 원형 확대
+      const ZOOM = 1.9, RAD = 95;   // 렌즈 반지름(px), 렌즈 크기=190
+      const lens = document.createElement('div'); lens.className = 'lens'; document.body.appendChild(lens);
+      document.querySelectorAll('.pf-thumb').forEach(thumb=>{
+        const img = thumb.querySelector('img'); if(!img) return;
+        thumb.addEventListener('pointerenter', ()=>{
+          lens.style.backgroundImage = 'url("' + (img.currentSrc || img.src) + '")';
+          lens.classList.add('on'); dot.classList.add('lens');
+        });
+        thumb.addEventListener('pointerleave', ()=>{
+          lens.classList.remove('on'); dot.classList.remove('lens');
+        });
+        thumb.addEventListener('pointermove', e=>{
+          const r = thumb.getBoundingClientRect();
+          const x = e.clientX - r.left, y = e.clientY - r.top;
+          lens.style.transform = 'translate('+e.clientX+'px,'+e.clientY+'px) translate(-50%,-50%)';
+          lens.style.backgroundSize = (r.width*ZOOM)+'px ' + (r.height*ZOOM)+'px';
+          lens.style.backgroundPosition = (-(x*ZOOM - RAD))+'px ' + (-(y*ZOOM - RAD))+'px';
+        }, {passive:true});
+      });
     })();
 
     // 스크롤 텍스트 하이라이트
