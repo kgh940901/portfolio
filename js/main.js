@@ -146,39 +146,4 @@ function initSite(){
       tick(); setInterval(tick, 1000);
     })();
 
-    // 대형 마퀴 텍스트: 마우스 움직임에 반응 (skew/tilt 워프, 멈추면 탄성 복귀)
-    (function(){
-      const hero = document.getElementById('top');
-      const spans = Array.prototype.slice.call(document.querySelectorAll('.hmq-track span'));
-      if(!hero || !spans.length) return;
-      if(!matchMedia('(pointer:fine)').matches) return;
-      if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      let skewT=0, skew=0, tiltT=0, tilt=0, raf=0, lastX=null, lastT=0;
-      hero.addEventListener('pointermove', e=>{
-        const now = performance.now();
-        if(lastX!=null){
-          const dt = Math.max(now-lastT, 8);
-          const vx = (e.clientX-lastX)/dt;           // px per ms
-          skewT = Math.max(-16, Math.min(16, vx*20));
-        }
-        lastX=e.clientX; lastT=now;
-        const r = hero.getBoundingClientRect();
-        tiltT = (((e.clientY-r.top)/r.height) - 0.5) * -7; // deg
-        if(!raf) loop();
-      }, {passive:true});
-      hero.addEventListener('pointerleave', ()=>{ skewT=0; tiltT=0; });
-      function loop(){
-        skew += (skewT-skew)*0.12;
-        tilt += (tiltT-tilt)*0.08;
-        const sy = 1 + Math.min(Math.abs(skew)/55, 0.2);   // 움직임 클수록 살짝 늘어남
-        const tf = 'skewX('+skew.toFixed(2)+'deg) rotate('+tilt.toFixed(2)+'deg) scaleY('+sy.toFixed(3)+')';
-        for(const s of spans) s.style.transform = tf;
-        skewT *= 0.9;                                       // 마우스 멈추면 0으로 감쇠
-        if(Math.abs(skew)<0.06 && Math.abs(tilt)<0.06 && Math.abs(skewT)<0.06){
-          for(const s of spans) s.style.transform=''; raf=0; return;
-        }
-        raf = requestAnimationFrame(loop);
-      }
-    })();
-
 }
