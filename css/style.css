@@ -63,12 +63,14 @@
   @keyframes hmq{ to{ transform:translateX(-50%); } }
   @media(prefers-reduced-motion:reduce){ .hmq-track{ animation:none; } .glitch{ animation:none; } }
   /* 커스텀 커서 (마우스 포인터) */
-  .cur-dot, .cur-ring{ position:fixed; top:0; left:0; border-radius:50%; pointer-events:none; z-index:10000; opacity:0; transition:opacity .3s; will-change:transform; }
-  .cur-dot{ width:7px; height:7px; margin:-3.5px 0 0 -3.5px; background:#fff; box-shadow:0 0 12px rgba(255,255,255,.85); }
-  .cur-ring{ width:38px; height:38px; margin:-19px 0 0 -19px; border:1.5px solid rgba(255,255,255,.55); transition:width .22s, height .22s, margin .22s, opacity .3s, border-color .22s; }
-  .cursor-on .cur-dot, .cursor-on .cur-ring{ opacity:1; }
+  /* 커서: mango-media 스타일 — 흰 점 + difference 블렌드 + 0.7s 트레일링, hover 시 확대 반전 */
+  .cur-ring{ display:none; }
+  .cur-dot{ position:fixed; top:0; left:0; width:9px; height:9px; border-radius:50%; background:#fff; pointer-events:none; z-index:10000; opacity:0;
+    mix-blend-mode:difference; transform:translate(-50%,-50%); will-change:transform, width, height;
+    transition:transform .7s cubic-bezier(.83,0,.17,1), width .4s cubic-bezier(.83,0,.17,1), height .4s cubic-bezier(.83,0,.17,1), opacity .3s; }
+  .cursor-on .cur-dot{ opacity:1; }
   .cursor-on, .cursor-on a, .cursor-on button, .cursor-on summary{ cursor:none; }
-  .cur-ring.big{ width:66px; height:66px; margin:-33px 0 0 -33px; border-color:rgba(255,122,26,.85); }
+  .cur-dot.hover{ width:46px; height:46px; }
   .hero::after{ content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(62% 58% at 50% 50%, transparent, rgba(6,7,11,.62)); pointer-events:none; }
   .hero-inner{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:clamp(6px,1.4vw,28px); width:100%; max-width:1560px; }
   .hero-side{ flex:1; display:flex; flex-direction:column; }
@@ -123,15 +125,21 @@
   .pf-head{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; }
   .pf-btn{ border:1px solid var(--line); border-radius:999px; padding:12px 22px; font-size:13px; font-weight:600; color:var(--text); display:inline-flex; gap:8px; align-items:center; transition:.2s; }
   .pf-btn:hover{ background:var(--text); color:#000; }
-  .pf-grid{ display:grid; grid-template-columns:1fr 1fr; gap:26px; margin-top:30px; }
-  @media(max-width:760px){ .pf-grid{ grid-template-columns:1fr; } }
-  .pf-card{ background:var(--bg-soft); border:1px solid var(--line); border-radius:22px; overflow:hidden; }
-  .pf-thumb{ aspect-ratio:16/11; overflow:hidden; }
+  .pf-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; margin-top:30px; }
+  @media(max-width:980px){ .pf-grid{ grid-template-columns:1fr 1fr; } }
+  @media(max-width:640px){ .pf-grid{ grid-template-columns:1fr; } }
+  .pf-card{ display:flex; flex-direction:column; background:var(--bg-soft); border:1px solid var(--line); border-radius:24px; padding:16px; transition:border-color .3s, transform .3s, box-shadow .3s; }
+  .pf-card:hover{ border-color:rgba(255,255,255,.28); transform:translateY(-5px); box-shadow:0 24px 60px rgba(0,0,0,.5); }
+  .pf-thumb{ aspect-ratio:1/1; border-radius:16px; overflow:hidden; }
   .pf-thumb img{ width:100%; height:100%; object-fit:cover; transition:transform .7s cubic-bezier(.2,.7,.2,1); }
   .pf-card:hover .pf-thumb img{ transform:scale(1.06); }
-  .pf-meta{ display:flex; justify-content:space-between; align-items:center; padding:20px 24px; }
-  .pf-meta h3{ font-size:19px; font-weight:800; letter-spacing:-.5px; }
-  .pf-meta span{ font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--accent); }
+  .pf-tags{ display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 14px; }
+  .pf-tags span{ font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:#6fe0a0; border:1px solid rgba(111,224,160,.45); border-radius:999px; padding:5px 12px; line-height:1; }
+  .pf-card h3{ font-size:19px; font-weight:800; letter-spacing:-.3px; text-transform:uppercase; }
+  .pf-desc{ margin-top:10px; font-size:13.5px; line-height:1.6; color:var(--muted);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .pf-view{ margin-top:auto; padding-top:18px; display:inline-block; align-self:flex-start; color:var(--accent); font-size:14px; font-weight:600; text-decoration:underline; text-underline-offset:4px; text-decoration-thickness:1.5px; transition:letter-spacing .25s ease; }
+  .pf-card:hover .pf-view{ letter-spacing:.5px; }
 
   /* ===== CAREER rows + scroll highlight ===== */
   .crows{ border-top:1px solid var(--line); }

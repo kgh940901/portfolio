@@ -65,18 +65,16 @@ function initSite(){
       init(); requestAnimationFrame(frame);
     })();
 
-    // 커스텀 마우스 커서 (점 + 링)
+    // 커스텀 마우스 커서 (mango-media 스타일: 흰 점 + difference + 0.7s 트레일링, hover 시 확대)
     (function(){
       if(!matchMedia('(pointer:fine)').matches) return;
-      const dot=document.getElementById('curDot'), ring=document.getElementById('curRing');
-      if(!dot||!ring) return;
+      const dot=document.getElementById('curDot');
+      if(!dot) return;
       document.body.classList.add('cursor-on');
-      let rx=window.innerWidth/2, ry=window.innerHeight/2, tx=rx, ty=ry;
-      addEventListener('pointermove', e=>{ tx=e.clientX; ty=e.clientY; dot.style.transform='translate('+tx+'px,'+ty+'px)'; }, {passive:true});
-      (function loop(){ rx+=(tx-rx)*0.18; ry+=(ty-ry)*0.18; ring.style.transform='translate('+rx+'px,'+ry+'px)'; requestAnimationFrame(loop); })();
-      document.querySelectorAll('a, button, summary, .dock a, .pf-card, .ab, .pf-btn, .hero-name').forEach(el=>{
-        el.addEventListener('pointerenter',()=>ring.classList.add('big'));
-        el.addEventListener('pointerleave',()=>ring.classList.remove('big'));
+      addEventListener('pointermove', e=>{ dot.style.transform='translate('+e.clientX+'px,'+e.clientY+'px) translate(-50%,-50%)'; }, {passive:true});
+      document.querySelectorAll('a, button, summary, .dock a, .pf-card, .ab, .pf-btn, .hmq-track').forEach(el=>{
+        el.addEventListener('pointerenter',()=>dot.classList.add('hover'));
+        el.addEventListener('pointerleave',()=>dot.classList.remove('hover'));
       });
     })();
 
