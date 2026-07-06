@@ -91,43 +91,59 @@ function initSite(){
       addEventListener('scroll', hi, { passive:true }); addEventListener('resize', hi); hi();
     })();
 
-    // 로딩 인사말: 안녕하세요 → Hello → 你好 → こんにちは → 공개
+    // 로딩: 도트 매트릭스 로고 [ GAHYUN ]
     (function(){
       const loader = document.getElementById('loader');
-      const lw = [document.getElementById('lw0'), document.getElementById('lw1')];
+      const canvas = document.getElementById('loaderCanvas');
       function reveal(){ document.body.classList.remove('loading'); document.body.classList.add('loaded'); }
-      if(!loader || !lw[0] || !lw[1]){ reveal(); return; }
+      if(!loader || !canvas){ reveal(); return; }
       document.body.classList.add('loading');
-      // 한국어 가장 길게 → 영어 → 중국어 → 일본어. 전환은 두 글자가 겹쳐 부드럽게 이어짐(크로스페이드)
-      const seq = [
-        { t:'안녕하세요', d:1000 }, { t:'Hello', d:600 }, { t:'你好', d:540 }, { t:'こんにちは', d:640 }
-      ];
-      // 글자를 스팬으로 쪼갬. stagger=true면 한 글자씩 순차, false면 통째로 한 번에
-      function build(el, text, stagger){
-        el.innerHTML = '';
-        Array.prototype.forEach.call(text, (ch, idx) => {
-          const s = document.createElement('span');
-          s.className = 'lchar';
-          s.textContent = ch;
-          s.style.transitionDelay = (stagger ? idx * 0.07 : 0) + 's';
-          el.appendChild(s);
-        });
+      const ctx = canvas.getContext('2d');
+      const TEXT = '[ GAHYUN ]';
+      let W=0, H=0, dpr=1, dots=[], startT=0, raf=0, done=false;
+      function buildDots(){
+        dpr = Math.min(window.devicePixelRatio||1, 2);
+        const cssW = Math.min(window.innerWidth*0.74, 620);
+        const off = document.createElement('canvas'); const o = off.getContext('2d');
+        let fs = 160; o.font = '800 '+fs+"px 'Arial Black',Arial,sans-serif";
+        let tw = o.measureText(TEXT).width; fs = fs*(cssW*0.98)/tw;
+        o.font = '800 '+fs+"px 'Arial Black',Arial,sans-serif";
+        const cssH = Math.ceil(fs*0.95); W = Math.ceil(cssW); H = cssH;
+        off.width=W; off.height=H; o.font='800 '+fs+"px 'Arial Black',Arial,sans-serif";
+        o.fillStyle='#fff'; o.textAlign='center'; o.textBaseline='middle';
+        o.clearRect(0,0,W,H); o.fillText(TEXT, W/2, H/2);
+        const img = o.getImageData(0,0,W,H).data;
+        const gap = Math.max(5, Math.round(fs/15)); const r = gap*0.42; dots=[];
+        for(let y=0;y<H;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>90){ dots.push({x:x, y:y, r:r, delay:(x/W)*700 + Math.random()*180}); } } }
+        canvas.style.width=W+'px'; canvas.style.height=H+'px';
+        canvas.width=Math.round(W*dpr); canvas.height=Math.round(H*dpr); ctx.setTransform(dpr,0,0,dpr,0,0);
+        startT = performance.now();
       }
-      let i = 0, active = 0;
-      function step(){
-        const cur = seq[i];
-        const inEl = lw[active], outEl = lw[active ^ 1];
-        outEl.classList.remove('show'); outEl.classList.add('exit');   // 이전 글자 위로 빠짐
-        inEl.classList.remove('exit', 'show');
-        build(inEl, cur.t, i === 0);    // 첫 단어(안녕하세요)만 한 글자씩, 나머진 한 번에
-        void inEl.offsetWidth;          // 리플로우로 초기 위치 확정
-        inEl.classList.add('show');     // 아래→위로 떠오름
-        active ^= 1; i++;
-        setTimeout(i < seq.length ? step : finish, cur.d);
+      function loop(){
+        const t = performance.now() - startT;
+        ctx.clearRect(0,0,W,H); ctx.fillStyle='#f2f2f2';
+        let allIn = true;
+        for(const d of dots){
+          let p=(t-d.delay)/500; if(p<0){ p=0; allIn=false; } else if(p<1){ allIn=false; } if(p>1) p=1;
+          const e = 1-Math.pow(1-p,3);
+          ctx.globalAlpha=e; ctx.beginPath(); ctx.arc(d.x, d.y, d.r*e, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha=1;
+        if(allIn && t>1500 && !done){ done=true; finish(); }
+        raf = requestAnimationFrame(loop);
       }
-      function finish(){ lw[active ^ 1].classList.remove('show'); lw[active ^ 1].classList.add('exit'); loader.classList.add('done'); reveal(); setTimeout(() => { loader.style.display = 'none'; }, 900); }
-      setTimeout(step, 100);
-      setTimeout(() => { if(!document.body.classList.contains('loaded')){ finish(); } }, 7000); // 안전장치
+      function finish(){ done=true; loader.classList.add('done'); reveal(); setTimeout(()=>{ if(raf) cancelAnimationFrame(raf); loader.style.display='none'; }, 850); }
+      function start(){ buildDots(); if(raf) cancelAnimationFrame(raf); loop(); }
+      if(document.fonts && document.fonts.ready){ document.fonts.ready.then(start); } else { start(); }
+      setTimeout(()=>{ if(!W) start(); }, 250);
+      setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 6000); // 안전장치
+    })();
+
+    // 실시간 시계 [ HH:MM:SS ]
+    (function(){
+      const clk = document.getElementById('heroClock'); if(!clk) return;
+      function tick(){ const d=new Date(); clk.textContent = '[ ' + d.toLocaleTimeString('en-GB',{hour12:false}) + ' ]'; }
+      tick(); setInterval(tick, 1000);
     })();
 
 }
