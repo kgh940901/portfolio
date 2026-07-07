@@ -26,7 +26,7 @@ function initSite(){
     (function(){
       if(!window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      function setup(id, opts){
+      function setup(id, interval){
         const el = document.getElementById(id); if(!el) return null;
         const $el = jQuery(el);
         try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.02, interactive: false }); }
@@ -36,13 +36,13 @@ function initSite(){
           const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
           try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.04+Math.random()*0.03); }catch(e){}
         }
-        setInterval(drop, 2400);  // 약 2.4초에 한 번, 큰 파문 하나씩
+        setInterval(drop, interval);
         let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
         document.addEventListener('visibilitychange', ()=>{ try{ $el.ripples(document.hidden ? 'pause' : 'play'); }catch(e){} });
         return $el;
       }
-      const $hero = setup('heroWater');   // 인트로 전용 — 물빛 텍스처 (원래대로)
-      setup('pageWater');                 // 전체 배경 — 순검정 위 파문만
+      const $hero = setup('heroWater', 3800);   // 인트로 전용 — 물빛 텍스처, 파문 조금 더 천천히
+      setup('pageWater', 2400);                 // 전체 배경 — 순검정 위 파문만
 
       // 인트로가 화면 밖이면 인트로 물결 렌더 정지(성능)
       if($hero){
