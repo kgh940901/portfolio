@@ -22,26 +22,34 @@ function initSite(){
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
-    // 페이지 전체 배경 물결(WebGL ripple) — 인트로부터 하단까지 한 장의 수면처럼
+    // 물결(WebGL ripple) — 인트로(물빛 텍스처) + 그 아래(순검정, 파문만)
     (function(){
-      const el = document.getElementById('pageWater');
-      if(!el || !window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
-      const $el = jQuery(el);
-      try{
-        $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.02, interactive: false });
-      }catch(e){ return; } // WebGL 미지원 시 정적 다크 배경 유지
-      if(matchMedia('(prefers-reduced-motion: reduce)').matches){ try{ $el.ripples('pause'); }catch(e){} return; }
-      // 크고 느린 파문 (뷰포트 곳곳에 물방울이 잔잔히 번짐)
-      function drop(){
-        const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
-        const x=Math.random()*w, y=Math.random()*h;
-        const r=70+Math.random()*50, s=0.04+Math.random()*0.03;
-        try{ $el.ripples('drop', x, y, r, s); }catch(e){}
+      if(!window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function setup(id, opts){
+        const el = document.getElementById(id); if(!el) return null;
+        const $el = jQuery(el);
+        try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.02, interactive: false }); }
+        catch(e){ return null; } // WebGL 미지원 시 정적 배경 유지
+        if(reduce){ try{ $el.ripples('pause'); }catch(e){} return null; }
+        function drop(){
+          const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
+          try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.04+Math.random()*0.03); }catch(e){}
+        }
+        setInterval(drop, 2400);  // 약 2.4초에 한 번, 큰 파문 하나씩
+        let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
+        document.addEventListener('visibilitychange', ()=>{ try{ $el.ripples(document.hidden ? 'pause' : 'play'); }catch(e){} });
+        return $el;
       }
-      setInterval(drop, 2400);  // 약 2.4초에 한 번, 큰 파문 하나씩
-      // 리사이즈 시 캔버스 크기 갱신, 탭 숨김 시 렌더 정지(성능)
-      let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
-      document.addEventListener('visibilitychange', ()=>{ try{ $el.ripples(document.hidden ? 'pause' : 'play'); }catch(e){} });
+      const $hero = setup('heroWater');   // 인트로 전용 — 물빛 텍스처 (원래대로)
+      setup('pageWater');                 // 전체 배경 — 순검정 위 파문만
+
+      // 인트로가 화면 밖이면 인트로 물결 렌더 정지(성능)
+      if($hero){
+        const hero=document.getElementById('top');
+        addEventListener('scroll', ()=>{ const rc=hero.getBoundingClientRect();
+          try{ $hero.ripples((rc.bottom>0 && rc.top<innerHeight) ? 'play' : 'pause'); }catch(e){} }, {passive:true});
+      }
     })();
 
     // 커스텀 마우스 커서 (mango-media 스타일: 흰 점 + difference + 0.7s 트레일링, hover 시 확대)
