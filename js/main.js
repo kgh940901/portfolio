@@ -45,6 +45,27 @@ function initSite(){
         try{ $el.ripples((rc.bottom>0 && rc.top<innerHeight) ? 'play' : 'pause'); }catch(e){} }, {passive:true});
     })();
 
+    // 페이지 곳곳 연한 물방울 파문 데코 (CSS 링, 메인 히어로 제외)
+    (function(){
+      const hosts = [];
+      ['#skills','#tools','#work','#career','#about','#projects','#contact'].forEach(sel=>{ const el=document.querySelector(sel); if(el) hosts.push(el); });
+      function makeDeco(){
+        const d=document.createElement('div'); d.className='ripple-deco'; d.setAttribute('aria-hidden','true');
+        d.style.top=(10+Math.random()*76)+'%';
+        d.style.left=(6+Math.random()*84)+'%';
+        d.style.setProperty('--rs', (0.9+Math.random()*1.2).toFixed(2));
+        d.innerHTML='<i></i><i></i><i></i>';
+        // 서로 다른 위상으로 (동시에 안 퍼지게)
+        d.querySelectorAll('i').forEach((ii,k)=>{ ii.style.animationDelay=(Math.random()*8 + k*2.7).toFixed(1)+'s'; });
+        return d;
+      }
+      hosts.forEach(el=>{
+        el.classList.add('deco-host');
+        const n = 1 + (Math.random()<0.5 ? 1 : 0); // 섹션당 1~2개
+        for(let i=0;i<n;i++) el.appendChild(makeDeco());
+      });
+    })();
+
     // 커스텀 마우스 커서 (mango-media 스타일: 흰 점 + difference + 0.7s 트레일링, hover 시 확대)
     (function(){
       if(!matchMedia('(pointer:fine)').matches) return;
