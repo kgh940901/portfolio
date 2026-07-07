@@ -35,10 +35,10 @@ function initSite(){
       function drop(){
         const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
         const x=Math.random()*w, y=Math.random()*h;
-        const r=70+Math.random()*50, s=0.02+Math.random()*0.02;
+        const r=70+Math.random()*50, s=0.04+Math.random()*0.03;
         try{ $el.ripples('drop', x, y, r, s); }catch(e){}
       }
-      setInterval(drop, 2600);  // 약 2.6초에 한 번, 큰 파문 하나씩
+      setInterval(drop, 2400);  // 약 2.4초에 한 번, 큰 파문 하나씩
       // 리사이즈 시 캔버스 크기 갱신, 탭 숨김 시 렌더 정지(성능)
       let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
       document.addEventListener('visibilitychange', ()=>{ try{ $el.ripples(document.hidden ? 'pause' : 'play'); }catch(e){} });
