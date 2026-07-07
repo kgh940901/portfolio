@@ -22,16 +22,16 @@ function initSite(){
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
-    // 인트로 배경: 물결(WebGL ripple) — merryon 스타일 자동 빗방울 + 마우스 반응
+    // 페이지 전체 배경 물결(WebGL ripple) — 인트로부터 하단까지 한 장의 수면처럼
     (function(){
-      const el = document.getElementById('heroWater');
+      const el = document.getElementById('pageWater');
       if(!el || !window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
       const $el = jQuery(el);
       try{
         $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.02, interactive: false });
       }catch(e){ return; } // WebGL 미지원 시 정적 다크 배경 유지
       if(matchMedia('(prefers-reduced-motion: reduce)').matches){ try{ $el.ripples('pause'); }catch(e){} return; }
-      // 크고 느린 파문 (merryon 레퍼런스처럼 — 큰 링이 잔잔히 번짐)
+      // 크고 느린 파문 (뷰포트 곳곳에 물방울이 잔잔히 번짐)
       function drop(){
         const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
         const x=Math.random()*w, y=Math.random()*h;
@@ -39,31 +39,9 @@ function initSite(){
         try{ $el.ripples('drop', x, y, r, s); }catch(e){}
       }
       setInterval(drop, 2600);  // 약 2.6초에 한 번, 큰 파문 하나씩
-      // 화면 밖이면 렌더 정지(성능)
-      const hero=document.getElementById('top');
-      addEventListener('scroll', ()=>{ const rc=hero.getBoundingClientRect();
-        try{ $el.ripples((rc.bottom>0 && rc.top<innerHeight) ? 'play' : 'pause'); }catch(e){} }, {passive:true});
-    })();
-
-    // 페이지 곳곳 연한 물방울 파문 데코 (CSS 링, 메인 히어로 제외)
-    (function(){
-      const hosts = [];
-      ['#skills','#tools','#work','#career','#about','#projects','#contact'].forEach(sel=>{ const el=document.querySelector(sel); if(el) hosts.push(el); });
-      function makeDeco(){
-        const d=document.createElement('div'); d.className='ripple-deco'; d.setAttribute('aria-hidden','true');
-        d.style.top=(10+Math.random()*76)+'%';
-        d.style.left=(6+Math.random()*84)+'%';
-        d.style.setProperty('--rs', (0.9+Math.random()*1.2).toFixed(2));
-        d.innerHTML='<i></i><i></i><i></i>';
-        // 서로 다른 위상으로 (동시에 안 퍼지게)
-        d.querySelectorAll('i').forEach((ii,k)=>{ ii.style.animationDelay=(Math.random()*8 + k*2.7).toFixed(1)+'s'; });
-        return d;
-      }
-      hosts.forEach(el=>{
-        el.classList.add('deco-host');
-        const n = 2 + (Math.random()<0.6 ? 1 : 0); // 섹션당 2~3개
-        for(let i=0;i<n;i++) el.appendChild(makeDeco());
-      });
+      // 리사이즈 시 캔버스 크기 갱신, 탭 숨김 시 렌더 정지(성능)
+      let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
+      document.addEventListener('visibilitychange', ()=>{ try{ $el.ripples(document.hidden ? 'pause' : 'play'); }catch(e){} });
     })();
 
     // 커스텀 마우스 커서 (mango-media 스타일: 흰 점 + difference + 0.7s 트레일링, hover 시 확대)

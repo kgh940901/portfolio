@@ -43,9 +43,11 @@
   @media(max-width:600px){ .dock{ gap:1px; padding:5px; } .dock a{ padding:8px 11px; font-size:12px; } }
 
   /* ===== HERO (벌집 배경 + 이름 분할 + 인물) ===== */
-  .hero{ position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:120px 24px 150px; background:#0a0a0a; }
+  /* 페이지 전체 배경 물결(WebGL) — 인트로부터 하단까지 한 장의 수면처럼 */
+  #pageWater{ position:fixed; inset:0; z-index:-1; background:#0a0a0a url('../assets/hero-bg.jpg') center/cover no-repeat; }
+  #pageWater canvas{ display:block; }
+  .hero{ position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; padding:120px 24px 150px; background:transparent; }
   .hero-flow{ position:absolute; inset:0; z-index:0; width:100%; height:100%; display:block; }
-  .hero-water{ position:absolute; inset:0; z-index:0; background:#0a0a0a url('../assets/hero-bg.jpg') center/cover no-repeat; }
   .hero-water canvas{ display:block; }
   /* yeqq 스타일 히어로: 인물 위 대형 텍스트 색반전 + 글리치 + 모노 라벨 */
   .hero-corner{ position:absolute; left:0; right:0; display:flex; justify-content:space-between; padding:0 clamp(20px,4vw,44px); z-index:5; }
@@ -82,14 +84,6 @@
     transition:opacity .18s ease, width .2s ease, height .2s ease; }
   .lens.on{ opacity:1; }
 
-  /* 페이지 곳곳 연한 물방울 파문 데코 (천천히 커지며 사라지는 동심원) */
-  .deco-host{ position:relative; }
-  .deco-host > *:not(.ripple-deco){ position:relative; z-index:1; }
-  .ripple-deco{ position:absolute; z-index:0; width:0; height:0; pointer-events:none; }
-  .ripple-deco i{ position:absolute; left:0; top:0; width:calc(110px*var(--rs,1)); height:calc(110px*var(--rs,1)); margin:calc(-55px*var(--rs,1));
-    border:1.5px solid rgba(255,255,255,.28); border-radius:50%; transform:scale(.2); opacity:0; animation:rippleGrow 7s ease-out infinite; }
-  @keyframes rippleGrow{ 0%{ transform:scale(.2); opacity:0; } 10%{ opacity:1; } 65%{ opacity:.45; } 100%{ transform:scale(3.2); opacity:0; } }
-  @media(prefers-reduced-motion:reduce){ .ripple-deco i{ animation:none; opacity:.3; transform:scale(1.7); } }
   .hero::after{ content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(62% 58% at 50% 50%, transparent, rgba(6,7,11,.62)); pointer-events:none; }
   .hero-inner{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:clamp(6px,1.4vw,28px); width:100%; max-width:1560px; }
   .hero-side{ flex:1; display:flex; flex-direction:column; }
