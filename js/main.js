@@ -61,7 +61,7 @@ function initSite(){
       }
       hosts.forEach(el=>{
         el.classList.add('deco-host');
-        const n = 1 + (Math.random()<0.5 ? 1 : 0); // 섹션당 1~2개
+        const n = 2 + (Math.random()<0.6 ? 1 : 0); // 섹션당 2~3개
         for(let i=0;i<n;i++) el.appendChild(makeDeco());
       });
     })();

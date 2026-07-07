@@ -86,10 +86,10 @@
   .deco-host{ position:relative; }
   .deco-host > *:not(.ripple-deco){ position:relative; z-index:1; }
   .ripple-deco{ position:absolute; z-index:0; width:0; height:0; pointer-events:none; }
-  .ripple-deco i{ position:absolute; left:0; top:0; width:calc(96px*var(--rs,1)); height:calc(96px*var(--rs,1)); margin:calc(-48px*var(--rs,1));
-    border:1px solid rgba(255,255,255,.08); border-radius:50%; transform:scale(.25); opacity:0; animation:rippleGrow 8s ease-out infinite; }
-  @keyframes rippleGrow{ 0%{ transform:scale(.25); opacity:0; } 12%{ opacity:.7; } 100%{ transform:scale(3.4); opacity:0; } }
-  @media(prefers-reduced-motion:reduce){ .ripple-deco i{ animation:none; opacity:.12; transform:scale(1.7); } }
+  .ripple-deco i{ position:absolute; left:0; top:0; width:calc(110px*var(--rs,1)); height:calc(110px*var(--rs,1)); margin:calc(-55px*var(--rs,1));
+    border:1.5px solid rgba(255,255,255,.28); border-radius:50%; transform:scale(.2); opacity:0; animation:rippleGrow 7s ease-out infinite; }
+  @keyframes rippleGrow{ 0%{ transform:scale(.2); opacity:0; } 10%{ opacity:1; } 65%{ opacity:.45; } 100%{ transform:scale(3.2); opacity:0; } }
+  @media(prefers-reduced-motion:reduce){ .ripple-deco i{ animation:none; opacity:.3; transform:scale(1.7); } }
   .hero::after{ content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(62% 58% at 50% 50%, transparent, rgba(6,7,11,.62)); pointer-events:none; }
   .hero-inner{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:clamp(6px,1.4vw,28px); width:100%; max-width:1560px; }
   .hero-side{ flex:1; display:flex; flex-direction:column; }
