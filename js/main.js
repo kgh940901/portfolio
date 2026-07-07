@@ -28,17 +28,17 @@ function initSite(){
       if(!el || !window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
       const $el = jQuery(el);
       try{
-        $el.ripples({ resolution: 512, dropRadius: 20, perturbance: 0.008, interactive: false });
+        $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.02, interactive: false });
       }catch(e){ return; } // WebGL 미지원 시 정적 다크 배경 유지
       if(matchMedia('(prefers-reduced-motion: reduce)').matches){ try{ $el.ripples('pause'); }catch(e){} return; }
-      // 스스로 떨어지는 빗방울 (잔잔하게 — merryon 레퍼런스처럼)
+      // 크고 느린 파문 (merryon 레퍼런스처럼 — 큰 링이 잔잔히 번짐)
       function drop(){
         const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
         const x=Math.random()*w, y=Math.random()*h;
-        const r=10+Math.random()*10, s=0.012+Math.random()*0.016;
+        const r=70+Math.random()*50, s=0.02+Math.random()*0.02;
         try{ $el.ripples('drop', x, y, r, s); }catch(e){}
       }
-      setInterval(drop, 2400);  // 약 2.4초에 한 방울씩, 은은하게
+      setInterval(drop, 2600);  // 약 2.6초에 한 번, 큰 파문 하나씩
       // 화면 밖이면 렌더 정지(성능)
       const hero=document.getElementById('top');
       addEventListener('scroll', ()=>{ const rc=hero.getBoundingClientRect();
