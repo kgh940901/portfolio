@@ -140,6 +140,17 @@
   .tool-card li .brand{ width:16px; height:16px; object-fit:contain; flex:0 0 16px; }
   .tool-card li .ico{ width:16px; height:16px; flex:0 0 16px; color:var(--accent); }
 
+  /* 스킬 섹션 서브 라벨 + 포지션 카드 */
+  .sub-label{ font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:52px 0 20px; }
+  .pos-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+  @media(max-width:880px){ .pos-grid{ grid-template-columns:1fr 1fr; } }
+  @media(max-width:520px){ .pos-grid{ grid-template-columns:1fr; } }
+  .pos-card{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:26px 24px; transition:border-color .3s, transform .3s; }
+  .pos-card:hover{ border-color:rgba(255,255,255,.24); transform:translateY(-4px); }
+  .pos-num{ font-size:13px; font-weight:800; color:var(--accent); letter-spacing:1px; }
+  .pos-card h3{ font-size:20px; font-weight:800; letter-spacing:-.5px; margin:10px 0; }
+  .pos-card p{ color:var(--muted); font-size:13.5px; line-height:1.6; }
+
   /* ===== PORTFOLIO grid ===== */
   .pf-head{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; }
   .pf-btn{ border:1px solid var(--line); border-radius:999px; padding:12px 22px; font-size:13px; font-weight:600; color:var(--text); display:inline-flex; gap:8px; align-items:center; transition:.2s; }
