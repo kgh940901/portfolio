@@ -32,29 +32,32 @@ function initSite(){
         try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.02, interactive: false }); }
         catch(e){ return null; } // WebGL 미지원 시 정적 배경 유지
         if(reduce){ try{ $el.ripples('pause'); }catch(e){} return null; }
-        // 파문이 퍼지는 속도를 느리게 — 시뮬레이션을 3프레임 중 1번만 실행(렌더는 매 프레임)
+        // 파문이 퍼지는 속도를 느리게 — 시뮬레이션을 2프레임 중 1번만 실행(렌더는 매 프레임)
         (function(){
           const inst = $el.data('ripples'); if(!inst || !inst.update) return;
           const orig = inst.update; let f = 0;
           inst.update = function(){ if((f++ % 2) === 0) orig.call(inst); }; // 절반 속도로 잔잔히
         })();
+        let playing = true;
+        function setPlay(p){ if(p===playing) return; playing=p; try{ $el.ripples(p ? 'play' : 'pause'); }catch(e){} }
         function drop(){
+          if(!playing || document.hidden) return;   // 정지 중엔 물방울을 쌓지 않음(재개 시 폭우 방지)
           const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
           try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.04+Math.random()*0.03); }catch(e){}
         }
         setInterval(drop, interval);
         let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
-        document.addEventListener('visibilitychange', ()=>{ try{ $el.ripples(document.hidden ? 'pause' : 'play'); }catch(e){} });
-        return $el;
+        document.addEventListener('visibilitychange', ()=>{ setPlay(!document.hidden); });
+        return { setPlay };
       }
-      const $hero = setup('heroWater', 3800);   // 인트로 전용 — 물빛 텍스처, 파문 조금 더 천천히
-      setup('pageWater', 2400);                 // 전체 배경 — 순검정 위 파문만
+      const hero = setup('heroWater', 3800);   // 인트로 전용 — 물빛 텍스처, 파문 조금 더 천천히
+      setup('pageWater', 2400);                // 전체 배경 — 순검정 위 파문만
 
-      // 인트로가 화면 밖이면 인트로 물결 렌더 정지(성능)
-      if($hero){
-        const hero=document.getElementById('top');
-        addEventListener('scroll', ()=>{ const rc=hero.getBoundingClientRect();
-          try{ $hero.ripples((rc.bottom>0 && rc.top<innerHeight) ? 'play' : 'pause'); }catch(e){} }, {passive:true});
+      // 인트로가 화면 밖이면 인트로 물결 정지(성능) — 정지 중엔 drop도 멈춤
+      if(hero){
+        const top=document.getElementById('top');
+        addEventListener('scroll', ()=>{ const rc=top.getBoundingClientRect();
+          hero.setPlay(rc.bottom>0 && rc.top<innerHeight); }, {passive:true});
       }
     })();
 
