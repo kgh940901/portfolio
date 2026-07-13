@@ -3,7 +3,7 @@
     --accent:#ff7a1a; --accent-soft:rgba(255,122,26,.16);
     --maxw:1280px;
     --font:'Pretendard', system-ui, -apple-system, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-    --hand:'Comic Sans MS','Segoe Script','Apple SD Gothic Neo',cursive;
+    --hand:'Segoe Script','Comic Sans MS','Nanum Pen Script','Apple SD Gothic Neo',cursive;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
   html{ scroll-behavior:smooth; }
