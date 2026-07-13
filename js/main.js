@@ -173,4 +173,29 @@ function initSite(){
       tick(); setInterval(tick, 1000);
     })();
 
+    // 프로필 사진: PROFILE 배지가 사진 안에서 마우스를 따라 이동
+    (function(){
+      if(!matchMedia('(pointer:fine)').matches) return;
+      const pf = document.querySelector('.hero-pf');
+      const badge = pf && pf.querySelector('.pf-badge');
+      if(!pf || !badge) return;
+      let tx=0, ty=0, cx=0, cy=0, raf=0, active=false;
+      function loop(){
+        cx += (tx-cx)*0.18; cy += (ty-cy)*0.18;
+        badge.style.left = cx+'px'; badge.style.top = cy+'px';
+        if(active || Math.abs(tx-cx)>0.5 || Math.abs(ty-cy)>0.5){ raf = requestAnimationFrame(loop); } else { raf = 0; }
+      }
+      pf.addEventListener('pointerenter', e=>{
+        const r = pf.getBoundingClientRect();
+        tx = cx = e.clientX - r.left; ty = cy = e.clientY - r.top;
+        badge.style.left = cx+'px'; badge.style.top = cy+'px';
+        active = true; if(!raf) loop();
+      });
+      pf.addEventListener('pointermove', e=>{
+        const r = pf.getBoundingClientRect();
+        tx = e.clientX - r.left; ty = e.clientY - r.top;
+      }, {passive:true});
+      pf.addEventListener('pointerleave', ()=>{ active = false; });
+    })();
+
 }
