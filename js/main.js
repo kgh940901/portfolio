@@ -32,6 +32,12 @@ function initSite(){
         try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.02, interactive: false }); }
         catch(e){ return null; } // WebGL 미지원 시 정적 배경 유지
         if(reduce){ try{ $el.ripples('pause'); }catch(e){} return null; }
+        // 파문이 퍼지는 속도를 느리게 — 시뮬레이션을 3프레임 중 1번만 실행(렌더는 매 프레임)
+        (function(){
+          const inst = $el.data('ripples'); if(!inst || !inst.update) return;
+          const orig = inst.update; let f = 0;
+          inst.update = function(){ if((f++ % 2) === 0) orig.call(inst); }; // 절반 속도로 잔잔히
+        })();
         function drop(){
           const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
           try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.04+Math.random()*0.03); }catch(e){}

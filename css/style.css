@@ -51,6 +51,9 @@
   /* 인트로 전용 물결 — 물빛 텍스처 (원래대로) */
   .hero-water{ position:absolute; inset:0; z-index:0; background:#0a0a0a url('../assets/hero-bg.jpg') center/cover no-repeat; }
   .hero-water canvas{ display:block; }
+  /* 인트로 하단을 아래 섹션(#0a0a0a) 검정으로 매끄럽게 페이드 → 경계 없이 이어짐 */
+  .hero::before{ content:""; position:absolute; left:0; right:0; bottom:0; height:34vh; z-index:1; pointer-events:none;
+    background:linear-gradient(to bottom, rgba(10,10,10,0) 0%, rgba(10,10,10,.75) 55%, #0a0a0a 100%); }
   .hero-water canvas{ display:block; }
   /* yeqq 스타일 히어로: 인물 위 대형 텍스트 색반전 + 글리치 + 모노 라벨 */
   .hero-corner{ position:absolute; left:0; right:0; display:flex; justify-content:space-between; padding:0 clamp(20px,4vw,44px); z-index:5; }
