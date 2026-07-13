@@ -135,7 +135,7 @@
   .tool-card h4{ font-size:16px; margin-bottom:18px; display:flex; align-items:center; gap:10px; color:var(--accent); letter-spacing:.3px; }
   .tool-card h4 .brand{ width:20px; height:20px; object-fit:contain; }
   .tool-card h4 .ico{ width:19px; height:19px; color:var(--accent); }
-  .tool-card h4 .ico.app{ width:23px; height:23px; }
+  .tool-card h4 .logo{ width:22px; height:22px; flex:0 0 22px; }
   .tool-card ul{ list-style:none; display:flex; flex-direction:column; gap:11px; }
   .tool-card li{ font-size:14px; color:var(--muted); display:flex; align-items:center; gap:9px; }
   .tool-card li .brand{ width:16px; height:16px; object-fit:contain; flex:0 0 16px; }
