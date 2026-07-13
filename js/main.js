@@ -95,15 +95,27 @@ function initSite(){
       });
     })();
 
-    // 스크롤 텍스트 하이라이트
+    // 텍스트 하이라이트: 화면에 들어오면 단어가 순차로 켜짐(스크롤 속도와 무관하게 재생)
     (function(){
       const stmt = document.getElementById('stmt2');
       if(!stmt) return;
       const words = stmt.textContent.trim().split(/\s+/);
       stmt.innerHTML = words.map(w => '<span class="w">' + w + '</span>').join(' ');
       const spans = Array.prototype.slice.call(stmt.querySelectorAll('.w'));
-      function hi(){ const trig = innerHeight * 0.62; for(const s of spans){ const r = s.getBoundingClientRect(); s.classList.toggle('lit', r.top < trig); } }
-      addEventListener('scroll', hi, { passive:true }); addEventListener('resize', hi); hi();
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches){ spans.forEach(s=>s.classList.add('lit')); return; }
+      const timers = [];
+      function clearTimers(){ timers.forEach(clearTimeout); timers.length = 0; }
+      const io = new IntersectionObserver((entries)=>{
+        const e = entries[0];
+        if(e.isIntersecting){
+          clearTimers();
+          spans.forEach((s,i)=>{ timers.push(setTimeout(()=>s.classList.add('lit'), 120 + i*50)); });
+        } else {
+          clearTimers();
+          spans.forEach(s=>s.classList.remove('lit')); // 다시 들어오면 재생되도록 초기화
+        }
+      }, { threshold: 0.3 });
+      io.observe(stmt);
     })();
 
     // 로딩: 도트 매트릭스 로고 [ GAHYUN ]
