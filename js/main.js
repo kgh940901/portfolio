@@ -189,13 +189,13 @@ function initSite(){
         const r = pf.getBoundingClientRect();
         tx = cx = e.clientX - r.left; ty = cy = e.clientY - r.top;
         badge.style.left = cx+'px'; badge.style.top = cy+'px';
-        active = true; if(!raf) loop();
+        active = true; document.body.classList.add('no-dot'); if(!raf) loop();
       });
       pf.addEventListener('pointermove', e=>{
         const r = pf.getBoundingClientRect();
         tx = e.clientX - r.left; ty = e.clientY - r.top;
       }, {passive:true});
-      pf.addEventListener('pointerleave', ()=>{ active = false; });
+      pf.addEventListener('pointerleave', ()=>{ active = false; document.body.classList.remove('no-dot'); });
     })();
 
 }
