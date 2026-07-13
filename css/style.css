@@ -151,6 +151,31 @@
   .pos-card h3{ font-size:20px; font-weight:800; letter-spacing:-.5px; margin:10px 0; }
   .pos-card p{ color:var(--muted); font-size:13.5px; line-height:1.6; }
 
+  /* ── 스킬 섹션 등장 연출 (단조로움 방지) ── */
+  /* 포지션 카드: 등장 시 상단 액센트 바가 그려짐 */
+  .pos-card{ position:relative; overflow:hidden; }
+  .pos-card::before{ content:""; position:absolute; left:0; top:0; height:3px; width:0; background:var(--accent);
+    transition:width .7s cubic-bezier(.2,.7,.2,1) .15s; }
+  .pos-card.in::before{ width:100%; }
+  .pos-card .pos-num{ display:inline-block; transition:transform .3s ease; }
+  .pos-card:hover .pos-num{ transform:translateX(3px); }
+  /* 툴 카드: 호버 리프트/글로우 */
+  .tool-card{ transition:border-color .35s, transform .35s, box-shadow .35s; }
+  .tool-card:hover{ border-color:rgba(255,255,255,.24); transform:translateY(-5px); box-shadow:0 22px 54px rgba(0,0,0,.5); }
+  .tool-card:hover h4{ letter-spacing:.6px; transition:letter-spacing .3s ease; }
+  /* 카드 안 항목이 한 줄씩 순차로 페이드-업 */
+  .tool-card li{ opacity:0; transform:translateY(9px); transition:opacity .55s cubic-bezier(.2,.7,.2,1), transform .55s cubic-bezier(.2,.7,.2,1); }
+  .tool-card.in li{ opacity:1; transform:none; }
+  .tool-card.in li:nth-child(1){ transition-delay:.12s; }
+  .tool-card.in li:nth-child(2){ transition-delay:.20s; }
+  .tool-card.in li:nth-child(3){ transition-delay:.28s; }
+  .tool-card.in li:nth-child(4){ transition-delay:.36s; }
+  .tool-card.in li:nth-child(5){ transition-delay:.44s; }
+  @media(prefers-reduced-motion:reduce){
+    .tool-card li{ opacity:1; transform:none; transition:none; }
+    .pos-card::before{ transition:none; }
+  }
+
   /* ===== PORTFOLIO grid ===== */
   .pf-head{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; }
   .pf-btn{ border:1px solid var(--line); border-radius:999px; padding:12px 22px; font-size:13px; font-weight:600; color:var(--text); display:inline-flex; gap:8px; align-items:center; transition:.2s; }
