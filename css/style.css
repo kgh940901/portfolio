@@ -35,7 +35,7 @@
   .dock{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:4px;
     padding:7px; border-radius:999px; background:rgba(16,16,16,.78); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
     border:1px solid var(--line); box-shadow:0 14px 44px rgba(0,0,0,.55); opacity:0; animation:dockIn .8s ease forwards; animation-delay:3.4s; }
-  .dock a{ padding:10px 17px; border-radius:999px; font-size:13px; font-weight:600; color:var(--muted); transition:.2s; display:flex; align-items:center; gap:6px; }
+  .dock a{ padding:10px 17px; border-radius:999px; font-size:13px; font-weight:600; color:var(--muted); transition:.2s; display:flex; align-items:center; gap:6px; white-space:nowrap; }
   .dock a:hover{ color:var(--text); background:rgba(255,255,255,.06); }
   .dock .dock-cta{ background:var(--accent); color:#1a0e00; }
   .dock .dock-cta:hover{ background:#ff8c3a; color:#1a0e00; }
@@ -300,3 +300,21 @@
   .foot-contact a:hover{ border-color:var(--text); }
   .foot-phone{ color:var(--muted); margin-bottom:50px; }
   .foot-bottom{ display:flex; justify-content:space-between; max-width:var(--maxw); margin:0 auto; color:var(--muted); font-size:13px; padding-top:24px; border-top:1px solid var(--line); }
+
+  /* ───── 모바일 반응형 보정 ───── */
+  @media(max-width:600px){
+    /* 인트로: 사진이 상단 네비와 겹치지 않게 여백 확보 */
+    .hero{ padding:150px 18px 180px; }
+    .hero-pf{ width:min(50vw,190px); }
+    /* 하단 라벨 두 개가 겹치던 문제 → 세로로 쌓기 (독과도 안 겹치게 위로) */
+    .hero-corner{ padding:0 18px; }
+    .hero-corner.bottom{ bottom:104px; flex-direction:column; align-items:center; gap:6px; text-align:center; }
+    .mono{ font-size:11px; letter-spacing:.5px; }
+    /* 프로필 위 요소 크기 축소 */
+    .pf-corner{ width:32px; height:32px; right:10px; bottom:10px; }
+    .pf-corner svg{ width:14px; height:14px; }
+    .pf-badge{ width:68px; height:68px; font-size:11px; letter-spacing:1px; }
+    /* 푸터 아웃라인 이름이 잘리던 문제 */
+    .foot-name{ font-size:34px; letter-spacing:-1px; }
+    .foot-bottom{ flex-direction:column; gap:8px; text-align:center; }
+  }
