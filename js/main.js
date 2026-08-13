@@ -140,23 +140,23 @@ function initSite(){
       }
       function buildDots(){
         dpr = Math.min(window.devicePixelRatio||1, 2);
-        const cssW = Math.min(window.innerWidth*0.72, 640);
+        const cssW = Math.min(window.innerWidth*0.88, 960);   // 텍스트를 더 크게
         const off = document.createElement('canvas'); const o = off.getContext('2d');
         const FF = "px 'Arial',Helvetica,sans-serif";
         let fs = 160; o.font = '800 '+fs+FF;                  // 굵은 획(도톰·또렷)
         let mw = o.measureText(TEXT).width; fs = fs*(cssW*0.97)/mw;
         o.font = '800 '+fs+FF;
-        const textH = Math.ceil(fs*1.05); const padY = 170;
+        const textH = Math.ceil(fs*1.05); const padY = 180;
         W = Math.ceil(cssW); H = textH + padY*2;
         off.width=W; off.height=textH; o.font='800 '+fs+FF;
         o.fillStyle='#fff'; o.textAlign='center'; o.textBaseline='middle';
         o.clearRect(0,0,W,textH); o.fillText(TEXT, W/2, textH/2);
         const img = o.getImageData(0,0,W,textH).data;
-        const gap = Math.max(3, Math.round(fs/22)); dots=[]; grad=null;   // 촘촘·작은 별
+        const gap = Math.max(3, Math.round(fs/26)); dots=[]; grad=null;   // 촘촘·작은 별(확대 스케일에 맞춰)
         for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>110){
           const tx=x+(R()-0.5)*gap*0.5, ty=y+(R()-0.5)*gap*0.5+padY;      // 살짝 흐트러진 별자리
-          dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*90, sy:ty-(120+R()*520),
-            delay:R()*320, dur:820+R()*520, r:0.35+R()*0.65, base:0.55+R()*0.45, // 작은 점·밝기 편차
+          dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*100, sy:ty-(130+R()*560),
+            delay:R()*320, dur:820+R()*520, r:0.4+R()*0.7, base:0.55+R()*0.45, // 작은 점·밝기 편차
             swA:(R()-0.5)*16, swF:0.9+R()*1.2, tw:R()*6.283 });
         } } }
         makeSprite();
