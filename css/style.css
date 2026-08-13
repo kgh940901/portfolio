@@ -193,6 +193,7 @@
   .chip{ display:inline-flex; align-items:center; gap:7px; font-size:13.5px; color:var(--text); border:1px solid var(--line); border-radius:999px; padding:7px 14px; background:rgba(255,255,255,.02); transition:border-color .25s, background .25s; }
   .chip:hover{ border-color:rgba(255,255,255,.28); background:rgba(255,255,255,.05); }
   .chip .logo{ width:15px; height:15px; flex:0 0 15px; }
+  .chip .ico{ width:15px; height:15px; flex:0 0 15px; color:var(--muted); }
   @media(max-width:600px){ .tool-row{ grid-template-columns:1fr; gap:8px; } .tool-cat{ padding-top:0; } }
 
   /* ── 스킬 섹션 등장 연출 (단조로움 방지) ── */
