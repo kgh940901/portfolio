@@ -22,6 +22,19 @@ function initSite(){
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
+    // 독 스크롤 스파이: 현재 섹션 메뉴에 .active (CTA 제외)
+    (function(){
+      const links = Array.prototype.slice.call(document.querySelectorAll('.dock a'));
+      if(!links.length) return;
+      const map = links.map(function(a){ const id=a.getAttribute('href'); return { a:a, el:(id && id.charAt(0)==='#') ? document.querySelector(id) : null }; }).filter(function(m){ return m.el && !m.a.classList.contains('dock-cta'); });
+      function spy(){
+        const mid = innerHeight*0.42; let cur=null;
+        for(const m of map){ const r=m.el.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid){ cur=m.a; } }
+        map.forEach(function(m){ m.a.classList.toggle('active', m.a===cur); });
+      }
+      addEventListener('scroll', spy, { passive:true }); addEventListener('resize', spy); spy();
+    })();
+
     // 물결(WebGL ripple) — 인트로(물빛 텍스처) + 그 아래(순검정, 파문만)
     (function(){
       if(!window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
