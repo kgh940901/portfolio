@@ -171,15 +171,29 @@
   .tool-card li .ico{ width:16px; height:16px; flex:0 0 16px; color:var(--accent); }
 
   /* 스킬 섹션 서브 라벨 + 포지션 카드 */
-  .sub-label{ font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:52px 0 20px; }
-  .pos-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+  .sub-label{ font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin:40px 0 6px; }
+  .sub-cap{ color:var(--muted); font-size:15px; margin:0 0 22px; }
+  /* ── 주인공: 포지션 (큰 카드) ── */
+  .pos-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
   @media(max-width:880px){ .pos-grid{ grid-template-columns:1fr 1fr; } }
   @media(max-width:520px){ .pos-grid{ grid-template-columns:1fr; } }
-  .pos-card{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:26px 24px; transition:border-color .3s, transform .3s; }
+  .pos-card{ background:var(--card); border:1px solid var(--line); border-radius:20px; padding:30px 26px; transition:border-color .3s, transform .3s; }
   .pos-card:hover{ border-color:rgba(255,255,255,.24); transform:translateY(-4px); }
   .pos-num{ font-size:13px; font-weight:800; color:var(--accent); letter-spacing:1px; }
-  .pos-card h3{ font-size:20px; font-weight:800; letter-spacing:-.5px; margin:10px 0; }
-  .pos-card p{ color:var(--muted); font-size:13.5px; line-height:1.6; }
+  .pos-card h3{ font-size:22px; font-weight:800; letter-spacing:-.5px; margin:12px 0; }
+  .pos-card p{ color:var(--muted); font-size:14px; line-height:1.65; }
+
+  /* ── 보조: 사용하는 툴 (가벼운 칩 리스트) — 위 영역과 구분선으로 분리 ── */
+  .sub-label.muted-label{ color:var(--muted); margin-top:66px; padding-top:46px; border-top:1px solid var(--line); }
+  .tool-list{ display:flex; flex-direction:column; }
+  .tool-row{ display:grid; grid-template-columns:100px 1fr; gap:20px; align-items:start; padding:16px 0; border-top:1px solid rgba(255,255,255,.055); }
+  .tool-row:first-child{ border-top:0; }
+  .tool-cat{ font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding-top:8px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:9px; }
+  .chip{ display:inline-flex; align-items:center; gap:7px; font-size:13.5px; color:var(--text); border:1px solid var(--line); border-radius:999px; padding:7px 14px; background:rgba(255,255,255,.02); transition:border-color .25s, background .25s; }
+  .chip:hover{ border-color:rgba(255,255,255,.28); background:rgba(255,255,255,.05); }
+  .chip .logo{ width:15px; height:15px; flex:0 0 15px; }
+  @media(max-width:600px){ .tool-row{ grid-template-columns:1fr; gap:8px; } .tool-cat{ padding-top:0; } }
 
   /* ── 스킬 섹션 등장 연출 (단조로움 방지) ── */
   /* 포지션 카드: 등장 시 상단 액센트 바가 그려짐 */
