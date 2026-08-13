@@ -134,8 +134,8 @@ function initSite(){
       function makeSprite(){
         const s = document.createElement('canvas'); s.width=s.height=24; const c=s.getContext('2d');
         const g = c.createRadialGradient(12,12,0,12,12,12);
-        g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.28,'rgba(255,255,255,.82)');
-        g.addColorStop(.55,'rgba(255,255,255,.22)'); g.addColorStop(1,'rgba(255,255,255,0)');
+        g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.34,'rgba(255,255,255,.96)');
+        g.addColorStop(.6,'rgba(255,255,255,.30)'); g.addColorStop(1,'rgba(255,255,255,0)');
         c.fillStyle=g; c.fillRect(0,0,24,24); sprite=s;
       }
       function buildDots(){
@@ -154,9 +154,9 @@ function initSite(){
         const gap = Math.max(6, Math.round(fs/12.5)); dots=[]; grad=null;   // 성기게(작은 별)
         for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>90){
           const tx=x, ty=y+padY;
-          dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*90, sy:ty-(90+R()*440),
-            delay:R()*520, dur:1100+R()*560, r:0.8+R()*1.0,
-            swA:(R()-0.5)*22, swF:1.1+R()*1.3, tw:R()*6.283 });
+          dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*90, sy:ty-(120+R()*520),
+            delay:R()*700, dur:1800+R()*900, r:0.85+R()*1.0,
+            swA:(R()-0.5)*20, swF:0.9+R()*1.1, tw:R()*6.283 });
         } } }
         makeSprite();
         canvas.style.width=W+'px'; canvas.style.height=H+'px';
@@ -168,6 +168,7 @@ function initSite(){
         ctx.clearRect(0,0,W,H);
         // 1) 별빛 입자가 위에서 은은하게 흩날려 내려와 글자로 모임
         let allIn = true;
+        ctx.fillStyle = '#ffffff';             // 순백색
         for(const d of dots){
           let lp=(t-d.delay)/d.dur;
           if(lp<0){ allIn=false; continue; }   // 아직 안 내려온 별
@@ -177,32 +178,24 @@ function initSite(){
           const cx = d.sx + (d.tx-d.sx)*e + Math.sin(t*0.001*d.swF + d.tw)*d.swA*(1-e); // 흩날림(착지하며 감쇠)
           const cy = d.sy + (d.ty-d.sy)*e;
           let a = cl*1.7; if(a>1) a=1;           // 내려오며 서서히 밝아짐
-          a *= 0.72 + 0.28*Math.sin(t*0.004 + d.tw); // 반짝임
-          const size = d.r*6;
-          ctx.globalAlpha = a<0?0:a;
-          ctx.drawImage(sprite, cx-size/2, cy-size/2, size, size);
+          a *= 0.88 + 0.12*Math.sin(t*0.0035 + d.tw); // 은은한 반짝임(밝게 유지)
+          if(a<0) a=0;
+          const size = d.r*7;
+          ctx.globalAlpha = a;
+          ctx.drawImage(sprite, cx-size/2, cy-size/2, size, size);   // 부드러운 글로우
+          ctx.globalAlpha = a*1.1>1?1:a*1.1;
+          ctx.beginPath(); ctx.arc(cx, cy, d.r*1.35, 0, Math.PI*2); ctx.fill(); // 선명한 흰색 코어(가독성↑)
         }
         ctx.globalAlpha = 1;
-        // 2) 흰색 뒤에 아주 연한 주황 그라데이션이 번짐 (별빛 위에만)
-        let tp = (t-1000)/1000; if(tp<0)tp=0; if(tp>1)tp=1;
-        if(tp>0){
-          const te = 1-Math.pow(1-tp,2);
-          if(!grad){ grad = ctx.createLinearGradient(0,0,W,0);
-            grad.addColorStop(0,'#ffd9bd'); grad.addColorStop(.55,'#ff9a4d'); grad.addColorStop(1,'#ff6a12'); }
-          ctx.globalCompositeOperation = 'source-atop';
-          ctx.globalAlpha = te*0.34;             // 아주 연하게
-          ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
-          ctx.globalCompositeOperation = 'source-over';
-          ctx.globalAlpha = 1;
-        }
-        if(allIn && t>2300 && !done){ done=true; finish(); }
+        // 완성된 PORTFOLIO를 잠시 멈춰 충분히 읽히게 (착지 후 홀드)
+        if(allIn && t>4400 && !done){ done=true; finish(); }
         raf = requestAnimationFrame(loop);
       }
       function finish(){ done=true; loader.classList.add('done'); reveal(); setTimeout(()=>{ if(raf) cancelAnimationFrame(raf); loader.style.display='none'; }, 850); }
       function start(){ buildDots(); if(raf) cancelAnimationFrame(raf); loop(); }
       if(document.fonts && document.fonts.ready){ document.fonts.ready.then(start); } else { start(); }
       setTimeout(()=>{ if(!W) start(); }, 250);
-      setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 6000); // 안전장치
+      setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 8000); // 안전장치
     })();
 
     // 실시간 시계 [ HH:MM:SS ]
