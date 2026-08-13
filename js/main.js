@@ -129,7 +129,7 @@ function initSite(){
       document.body.classList.add('loading');
       const ctx = canvas.getContext('2d');
       const TEXT = 'PORTFOLIO';
-      let W=0, H=0, dpr=1, dots=[], startT=0, raf=0, done=false;
+      let W=0, H=0, dpr=1, dots=[], startT=0, raf=0, done=false, grad=null;
       function buildDots(){
         dpr = Math.min(window.devicePixelRatio||1, 2);
         const cssW = Math.min(window.innerWidth*0.74, 620);
@@ -142,23 +142,38 @@ function initSite(){
         o.fillStyle='#fff'; o.textAlign='center'; o.textBaseline='middle';
         o.clearRect(0,0,W,H); o.fillText(TEXT, W/2, H/2);
         const img = o.getImageData(0,0,W,H).data;
-        const gap = Math.max(5, Math.round(fs/15)); const r = gap*0.42; dots=[];
-        for(let y=0;y<H;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>90){ dots.push({x:x, y:y, r:r, delay:(x/W)*700 + Math.random()*180}); } } }
+        const gap = Math.max(5, Math.round(fs/15)); const r = gap*0.46; dots=[]; grad=null;
+        for(let y=0;y<H;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>90){ dots.push({x:x, y:y, r:r, delay:((x + y*0.3)/W)*850}); } } }
         canvas.style.width=W+'px'; canvas.style.height=H+'px';
         canvas.width=Math.round(W*dpr); canvas.height=Math.round(H*dpr); ctx.setTransform(dpr,0,0,dpr,0,0);
         startT = performance.now();
       }
       function loop(){
         const t = performance.now() - startT;
-        ctx.clearRect(0,0,W,H); ctx.fillStyle='#f2f2f2';
+        ctx.clearRect(0,0,W,H);
+        // 1) 흰색 도트가 대각 스윕으로 깔끔하게 등장
+        ctx.fillStyle = '#ffffff';
         let allIn = true;
         for(const d of dots){
-          let p=(t-d.delay)/500; if(p<0){ p=0; allIn=false; } else if(p<1){ allIn=false; } if(p>1) p=1;
+          let p=(t-d.delay)/420; if(p<1){ allIn=false; } if(p<0)p=0; if(p>1)p=1;
           const e = 1-Math.pow(1-p,3);
-          ctx.globalAlpha=e; ctx.beginPath(); ctx.arc(d.x, d.y, d.r*e, 0, Math.PI*2); ctx.fill();
+          ctx.globalAlpha = e;
+          ctx.beginPath(); ctx.arc(d.x, d.y, d.r*(0.35+0.65*e), 0, Math.PI*2); ctx.fill();
         }
-        ctx.globalAlpha=1;
-        if(allIn && t>1500 && !done){ done=true; finish(); }
+        ctx.globalAlpha = 1;
+        // 2) 흰색 뒤에 아주 연한 주황 그라데이션이 번짐 (도트 위에만 입힘)
+        let tp = (t-520)/900; if(tp<0)tp=0; if(tp>1)tp=1;
+        if(tp>0){
+          const te = 1-Math.pow(1-tp,2);
+          if(!grad){ grad = ctx.createLinearGradient(0,0,W,0);
+            grad.addColorStop(0,'#ffd9bd'); grad.addColorStop(.55,'#ff9a4d'); grad.addColorStop(1,'#ff6a12'); }
+          ctx.globalCompositeOperation = 'source-atop';
+          ctx.globalAlpha = te*0.4;              // 아주 연하게
+          ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.globalAlpha = 1;
+        }
+        if(allIn && t>1900 && !done){ done=true; finish(); }
         raf = requestAnimationFrame(loop);
       }
       function finish(){ done=true; loader.classList.add('done'); reveal(); setTimeout(()=>{ if(raf) cancelAnimationFrame(raf); loader.style.display='none'; }, 850); }
