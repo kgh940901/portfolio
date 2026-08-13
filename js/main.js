@@ -140,23 +140,24 @@ function initSite(){
       }
       function buildDots(){
         dpr = Math.min(window.devicePixelRatio||1, 2);
-        const cssW = Math.min(window.innerWidth*0.74, 620);
+        const cssW = Math.min(window.innerWidth*0.72, 640);
         const off = document.createElement('canvas'); const o = off.getContext('2d');
-        let fs = 160; o.font = '800 '+fs+"px 'Arial Black',Arial,sans-serif";
-        let mw = o.measureText(TEXT).width; fs = fs*(cssW*0.98)/mw;
-        o.font = '800 '+fs+"px 'Arial Black',Arial,sans-serif";
-        const textH = Math.ceil(fs*0.95); const padY = 170;
+        const FF = "px 'Arial',Helvetica,sans-serif";   // 얇은 웨이트로 획을 가늘게
+        let fs = 160; o.font = '400 '+fs+FF;
+        let mw = o.measureText(TEXT).width; fs = fs*(cssW*0.96)/mw;
+        o.font = '400 '+fs+FF;
+        const textH = Math.ceil(fs*1.1); const padY = 170;
         W = Math.ceil(cssW); H = textH + padY*2;
-        off.width=W; off.height=textH; o.font='800 '+fs+"px 'Arial Black',Arial,sans-serif";
+        off.width=W; off.height=textH; o.font='400 '+fs+FF;
         o.fillStyle='#fff'; o.textAlign='center'; o.textBaseline='middle';
         o.clearRect(0,0,W,textH); o.fillText(TEXT, W/2, textH/2);
         const img = o.getImageData(0,0,W,textH).data;
-        const gap = Math.max(6, Math.round(fs/12.5)); dots=[]; grad=null;   // 성기게(작은 별)
-        for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>90){
-          const tx=x, ty=y+padY;
+        const gap = Math.max(4, Math.round(fs/16)); dots=[]; grad=null;   // 성긴 별
+        for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>100 && R()<0.9){
+          const tx=x+(R()-0.5)*gap*0.6, ty=y+(R()-0.5)*gap*0.6+padY;      // 살짝 흐트러진 별자리
           dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*90, sy:ty-(120+R()*520),
-            delay:R()*700, dur:1800+R()*900, r:0.85+R()*1.0,
-            swA:(R()-0.5)*20, swF:0.9+R()*1.1, tw:R()*6.283 });
+            delay:R()*320, dur:820+R()*520, r:0.5+R()*1.3, base:0.5+R()*0.5, // 크기·밝기 편차
+            swA:(R()-0.5)*18, swF:0.9+R()*1.2, tw:R()*6.283 });
         } } }
         makeSprite();
         canvas.style.width=W+'px'; canvas.style.height=H+'px';
@@ -178,17 +179,18 @@ function initSite(){
           const cx = d.sx + (d.tx-d.sx)*e + Math.sin(t*0.001*d.swF + d.tw)*d.swA*(1-e); // 흩날림(착지하며 감쇠)
           const cy = d.sy + (d.ty-d.sy)*e;
           let a = cl*1.7; if(a>1) a=1;           // 내려오며 서서히 밝아짐
-          a *= 0.88 + 0.12*Math.sin(t*0.0035 + d.tw); // 은은한 반짝임(밝게 유지)
+          a *= d.base;                            // 별마다 밝기 편차 (별자리 무드)
+          a *= 0.82 + 0.18*Math.sin(t*0.0035 + d.tw); // 은은한 반짝임
           if(a<0) a=0;
           const size = d.r*7;
           ctx.globalAlpha = a;
           ctx.drawImage(sprite, cx-size/2, cy-size/2, size, size);   // 부드러운 글로우
-          ctx.globalAlpha = a*1.1>1?1:a*1.1;
-          ctx.beginPath(); ctx.arc(cx, cy, d.r*1.35, 0, Math.PI*2); ctx.fill(); // 선명한 흰색 코어(가독성↑)
+          ctx.globalAlpha = a;
+          ctx.beginPath(); ctx.arc(cx, cy, d.r*0.95, 0, Math.PI*2); ctx.fill(); // 작은 코어
         }
         ctx.globalAlpha = 1;
-        // 완성된 PORTFOLIO를 잠시 멈춰 충분히 읽히게 (착지 후 홀드)
-        if(allIn && t>4400 && !done){ done=true; finish(); }
+        // 촤르르 떨어진 뒤 완성된 PORTFOLIO를 잠시 멈춰 읽히게 (착지 후 홀드)
+        if(allIn && t>2700 && !done){ done=true; finish(); }
         raf = requestAnimationFrame(loop);
       }
       function finish(){ done=true; loader.classList.add('done'); reveal(); setTimeout(()=>{ if(raf) cancelAnimationFrame(raf); loader.style.display='none'; }, 850); }
