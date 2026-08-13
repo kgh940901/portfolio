@@ -209,6 +209,7 @@
   .chip:hover{ border-color:rgba(255,255,255,.28); background:rgba(255,255,255,.05); }
   .chip .logo{ width:15px; height:15px; flex:0 0 15px; }
   .chip .ico{ width:15px; height:15px; flex:0 0 15px; color:var(--muted); }
+  .chip .clogo{ height:15px; width:auto; max-width:36px; object-fit:contain; border-radius:3px; display:block; }
   @media(max-width:600px){ .tool-row{ grid-template-columns:1fr; gap:8px; } .tool-cat{ padding-top:0; } }
 
   /* ── 스킬 섹션 등장 연출 (단조로움 방지) ── */
