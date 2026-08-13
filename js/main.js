@@ -129,21 +129,36 @@ function initSite(){
       document.body.classList.add('loading');
       const ctx = canvas.getContext('2d');
       const TEXT = 'PORTFOLIO';
-      let W=0, H=0, dpr=1, dots=[], startT=0, raf=0, done=false, grad=null;
+      let W=0, H=0, dpr=1, dots=[], startT=0, raf=0, done=false, grad=null, sprite=null;
+      const R = Math.random;
+      function makeSprite(){
+        const s = document.createElement('canvas'); s.width=s.height=24; const c=s.getContext('2d');
+        const g = c.createRadialGradient(12,12,0,12,12,12);
+        g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.28,'rgba(255,255,255,.82)');
+        g.addColorStop(.55,'rgba(255,255,255,.22)'); g.addColorStop(1,'rgba(255,255,255,0)');
+        c.fillStyle=g; c.fillRect(0,0,24,24); sprite=s;
+      }
       function buildDots(){
         dpr = Math.min(window.devicePixelRatio||1, 2);
         const cssW = Math.min(window.innerWidth*0.74, 620);
         const off = document.createElement('canvas'); const o = off.getContext('2d');
         let fs = 160; o.font = '800 '+fs+"px 'Arial Black',Arial,sans-serif";
-        let tw = o.measureText(TEXT).width; fs = fs*(cssW*0.98)/tw;
+        let mw = o.measureText(TEXT).width; fs = fs*(cssW*0.98)/mw;
         o.font = '800 '+fs+"px 'Arial Black',Arial,sans-serif";
-        const cssH = Math.ceil(fs*0.95); W = Math.ceil(cssW); H = cssH;
-        off.width=W; off.height=H; o.font='800 '+fs+"px 'Arial Black',Arial,sans-serif";
+        const textH = Math.ceil(fs*0.95); const padY = 170;
+        W = Math.ceil(cssW); H = textH + padY*2;
+        off.width=W; off.height=textH; o.font='800 '+fs+"px 'Arial Black',Arial,sans-serif";
         o.fillStyle='#fff'; o.textAlign='center'; o.textBaseline='middle';
-        o.clearRect(0,0,W,H); o.fillText(TEXT, W/2, H/2);
-        const img = o.getImageData(0,0,W,H).data;
-        const gap = Math.max(5, Math.round(fs/15)); const r = gap*0.46; dots=[]; grad=null;
-        for(let y=0;y<H;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>90){ dots.push({x:x, y:y, r:r, delay:((x + y*0.3)/W)*850}); } } }
+        o.clearRect(0,0,W,textH); o.fillText(TEXT, W/2, textH/2);
+        const img = o.getImageData(0,0,W,textH).data;
+        const gap = Math.max(6, Math.round(fs/12.5)); dots=[]; grad=null;   // 성기게(작은 별)
+        for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>90){
+          const tx=x, ty=y+padY;
+          dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*90, sy:ty-(90+R()*440),
+            delay:R()*520, dur:1100+R()*560, r:0.8+R()*1.0,
+            swA:(R()-0.5)*22, swF:1.1+R()*1.3, tw:R()*6.283 });
+        } } }
+        makeSprite();
         canvas.style.width=W+'px'; canvas.style.height=H+'px';
         canvas.width=Math.round(W*dpr); canvas.height=Math.round(H*dpr); ctx.setTransform(dpr,0,0,dpr,0,0);
         startT = performance.now();
@@ -151,29 +166,36 @@ function initSite(){
       function loop(){
         const t = performance.now() - startT;
         ctx.clearRect(0,0,W,H);
-        // 1) 흰색 도트가 대각 스윕으로 깔끔하게 등장
-        ctx.fillStyle = '#ffffff';
+        // 1) 별빛 입자가 위에서 은은하게 흩날려 내려와 글자로 모임
         let allIn = true;
         for(const d of dots){
-          let p=(t-d.delay)/420; if(p<1){ allIn=false; } if(p<0)p=0; if(p>1)p=1;
-          const e = 1-Math.pow(1-p,3);
-          ctx.globalAlpha = e;
-          ctx.beginPath(); ctx.arc(d.x, d.y, d.r*(0.35+0.65*e), 0, Math.PI*2); ctx.fill();
+          let lp=(t-d.delay)/d.dur;
+          if(lp<0){ allIn=false; continue; }   // 아직 안 내려온 별
+          if(lp<1) allIn=false;
+          const cl = lp>1?1:lp;
+          const e = 1-Math.pow(1-cl,3);         // 부드럽게 착지
+          const cx = d.sx + (d.tx-d.sx)*e + Math.sin(t*0.001*d.swF + d.tw)*d.swA*(1-e); // 흩날림(착지하며 감쇠)
+          const cy = d.sy + (d.ty-d.sy)*e;
+          let a = cl*1.7; if(a>1) a=1;           // 내려오며 서서히 밝아짐
+          a *= 0.72 + 0.28*Math.sin(t*0.004 + d.tw); // 반짝임
+          const size = d.r*6;
+          ctx.globalAlpha = a<0?0:a;
+          ctx.drawImage(sprite, cx-size/2, cy-size/2, size, size);
         }
         ctx.globalAlpha = 1;
-        // 2) 흰색 뒤에 아주 연한 주황 그라데이션이 번짐 (도트 위에만 입힘)
-        let tp = (t-520)/900; if(tp<0)tp=0; if(tp>1)tp=1;
+        // 2) 흰색 뒤에 아주 연한 주황 그라데이션이 번짐 (별빛 위에만)
+        let tp = (t-1000)/1000; if(tp<0)tp=0; if(tp>1)tp=1;
         if(tp>0){
           const te = 1-Math.pow(1-tp,2);
           if(!grad){ grad = ctx.createLinearGradient(0,0,W,0);
             grad.addColorStop(0,'#ffd9bd'); grad.addColorStop(.55,'#ff9a4d'); grad.addColorStop(1,'#ff6a12'); }
           ctx.globalCompositeOperation = 'source-atop';
-          ctx.globalAlpha = te*0.4;              // 아주 연하게
+          ctx.globalAlpha = te*0.34;             // 아주 연하게
           ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
           ctx.globalCompositeOperation = 'source-over';
           ctx.globalAlpha = 1;
         }
-        if(allIn && t>1900 && !done){ done=true; finish(); }
+        if(allIn && t>2300 && !done){ done=true; finish(); }
         raf = requestAnimationFrame(loop);
       }
       function finish(){ done=true; loader.classList.add('done'); reveal(); setTimeout(()=>{ if(raf) cancelAnimationFrame(raf); loader.style.display='none'; }, 850); }
