@@ -132,32 +132,32 @@ function initSite(){
       let W=0, H=0, dpr=1, dots=[], startT=0, raf=0, done=false, grad=null, sprite=null;
       const R = Math.random;
       function makeSprite(){
-        const s = document.createElement('canvas'); s.width=s.height=24; const c=s.getContext('2d');
-        const g = c.createRadialGradient(12,12,0,12,12,12);
-        g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.34,'rgba(255,255,255,.96)');
-        g.addColorStop(.6,'rgba(255,255,255,.30)'); g.addColorStop(1,'rgba(255,255,255,0)');
-        c.fillStyle=g; c.fillRect(0,0,24,24); sprite=s;
+        const s = document.createElement('canvas'); s.width=s.height=20; const c=s.getContext('2d');
+        const g = c.createRadialGradient(10,10,0,10,10,10);
+        g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.4,'rgba(255,255,255,.9)');
+        g.addColorStop(.7,'rgba(255,255,255,.25)'); g.addColorStop(1,'rgba(255,255,255,0)');
+        c.fillStyle=g; c.fillRect(0,0,20,20); sprite=s;
       }
       function buildDots(){
         dpr = Math.min(window.devicePixelRatio||1, 2);
         const cssW = Math.min(window.innerWidth*0.72, 640);
         const off = document.createElement('canvas'); const o = off.getContext('2d');
-        const FF = "px 'Arial',Helvetica,sans-serif";   // 얇은 웨이트로 획을 가늘게
-        let fs = 160; o.font = '400 '+fs+FF;
-        let mw = o.measureText(TEXT).width; fs = fs*(cssW*0.96)/mw;
-        o.font = '400 '+fs+FF;
-        const textH = Math.ceil(fs*1.1); const padY = 170;
+        const FF = "px 'Arial',Helvetica,sans-serif";
+        let fs = 160; o.font = '800 '+fs+FF;                  // 굵은 획(도톰·또렷)
+        let mw = o.measureText(TEXT).width; fs = fs*(cssW*0.97)/mw;
+        o.font = '800 '+fs+FF;
+        const textH = Math.ceil(fs*1.05); const padY = 170;
         W = Math.ceil(cssW); H = textH + padY*2;
-        off.width=W; off.height=textH; o.font='400 '+fs+FF;
+        off.width=W; off.height=textH; o.font='800 '+fs+FF;
         o.fillStyle='#fff'; o.textAlign='center'; o.textBaseline='middle';
         o.clearRect(0,0,W,textH); o.fillText(TEXT, W/2, textH/2);
         const img = o.getImageData(0,0,W,textH).data;
-        const gap = Math.max(4, Math.round(fs/16)); dots=[]; grad=null;   // 성긴 별
-        for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>100 && R()<0.9){
-          const tx=x+(R()-0.5)*gap*0.6, ty=y+(R()-0.5)*gap*0.6+padY;      // 살짝 흐트러진 별자리
+        const gap = Math.max(3, Math.round(fs/22)); dots=[]; grad=null;   // 촘촘·작은 별
+        for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>110){
+          const tx=x+(R()-0.5)*gap*0.5, ty=y+(R()-0.5)*gap*0.5+padY;      // 살짝 흐트러진 별자리
           dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*90, sy:ty-(120+R()*520),
-            delay:R()*320, dur:820+R()*520, r:0.5+R()*1.3, base:0.5+R()*0.5, // 크기·밝기 편차
-            swA:(R()-0.5)*18, swF:0.9+R()*1.2, tw:R()*6.283 });
+            delay:R()*320, dur:820+R()*520, r:0.35+R()*0.65, base:0.55+R()*0.45, // 작은 점·밝기 편차
+            swA:(R()-0.5)*16, swF:0.9+R()*1.2, tw:R()*6.283 });
         } } }
         makeSprite();
         canvas.style.width=W+'px'; canvas.style.height=H+'px';
@@ -178,15 +178,15 @@ function initSite(){
           const e = 1-Math.pow(1-cl,3);         // 부드럽게 착지
           const cx = d.sx + (d.tx-d.sx)*e + Math.sin(t*0.001*d.swF + d.tw)*d.swA*(1-e); // 흩날림(착지하며 감쇠)
           const cy = d.sy + (d.ty-d.sy)*e;
-          let a = cl*1.7; if(a>1) a=1;           // 내려오며 서서히 밝아짐
+          let a = cl*1.8; if(a>1) a=1;           // 내려오며 서서히 밝아짐
           a *= d.base;                            // 별마다 밝기 편차 (별자리 무드)
-          a *= 0.82 + 0.18*Math.sin(t*0.0035 + d.tw); // 은은한 반짝임
+          a *= 0.85 + 0.15*Math.sin(t*0.0035 + d.tw); // 은은한 반짝임
           if(a<0) a=0;
-          const size = d.r*7;
+          const size = d.r*5;
+          ctx.globalAlpha = a*0.85;
+          ctx.drawImage(sprite, cx-size/2, cy-size/2, size, size);   // 작은 글로우
           ctx.globalAlpha = a;
-          ctx.drawImage(sprite, cx-size/2, cy-size/2, size, size);   // 부드러운 글로우
-          ctx.globalAlpha = a;
-          ctx.beginPath(); ctx.arc(cx, cy, d.r*0.95, 0, Math.PI*2); ctx.fill(); // 작은 코어
+          ctx.beginPath(); ctx.arc(cx, cy, d.r*0.85, 0, Math.PI*2); ctx.fill(); // 아주 작은 코어
         }
         ctx.globalAlpha = 1;
         // 촤르르 떨어진 뒤 완성된 PORTFOLIO를 잠시 멈춰 읽히게 (착지 후 홀드)
