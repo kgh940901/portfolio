@@ -210,30 +210,29 @@
 
   /* ── 보조: 사용하는 툴 (가벼운 칩 리스트) — 위 영역과 구분선으로 분리 ── */
   .sub-label.muted-label{ color:var(--text); margin-top:66px; padding-top:46px; border-top:1px solid var(--line); }
-  /* Tools & Skills — 타이포 인덱스 + 실무 활용 설명(작은 정보 박스) */
+  /* Tools & Skills — 이력서형 Skill Index (카드 없이 텍스트+아이콘만) */
   .tool-list{ display:flex; flex-direction:column; }
-  .tool-row{ display:grid; grid-template-columns:130px minmax(0,1fr); gap:32px; padding:24px 0; border-top:1px solid rgba(255,255,255,.07); }
-  .tool-row:first-child{ border-top:0; }
-  .tool-head{ display:flex; flex-direction:column; gap:5px; padding-top:2px; }
-  .tools-index{ font-size:11px; color:rgba(255,255,255,.35); letter-spacing:.08em; font-variant-numeric:tabular-nums; }
-  .tool-cat{ font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--text); }
-  .tools-list{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; }
-  .tools-list--code{ grid-template-columns:repeat(4,minmax(150px,1fr)); }
-  .tool-item{ min-width:0; padding:13px 16px 12px; border:1px solid rgba(255,255,255,.1); border-radius:11px; background:rgba(255,255,255,.015);
-    transition:border-color .25s ease, background-color .25s ease, transform .25s ease; }
-  .tool-item:hover{ border-color:rgba(255,255,255,.2); background:rgba(255,255,255,.03); transform:translateY(-2px); }
+  .tool-row{ display:grid; grid-template-columns:120px minmax(0,1fr); gap:28px; padding:28px 0; border-bottom:1px solid rgba(255,255,255,.07); }
+  .tool-row:last-child{ border-bottom:0; }
+  .tool-head{ padding-top:2px; }
+  .tool-cat{ font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.72); }
+  .tools-list{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:24px; }
+  .tool-item{ min-width:0; background:none; border:0; border-radius:0; box-shadow:none; padding:0; transition:opacity .25s ease; }
+  .tool-item:hover{ opacity:.72; }
   .tool-title{ display:flex; align-items:center; gap:8px; font-size:15px; font-weight:600; color:#f2f2f0; line-height:1.25; }
   .tool-title .logo{ width:20px; height:20px; flex:0 0 20px; }
   .tool-title .clogo{ height:20px; width:auto; max-width:26px; flex:0 0 auto; object-fit:contain; border-radius:4px; display:block; }
   .tool-title span{ min-width:0; }
-  .tool-desc{ margin-top:7px; font-size:12px; line-height:1.5; color:rgba(255,255,255,.48); }
+  .tool-desc{ margin-top:8px; font-size:12px; line-height:1.5; color:rgba(255,255,255,.45); }
+  @media(max-width:1024px){
+    .tools-list{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+  }
   @media(max-width:767px){
-    .tool-row{ grid-template-columns:1fr; gap:16px; padding:20px 0; }
-    .tool-head{ flex-direction:row; align-items:baseline; gap:10px; }
-    .tools-list, .tools-list--code{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .tool-row{ grid-template-columns:1fr; gap:18px; padding:24px 0; }
+    .tools-list{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px 16px; }
   }
   @media(max-width:420px){
-    .tools-list, .tools-list--code{ grid-template-columns:1fr; }
+    .tools-list{ grid-template-columns:1fr; }
   }
 
   /* ── 스킬 섹션 등장 연출 (단조로움 방지) ── */
