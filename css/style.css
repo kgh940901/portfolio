@@ -2,7 +2,7 @@
     --bg:#0a0a0a; --bg-soft:#141414; --card:#161616; --text:#f3f3f1; --muted:#8a8a86; --body:#aeaea8; --line:rgba(255,255,255,.1);
     --accent:#ff7a1a; --accent-soft:rgba(255,122,26,.16);
     --sb-track:#2b2b2b; --sb-thumb:#9a9a9a; --sb-thumb-hover:#c4c4c4;
-    --maxw:1280px;
+    --maxw:1440px;
     --font:'Pretendard', system-ui, -apple-system, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
     --hand:var(--font);
   }
@@ -253,14 +253,14 @@
   .pf-btn:hover{ background:var(--text); color:#000; }
   .pf-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:36px; margin-top:34px; }
   @media(max-width:680px){ .pf-grid{ grid-template-columns:1fr; } }
-  .pf-card{ display:flex; flex-direction:column; background:var(--bg-soft); border:1px solid var(--line); border-radius:26px; padding:24px; transition:border-color .3s, transform .3s, box-shadow .3s; }
+  .pf-card{ display:flex; flex-direction:column; background:var(--bg-soft); border:1px solid var(--line); border-radius:26px; padding:30px; transition:border-color .3s, transform .3s, box-shadow .3s; }
   .pf-card:hover{ border-color:rgba(255,255,255,.28); transform:translateY(-5px); box-shadow:0 24px 60px rgba(0,0,0,.5); }
   .pf-thumb{ position:relative; aspect-ratio:4/3; border-radius:18px; overflow:hidden; }
   .pf-type{ position:absolute; top:12px; left:12px; z-index:2; font-size:10px; font-weight:700; letter-spacing:.8px; padding:5px 9px; border-radius:7px; color:#e9e9e6; background:rgba(10,10,10,.68); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,.14); }
   .pf-type.work{ color:#ffb480; border-color:rgba(255,122,26,.42); }
   .pf-thumb img{ width:100%; height:100%; object-fit:cover; transition:transform .7s cubic-bezier(.2,.7,.2,1); }
   .pf-card:hover .pf-thumb img{ transform:scale(1.06); }
-  .pf-tags{ display:flex; flex-wrap:wrap; gap:9px; margin:22px 0 16px; }
+  .pf-tags{ display:flex; flex-wrap:wrap; gap:9px; margin:30px 0 10px; }
   .pf-tags span{ font-size:12px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:#adada7; border:1px solid rgba(255,255,255,.16); border-radius:999px; padding:6px 14px; line-height:1; }
   .pf-card h3{ font-size:24px; font-weight:800; letter-spacing:-.4px; }
   .pf-card.feat{ border-color:rgba(255,122,26,.34); }
