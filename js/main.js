@@ -27,9 +27,13 @@ function initSite(){
       const links = Array.prototype.slice.call(document.querySelectorAll('.dock a'));
       if(!links.length) return;
       const map = links.map(function(a){ const id=a.getAttribute('href'); return { a:a, el:(id && id.charAt(0)==='#') ? document.querySelector(id) : null }; }).filter(function(m){ return m.el && !m.a.classList.contains('dock-cta'); });
+      const workLink = links.filter(function(a){ return a.getAttribute('href')==='#work'; })[0];
+      const projects = document.getElementById('projects');
       function spy(){
         const mid = innerHeight*0.42; let cur=null;
         for(const m of map){ const r=m.el.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid){ cur=m.a; } }
+        // Work + Project Details를 하나의 영역으로: projects 구간에선 Work 메뉴를 유지
+        if(projects && workLink){ const r=projects.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid){ cur=workLink; } }
         map.forEach(function(m){ m.a.classList.toggle('active', m.a===cur); });
       }
       addEventListener('scroll', spy, { passive:true }); addEventListener('resize', spy); spy();
@@ -39,10 +43,12 @@ function initSite(){
     (function(){
       if(!window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // 모바일/터치에서는 성능을 위해 물결 비활성화(정적 다크 배경 유지)
+      if(reduce || innerWidth < 820 || !matchMedia('(pointer:fine)').matches) return;
       function setup(id, interval){
         const el = document.getElementById(id); if(!el) return null;
         const $el = jQuery(el);
-        try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.02, interactive: false }); }
+        try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.012, interactive: false }); }
         catch(e){ return null; } // WebGL 미지원 시 정적 배경 유지
         if(reduce){ try{ $el.ripples('pause'); }catch(e){} return null; }
         // 파문이 퍼지는 속도를 느리게 — 시뮬레이션을 2프레임 중 1번만 실행(렌더는 매 프레임)
@@ -56,7 +62,7 @@ function initSite(){
         function drop(){
           if(!playing || document.hidden) return;   // 정지 중엔 물방울을 쌓지 않음(재개 시 폭우 방지)
           const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
-          try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.04+Math.random()*0.03); }catch(e){}
+          try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.028+Math.random()*0.02); }catch(e){}
         }
         setInterval(drop, interval);
         let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
@@ -84,27 +90,6 @@ function initSite(){
       document.querySelectorAll('a, button, summary, .dock a, .pf-card, .ab, .pf-btn, .hmq-track').forEach(el=>{
         el.addEventListener('pointerenter',()=>dot.classList.add('hover'));
         el.addEventListener('pointerleave',()=>dot.classList.remove('hover'));
-      });
-
-      // 볼록렌즈 돋보기: 프로젝트 이미지 위에서 원형 확대
-      const ZOOM = 1.9, RAD = 95;   // 렌즈 반지름(px), 렌즈 크기=190
-      const lens = document.createElement('div'); lens.className = 'lens'; document.body.appendChild(lens);
-      document.querySelectorAll('.pf-thumb').forEach(thumb=>{
-        const img = thumb.querySelector('img'); if(!img) return;
-        thumb.addEventListener('pointerenter', ()=>{
-          lens.style.backgroundImage = 'url("' + (img.currentSrc || img.src) + '")';
-          lens.classList.add('on'); dot.classList.add('lens');
-        });
-        thumb.addEventListener('pointerleave', ()=>{
-          lens.classList.remove('on'); dot.classList.remove('lens');
-        });
-        thumb.addEventListener('pointermove', e=>{
-          const r = thumb.getBoundingClientRect();
-          const x = e.clientX - r.left, y = e.clientY - r.top;
-          lens.style.transform = 'translate('+e.clientX+'px,'+e.clientY+'px) translate(-50%,-50%)';
-          lens.style.backgroundSize = (r.width*ZOOM)+'px ' + (r.height*ZOOM)+'px';
-          lens.style.backgroundPosition = (-(x*ZOOM - RAD))+'px ' + (-(y*ZOOM - RAD))+'px';
-        }, {passive:true});
       });
     })();
 
@@ -139,6 +124,8 @@ function initSite(){
       const canvas = document.getElementById('loaderCanvas');
       function reveal(){ document.body.classList.remove('loading'); document.body.classList.add('loaded'); }
       if(!loader || !canvas){ reveal(); return; }
+      // 같은 세션(재방문)에서는 로더 생략
+      try{ if(sessionStorage.getItem('pf_seen')){ reveal(); loader.style.display='none'; return; } }catch(e){}
       document.body.classList.add('loading');
       const ctx = canvas.getContext('2d');
       const TEXT = 'PORTFOLIO';
@@ -168,9 +155,9 @@ function initSite(){
         const gap = Math.max(3, Math.round(fs/26)); dots=[]; grad=null;   // 촘촘·작은 별(확대 스케일에 맞춰)
         for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>110){
           const tx=x+(R()-0.5)*gap*0.5, ty=y+(R()-0.5)*gap*0.5+padY;      // 살짝 흐트러진 별자리
-          dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*100, sy:ty-(130+R()*560),
-            delay:R()*320, dur:820+R()*520, r:0.4+R()*0.7, base:0.55+R()*0.45, // 작은 점·밝기 편차
-            swA:(R()-0.5)*16, swF:0.9+R()*1.2, tw:R()*6.283 });
+          dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*80, sy:ty-(80+R()*340),
+            delay:R()*150, dur:460+R()*300, r:0.4+R()*0.7, base:0.55+R()*0.45, // 작은 점·밝기 편차
+            swA:(R()-0.5)*14, swF:0.9+R()*1.2, tw:R()*6.283 });
         } } }
         makeSprite();
         canvas.style.width=W+'px'; canvas.style.height=H+'px';
@@ -203,14 +190,14 @@ function initSite(){
         }
         ctx.globalAlpha = 1;
         // 촤르르 떨어진 뒤 완성된 PORTFOLIO를 잠시 멈춰 읽히게 (착지 후 홀드)
-        if(allIn && t>2700 && !done){ done=true; finish(); }
+        if(allIn && t>820 && !done){ done=true; finish(); }
         raf = requestAnimationFrame(loop);
       }
-      function finish(){ done=true; loader.classList.add('done'); reveal(); setTimeout(()=>{ if(raf) cancelAnimationFrame(raf); loader.style.display='none'; }, 850); }
+      function finish(){ done=true; try{ sessionStorage.setItem('pf_seen','1'); }catch(e){} loader.classList.add('done'); reveal(); setTimeout(()=>{ if(raf) cancelAnimationFrame(raf); loader.style.display='none'; }, 450); }
       function start(){ buildDots(); if(raf) cancelAnimationFrame(raf); loop(); }
       if(document.fonts && document.fonts.ready){ document.fonts.ready.then(start); } else { start(); }
-      setTimeout(()=>{ if(!W) start(); }, 250);
-      setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 8000); // 안전장치
+      setTimeout(()=>{ if(!W) start(); }, 200);
+      setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 3000); // 안전장치
     })();
 
     // 실시간 시계 [ HH:MM:SS ]
