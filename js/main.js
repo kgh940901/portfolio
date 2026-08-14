@@ -156,7 +156,7 @@ function initSite(){
         for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>110){
           const tx=x+(R()-0.5)*gap*0.5, ty=y+(R()-0.5)*gap*0.5+padY;      // 살짝 흐트러진 별자리
           dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*80, sy:ty-(80+R()*340),
-            delay:R()*150, dur:460+R()*300, r:0.4+R()*0.7, base:0.55+R()*0.45, // 작은 점·밝기 편차
+            delay:R()*420, dur:620+R()*520, r:0.4+R()*0.7, base:0.55+R()*0.45, // 작은 점·밝기 편차
             swA:(R()-0.5)*14, swF:0.9+R()*1.2, tw:R()*6.283 });
         } } }
         makeSprite();
@@ -190,14 +190,14 @@ function initSite(){
         }
         ctx.globalAlpha = 1;
         // 촤르르 떨어진 뒤 완성된 PORTFOLIO를 잠시 멈춰 읽히게 (착지 후 홀드)
-        if(allIn && t>820 && !done){ done=true; finish(); }
+        if(allIn && t>1950 && !done){ done=true; finish(); }
         raf = requestAnimationFrame(loop);
       }
       function finish(){ done=true; try{ sessionStorage.setItem('pf_seen','1'); }catch(e){} loader.classList.add('done'); reveal(); setTimeout(()=>{ if(raf) cancelAnimationFrame(raf); loader.style.display='none'; }, 450); }
       function start(){ buildDots(); if(raf) cancelAnimationFrame(raf); loop(); }
       if(document.fonts && document.fonts.ready){ document.fonts.ready.then(start); } else { start(); }
       setTimeout(()=>{ if(!W) start(); }, 200);
-      setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 3000); // 안전장치
+      setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 4000); // 안전장치
     })();
 
     // 실시간 시계 [ HH:MM:SS ]

@@ -98,7 +98,7 @@
   .pf-badge{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(.6); z-index:4; pointer-events:none;
     width:88px; height:88px; border-radius:50%; background:#ff7a1a; color:#1a0e00;
     display:flex; align-items:center; justify-content:center; text-align:center;
-    font-size:13px; font-weight:800; letter-spacing:1.5px; opacity:0;
+    font-size:10.5px; font-weight:800; letter-spacing:.6px; opacity:0;
     box-shadow:0 12px 34px rgba(255,122,26,.45);
     transition:opacity .3s cubic-bezier(.2,.7,.2,1), transform .3s cubic-bezier(.2,.7,.2,1); }
   .hero-pf:hover .pf-badge{ opacity:1; transform:translate(-50%,-50%) scale(1); }
@@ -294,8 +294,11 @@
   .essay summary{ list-style:none; cursor:pointer; padding:26px 4px; display:flex; align-items:center; gap:14px; font-size:clamp(16px,2vw,23px); font-weight:800; letter-spacing:-.5px; transition:padding-left .3s; }
   .essay summary::-webkit-details-marker{ display:none; }
   .essay[open] summary, .essay summary:hover{ padding-left:14px; }
-  .essay[open]{ background:rgba(255,255,255,.018); }
-  .essay[open] summary{ box-shadow:inset 3px 0 0 var(--accent); }
+  .essay[open]{ background:rgba(255,255,255,.015); }
+  .essay summary{ position:relative; }
+  .essay summary::before{ content:""; position:absolute; left:0; top:50%; transform:translateY(-50%) scaleY(0);
+    width:3px; height:20px; border-radius:3px; background:var(--accent); opacity:.7; transition:transform .28s ease; }
+  .essay[open] summary::before{ transform:translateY(-50%) scaleY(1); }
   .essay summary .chev{ margin-left:auto; color:var(--muted); transition:transform .25s; }
   .essay[open] summary .chev{ transform:rotate(180deg); }
   .essay .essay-body{ padding:0 4px 30px; max-width:900px; }
@@ -337,8 +340,11 @@
   .proj summary{ list-style:none; cursor:pointer; padding:24px 4px; display:flex; align-items:center; gap:14px; font-size:clamp(16px,2vw,22px); font-weight:800; letter-spacing:-.5px; transition:padding-left .3s; }
   .proj summary::-webkit-details-marker{ display:none; }
   .proj[open] summary, .proj summary:hover{ padding-left:14px; }
-  .proj[open]{ background:rgba(255,255,255,.018); }
-  .proj[open] summary{ box-shadow:inset 3px 0 0 var(--accent); }
+  .proj[open]{ background:rgba(255,255,255,.015); }
+  .proj summary{ position:relative; }
+  .proj summary::before{ content:""; position:absolute; left:0; top:50%; transform:translateY(-50%) scaleY(0);
+    width:3px; height:20px; border-radius:3px; background:var(--accent); opacity:.7; transition:transform .28s ease; }
+  .proj[open] summary::before{ transform:translateY(-50%) scaleY(1); }
   .proj summary .pj-tag{ margin-left:auto; font-size:11px; font-weight:700; letter-spacing:1.5px; color:var(--accent); white-space:nowrap; }
   .proj summary .chev{ color:var(--muted); transition:transform .25s; }
   .proj[open] summary .chev{ transform:rotate(180deg); }
@@ -373,7 +379,7 @@
     /* 프로필 위 요소 크기 축소 */
     .pf-corner{ width:32px; height:32px; right:10px; bottom:10px; }
     .pf-corner svg{ width:14px; height:14px; }
-    .pf-badge{ width:68px; height:68px; font-size:11px; letter-spacing:1px; }
+    .pf-badge{ width:68px; height:68px; font-size:9.5px; letter-spacing:.4px; }
     /* 푸터 아웃라인 이름이 잘리던 문제 */
     .foot-name{ font-size:34px; letter-spacing:-1px; }
     .foot-bottom{ flex-direction:column; gap:8px; text-align:center; }
