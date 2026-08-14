@@ -28,6 +28,11 @@
   .head .demo:hover{ background:#f4f4f2; color:#0a0a0a; }
   .shots{ max-width:1080px; margin:0 auto; padding:10px 16px 90px; }
   .shots img{ width:100%; border-radius:10px; margin-bottom:16px; }
+  .shots .shot-main{ display:block; position:relative; cursor:pointer; }
+  .shots .shot-main img{ transition:opacity .25s ease; }
+  .shots .shot-main:hover img{ opacity:.92; }
+  .shots .shot-main::after{ content:"라이브 데모 ↗"; position:absolute; top:16px; right:16px; padding:8px 14px; border-radius:999px; background:rgba(10,10,10,.7); backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,.18); font-size:12px; font-weight:700; letter-spacing:.4px; opacity:0; transition:opacity .25s ease; }
+  .shots .shot-main:hover::after{ opacity:1; }
   footer{ text-align:center; padding:44px 24px 60px; color:#8a8a86; font-size:13px; border-top:1px solid rgba(255,255,255,.08); }
   footer a{ border-bottom:1px solid rgba(255,255,255,.25); }
   @media(max-width:680px){ .shots{ padding:6px 0 70px; } .shots img{ border-radius:0; margin-bottom:8px; } }
@@ -46,7 +51,7 @@
   </header>
 
   <div class="shots">
-    <img src="assets/company2/kids01.jpg" alt="Kids Pension 1" loading="lazy" />
+    <a class="shot-main" href="https://campwithpet.co.kr/" target="_blank" rel="noopener" aria-label="Kids Pension 라이브 데모 보기"><img src="assets/company2/kids01.jpg" alt="Kids Pension 1" loading="lazy" /></a>
     <img src="assets/company2/kids02.jpg" alt="Kids Pension 2" loading="lazy" />
     <img src="assets/company2/kids03.jpg" alt="Kids Pension 3" loading="lazy" />
   </div>
