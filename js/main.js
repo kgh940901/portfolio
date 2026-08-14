@@ -22,21 +22,28 @@ function initSite(){
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
-    // 독 스크롤 스파이: 현재 섹션 메뉴에 .active (CTA 제외)
+    // 스크롤 스파이: 상단 내비 + 하단 독 동시 반영 (CTA 제외, href 기준)
     (function(){
-      const links = Array.prototype.slice.call(document.querySelectorAll('.dock a'));
+      const links = Array.prototype.slice.call(document.querySelectorAll('.dock a, .nav-links a'));
       if(!links.length) return;
-      const map = links.map(function(a){ const id=a.getAttribute('href'); return { a:a, el:(id && id.charAt(0)==='#') ? document.querySelector(id) : null }; }).filter(function(m){ return m.el && !m.a.classList.contains('dock-cta'); });
-      const workLink = links.filter(function(a){ return a.getAttribute('href')==='#work'; })[0];
+      const isNav = function(a){ const id=a.getAttribute('href'); return id && id.charAt(0)==='#' && !a.classList.contains('dock-cta') && !a.classList.contains('nl-cta'); };
+      const sections = links.filter(isNav).map(function(a){ return { a:a, el:document.querySelector(a.getAttribute('href')) }; }).filter(function(m){ return m.el; });
       const projects = document.getElementById('projects');
       function spy(){
-        const mid = innerHeight*0.42; let cur=null;
-        for(const m of map){ const r=m.el.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid){ cur=m.a; } }
-        // Work + Project Details를 하나의 영역으로: projects 구간에선 Work 메뉴를 유지
-        if(projects && workLink){ const r=projects.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid){ cur=workLink; } }
-        map.forEach(function(m){ m.a.classList.toggle('active', m.a===cur); });
+        const mid = innerHeight*0.42; let curHref=null;
+        sections.forEach(function(m){ const r=m.el.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid){ curHref=m.a.getAttribute('href'); } });
+        // Work + Project Details를 하나의 영역으로: projects 구간에선 Work 유지
+        if(projects){ const r=projects.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid){ curHref='#work'; } }
+        links.forEach(function(a){ if(isNav(a)) a.classList.toggle('active', a.getAttribute('href')===curHref); });
       }
       addEventListener('scroll', spy, { passive:true }); addEventListener('resize', spy); spy();
+    })();
+
+    // 상단 내비: 스크롤 시 배경/블러
+    (function(){
+      const topnav = document.getElementById('topnav'); if(!topnav) return;
+      function onScroll(){ topnav.classList.toggle('scrolled', scrollY > 10); }
+      addEventListener('scroll', onScroll, { passive:true }); onScroll();
     })();
 
     // 물결(WebGL ripple) — 인트로(물빛 텍스처) + 그 아래(순검정, 파문만)
