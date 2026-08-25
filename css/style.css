@@ -364,7 +364,8 @@
   .crow[open] summary, .crow summary:hover{ padding-left:14px; background:rgba(255,255,255,.02); }
   .crow .cn{ font-size:clamp(20px,2.6vw,30px); font-weight:800; letter-spacing:-.8px; }
   .crow .cr{ color:var(--muted); font-size:15.5px; }
-  .crow .cd{ color:var(--muted); font-size:15.5px; text-align:right; }
+  .crow .cd{ color:var(--muted); font-size:15.5px; text-align:right; white-space:nowrap; }
+  .crow .cdur{ color:rgba(255,255,255,.34); font-size:13.5px; margin-left:8px; }
   .crow .chev{ color:var(--muted); font-size:14px; text-align:right; transition:transform .25s; }
   .crow[open] .chev{ transform:rotate(180deg); }
   .crow .ctasks{ display:flex; flex-wrap:wrap; gap:7px; padding:2px 4px 26px; }
