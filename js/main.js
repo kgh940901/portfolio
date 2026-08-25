@@ -46,7 +46,7 @@ function initSite(){
         }
         if(pin && list){
           const t = list.getBoundingClientRect().top;
-          let o = (t - vh*0.34) / (vh*0.82 - vh*0.34);   // 0.82vh부터 옅어져 0.34vh에서 완전히 사라짐
+          let o = (t - vh*0.16) / (vh*0.54 - vh*0.16);   // 0.54vh부터 옅어져 0.16vh에서 완전히 사라짐 (.fw-pin 높이 60vh 기준)
           o = o < 0 ? 0 : (o > 1 ? 1 : o);
           pin.style.opacity = o.toFixed(3);
           pin.style.pointerEvents = o < 0.06 ? 'none' : '';
