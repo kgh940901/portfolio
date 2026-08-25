@@ -17,6 +17,38 @@ function initSite(){
     }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
+    // Selected Work — 로우 등장(라인 마스크 솟아오름) + 썸네일 패럴랙스
+    (function(){
+      const rows = Array.prototype.slice.call(document.querySelectorAll('.fw'));
+      if(!rows.length) return;
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches){ rows.forEach(r => r.classList.add('in')); return; }
+
+      const rio = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); rio.unobserve(e.target); } });
+      }, { threshold:0.15, rootMargin:'0px 0px -6% 0px' });
+      rows.forEach(r => rio.observe(r));
+
+      // 화면을 지나는 동안 썸네일이 스크롤과 다른 속도로 움직임
+      const media = rows.map(r => r.querySelector('.fw-media')).filter(Boolean);
+      if(!media.length) return;
+      let ticking = false;
+      function frame(){
+        ticking = false;
+        const vh = innerHeight, amp = innerWidth < 833 ? 16 : 38;
+        for(const m of media){
+          const r = m.getBoundingClientRect();
+          if(r.bottom < -240 || r.top > vh + 240) continue;
+          let p = (r.top + r.height/2 - vh/2) / (vh/2 + r.height/2);   // -1(아래) ~ 1(위)
+          p = p < -1 ? -1 : (p > 1 ? 1 : p);
+          m.style.transform = 'translate3d(0,' + (p * amp).toFixed(1) + 'px,0)';
+        }
+      }
+      function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(frame); } }
+      addEventListener('scroll', onScroll, { passive:true });
+      addEventListener('resize', onScroll);
+      frame();
+    })();
+
     // 진행바
     const sprog = document.getElementById('sprog');
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
@@ -87,7 +119,7 @@ function initSite(){
       if(!dot) return;
       document.body.classList.add('cursor-on');
       addEventListener('pointermove', e=>{ dot.style.transform='translate('+e.clientX+'px,'+e.clientY+'px) translate(-50%,-50%)'; }, {passive:true});
-      document.querySelectorAll('a, button, summary, .dock a, .pf-card, .ab, .pf-btn, .hmq-track').forEach(el=>{
+      document.querySelectorAll('a, button, summary, .dock a, .fw-media, .fw-link, .ab, .pf-btn, .hmq-track').forEach(el=>{
         el.addEventListener('pointerenter',()=>dot.classList.add('hover'));
         el.addEventListener('pointerleave',()=>dot.classList.remove('hover'));
       });
