@@ -308,16 +308,15 @@
   .fw-type{ font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#ffb480; }
   .fw-tags{ font-size:12px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.32); }
 
-  /* 프로젝트 타이틀 — 영문 한 줄 */
-  .fw-title{ font-weight:800; text-transform:uppercase; font-size:clamp(1.75rem,4.2vw,3.25rem); line-height:1.02; letter-spacing:-.02em; margin-bottom:32px; }
+  /* 프로젝트 타이틀 — 영문 한 줄. 텍스트 칼럼 안에 있어 이미지 상단선에서 시작함 */
+  .fw-title{ font-weight:800; text-transform:uppercase; font-size:clamp(1.75rem,3.4vw,2.9rem); line-height:1.06; letter-spacing:-.02em; margin:0; }
   .fw-title .fw-mask{ padding-bottom:.14em; }   /* y·g 같은 디센더가 마스크에 잘리지 않도록 */
-  @media(min-width:833px){ .fw-title{ margin-bottom:44px; } }
 
-  /* 이미지 55% + 설명 45% — 홀수는 이미지 왼쪽, 짝수는 오른쪽(좌우 교차) */
+  /* 이미지 55% + 설명 45% — 홀수는 이미지 오른쪽, 짝수는 왼쪽(좌우 교차) */
   .fw-body{ display:flex; flex-direction:column; gap:28px; }
   @media(min-width:833px){
     .fw-body{ flex-direction:row; align-items:flex-start; gap:52px; }
-    .fw:nth-child(even) .fw-body{ flex-direction:row-reverse; }
+    .fw:nth-child(odd) .fw-body{ flex-direction:row-reverse; }
   }
   .fw-media{ display:block; flex-shrink:0; width:100%; max-width:862px; will-change:transform; }   /* 원본 862x656 보다 커지지 않게 */
   @media(min-width:833px){ .fw-media{ width:55%; } }
@@ -326,8 +325,8 @@
   .fw-frame img{ width:100%; height:100%; object-fit:cover; filter:brightness(.92); transition:transform .8s cubic-bezier(.2,.7,.2,1), filter .45s ease; }
   .fw-media:hover .fw-frame img{ transform:scale(1.05); filter:brightness(1); }
 
-  .fw-info{ display:flex; flex-direction:column; justify-content:space-between; flex:1; gap:26px; }
-  @media(min-width:833px){ .fw-info{ min-height:210px; padding-top:4px; } }
+  .fw-info{ display:flex; flex-direction:column; flex:1; gap:22px; }
+  @media(min-width:833px){ .fw-info{ min-height:260px; padding-top:0; } }
   .fw-desc{ display:block; font-size:16px; line-height:1.82; color:var(--body); max-width:44ch; text-wrap:balance; word-break:keep-all; }
   .fw-link{ display:inline-flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--text);
     border-bottom:1px solid rgba(255,255,255,.26); padding-bottom:7px; transition:color .3s, border-color .3s, gap .3s; }
@@ -335,14 +334,13 @@
   .fw-link .ar{ transition:transform .35s cubic-bezier(.2,.7,.2,1); }
   .fw:hover .fw-link .ar{ transform:translateX(3px); }
 
-  /* 썸네일이 왼쪽인 행(홀수): 제목·설명·링크를 오른쪽으로 붙이고 화살표도 왼쪽(이미지 쪽)을 가리키게 */
+  /* 썸네일이 왼쪽인 행(짝수): 텍스트를 오른쪽으로 붙이고 화살표도 왼쪽(이미지 쪽)을 가리키게 */
   @media(min-width:833px){
-    .fw:nth-child(odd) .fw-title,
-    .fw:nth-child(odd) .fw-info{ text-align:right; }
-    .fw:nth-child(odd) .fw-desc{ margin-left:auto; }              /* max-width 가 있어 오른쪽 끝에 붙임 */
-    .fw:nth-child(odd) .fw-link{ flex-direction:row-reverse; }    /* 화살표가 글자 왼쪽으로 */
-    .fw:nth-child(odd) .fw-link .ar{ transform:scaleX(-1); }      /* → 를 뒤집어 ← 로 */
-    .fw:nth-child(odd):hover .fw-link .ar{ transform:scaleX(-1) translateX(3px); }
+    .fw:nth-child(even) .fw-info{ text-align:right; }
+    .fw:nth-child(even) .fw-desc{ margin-left:auto; }              /* max-width 가 있어 오른쪽 끝에 붙임 */
+    .fw:nth-child(even) .fw-link{ flex-direction:row-reverse; }    /* 화살표가 글자 왼쪽으로 */
+    .fw:nth-child(even) .fw-link .ar{ transform:scaleX(-1); }      /* → 를 뒤집어 ← 로 */
+    .fw:nth-child(even):hover .fw-link .ar{ transform:scaleX(-1) translateX(3px); }
   }
 
   /* 스크롤 등장: 마스크 아래에서 한 줄씩 솟아오름 */
