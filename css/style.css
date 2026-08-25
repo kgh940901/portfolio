@@ -287,16 +287,15 @@
   /* ===== SELECTED WORK — 좌우 교차 프로젝트 로우 (fw-) ===== */
   #work{ padding-top:0; padding-bottom:110px; }
   /* 제목 고정: 왼쪽 정렬(다른 섹션 제목과 동일), 프로젝트가 그 위로 스크롤되며 겹침 (투명도는 main.js 가 조절) */
-  .fw-pin{ position:sticky; top:0; z-index:1; min-height:60vh; display:flex; flex-direction:column; justify-content:center; will-change:opacity; }
+  .fw-pin{ position:sticky; top:0; z-index:1; min-height:100vh; display:flex; flex-direction:column; justify-content:center; will-change:opacity; }
   /* margin:0 auto 가 있는 .wrap 은 flex 자식이 되면 stretch 가 풀려 내용 너비로 줄어듦 → 너비를 명시 */
   .fw-pin .wrap{ width:100%; }
   .fw-pin .lede{ margin-bottom:0; }
   .fw-list{ position:relative; z-index:2; }
-  .fw{ padding:64px 0; border-top:1px solid var(--line); }
-  .fw:first-child{ border-top:0; padding-top:8px; }
+  .fw{ padding:78px 0; border-top:1px solid var(--line); }
+  .fw:first-child{ border-top:0; }
   @media(min-width:833px){
-    .fw{ min-height:70vh; display:flex; flex-direction:column; justify-content:center; padding:72px 0; }
-    .fw:first-child{ padding-top:12px; }
+    .fw{ min-height:78vh; display:flex; flex-direction:column; justify-content:center; padding:104px 0; }
   }
 
   /* 메타 줄: (01)  ·  성격 / 태그 */
