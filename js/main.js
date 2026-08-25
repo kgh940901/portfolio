@@ -30,7 +30,9 @@ function initSite(){
 
       // 화면을 지나는 동안 썸네일이 스크롤과 다른 속도로 움직임
       const media = rows.map(r => r.querySelector('.fw-media')).filter(Boolean);
-      if(!media.length) return;
+      // 고정된 제목은 첫 프로젝트가 올라오면 서서히 사라짐(글자 겹침 방지)
+      const pin = document.querySelector('.fw-pin');
+      const list = document.querySelector('.fw-list');
       let ticking = false;
       function frame(){
         ticking = false;
@@ -41,6 +43,13 @@ function initSite(){
           let p = (r.top + r.height/2 - vh/2) / (vh/2 + r.height/2);   // -1(아래) ~ 1(위)
           p = p < -1 ? -1 : (p > 1 ? 1 : p);
           m.style.transform = 'translate3d(0,' + (p * amp).toFixed(1) + 'px,0)';
+        }
+        if(pin && list){
+          const t = list.getBoundingClientRect().top;
+          let o = (t - vh*0.34) / (vh*0.82 - vh*0.34);   // 0.82vh부터 옅어져 0.34vh에서 완전히 사라짐
+          o = o < 0 ? 0 : (o > 1 ? 1 : o);
+          pin.style.opacity = o.toFixed(3);
+          pin.style.pointerEvents = o < 0.06 ? 'none' : '';
         }
       }
       function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(frame); } }

@@ -17,6 +17,8 @@
   ::-webkit-scrollbar-thumb:hover{ background:var(--sb-thumb-hover); }
   ::-webkit-scrollbar-corner{ background:var(--sb-track); }
   body{ font-family:var(--font); background:var(--bg); color:var(--text); line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+  /* overflow-x:hidden 은 body 를 스크롤 컨테이너로 만들어 position:sticky 를 무력화함 → clip 으로 대체 */
+  @supports (overflow-x:clip){ body{ overflow-x:clip; } }
   a{ color:inherit; text-decoration:none; }
   img{ max-width:100%; display:block; }
   section{ padding:105px 24px; }
@@ -282,14 +284,16 @@
   .pf-view{ margin-top:auto; padding-top:22px; display:inline-block; align-self:flex-start; color:var(--accent); font-size:15px; font-weight:600; text-decoration:underline; text-underline-offset:4px; text-decoration-thickness:1.5px; transition:letter-spacing .25s ease; }
   .pf-card:hover .pf-view{ letter-spacing:.5px; }
 
-  /* ===== SELECTED WORK — 풀와이드 프로젝트 로우 (fw-) ===== */
+  /* ===== SELECTED WORK — 좌우 교차 프로젝트 로우 (fw-) ===== */
+  #work{ padding-top:0; padding-bottom:110px; }
+  /* 제목 고정: 프로젝트가 그 위로 스크롤되며 겹침 (투명도는 main.js 가 조절) */
+  .fw-pin{ position:sticky; top:0; z-index:1; min-height:100vh; display:flex; flex-direction:column; justify-content:center; will-change:opacity; }
   .fw-scroll{ margin:-38px 0 0; font-size:12px; font-weight:500; letter-spacing:2.2px; text-transform:uppercase; color:var(--muted); opacity:.6; }
-  .fw-list{ margin-top:56px; }
+  .fw-list{ position:relative; z-index:2; }
   .fw{ padding:78px 0; border-top:1px solid var(--line); }
-  .fw:first-child{ border-top:0; padding-top:0; }
+  .fw:first-child{ border-top:0; }
   @media(min-width:833px){
     .fw{ min-height:78vh; display:flex; flex-direction:column; justify-content:center; padding:104px 0; }
-    .fw:first-child{ padding-top:40px; }
   }
 
   /* 메타 줄: (01)  ·  성격 / 태그 */
@@ -302,16 +306,19 @@
   .fw-type.work{ color:#ffb480; }
   .fw-tags{ font-size:12px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.32); }
 
-  /* 대형 타이틀 — 2줄(영문 / 국문) */
-  .fw-title{ font-weight:800; text-transform:uppercase; font-size:clamp(2.3rem,8.2vw,6.6rem); line-height:.96; letter-spacing:-.03em; margin-bottom:38px; }
+  /* 프로젝트 타이틀 — 2줄(영문 / 국문) */
+  .fw-title{ font-weight:800; text-transform:uppercase; font-size:clamp(1.75rem,4.2vw,3.25rem); line-height:1.02; letter-spacing:-.02em; margin-bottom:32px; }
   .fw-title .fw-mask{ padding-bottom:.14em; }   /* y·g 같은 디센더가 마스크에 잘리지 않도록 */
-  @media(min-width:833px){ .fw-title{ margin-bottom:60px; } }
+  @media(min-width:833px){ .fw-title{ margin-bottom:44px; } }
   .fw-title .fw-sub{ color:rgba(243,243,241,.32); transition:color .45s ease; }
   .fw:hover .fw-title .fw-sub{ color:rgba(243,243,241,.5); }
 
-  /* 이미지 55% + 설명 45% */
+  /* 이미지 55% + 설명 45% — 홀수는 이미지 왼쪽, 짝수는 오른쪽(좌우 교차) */
   .fw-body{ display:flex; flex-direction:column; gap:28px; }
-  @media(min-width:833px){ .fw-body{ flex-direction:row; align-items:flex-start; gap:52px; } }
+  @media(min-width:833px){
+    .fw-body{ flex-direction:row; align-items:flex-start; gap:52px; }
+    .fw:nth-child(even) .fw-body{ flex-direction:row-reverse; }
+  }
   .fw-media{ display:block; flex-shrink:0; width:100%; will-change:transform; }
   @media(min-width:833px){ .fw-media{ width:55%; } }
   .fw-frame{ position:relative; display:block; width:100%; aspect-ratio:16/9; overflow:hidden; border-radius:22px; background:#0e0e0e;
@@ -349,6 +356,8 @@
     .fw-rise{ transform:none; transition:none; }
     .fw-frame{ clip-path:none; transition:none; }
     .fw-media{ transform:none !important; }
+    /* 모션을 끈 경우엔 제목 고정도 해제 — 글자가 겹친 채 남지 않도록 */
+    .fw-pin{ position:static; min-height:0; padding:96px 0 40px; }
   }
 
   /* ===== CAREER rows + scroll highlight ===== */
