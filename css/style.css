@@ -288,6 +288,8 @@
   #work{ padding-top:0; padding-bottom:110px; }
   /* 제목 고정: 왼쪽 정렬(다른 섹션 제목과 동일), 프로젝트가 그 위로 스크롤되며 겹침 (투명도는 main.js 가 조절) */
   .fw-pin{ position:sticky; top:0; z-index:1; min-height:100vh; display:flex; flex-direction:column; justify-content:center; will-change:opacity; }
+  /* margin:0 auto 가 있는 .wrap 은 flex 자식이 되면 stretch 가 풀려 내용 너비로 줄어듦 → 너비를 명시 */
+  .fw-pin .wrap{ width:100%; }
   .fw-pin .lede{ margin-bottom:24px; }
   .fw-scroll{ margin:0; font-size:12px; font-weight:500; letter-spacing:2.2px; text-transform:uppercase; color:var(--muted); opacity:.6; }
   .fw-list{ position:relative; z-index:2; }
