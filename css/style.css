@@ -335,6 +335,16 @@
   .fw-link .ar{ transition:transform .35s cubic-bezier(.2,.7,.2,1); }
   .fw:hover .fw-link .ar{ transform:translateX(3px); }
 
+  /* 썸네일이 왼쪽인 행(홀수): 제목·설명·링크를 오른쪽으로 붙이고 화살표도 왼쪽(이미지 쪽)을 가리키게 */
+  @media(min-width:833px){
+    .fw:nth-child(odd) .fw-title,
+    .fw:nth-child(odd) .fw-info{ text-align:right; }
+    .fw:nth-child(odd) .fw-desc{ margin-left:auto; }              /* max-width 가 있어 오른쪽 끝에 붙임 */
+    .fw:nth-child(odd) .fw-link{ flex-direction:row-reverse; }    /* 화살표가 글자 왼쪽으로 */
+    .fw:nth-child(odd) .fw-link .ar{ transform:scaleX(-1); }      /* → 를 뒤집어 ← 로 */
+    .fw:nth-child(odd):hover .fw-link .ar{ transform:scaleX(-1) translateX(3px); }
+  }
+
   /* 스크롤 등장: 마스크 아래에서 한 줄씩 솟아오름 */
   .fw-mask{ display:block; overflow:hidden; }
   .fw-info .fw-mask:last-child{ margin-top:auto; }
