@@ -138,8 +138,11 @@ function initSite(){
     (function(){
       const stmt = document.getElementById('stmt2');
       if(!stmt) return;
-      const words = stmt.textContent.trim().split(/\s+/);
-      stmt.innerHTML = words.map(w => '<span class="w">' + w + '</span>').join(' ');
+      // 마크업의 <br> 줄바꿈은 유지하고, 각 줄 안의 단어만 span 으로 감쌈
+      const lines = stmt.innerHTML.split(/<br\s*\/?>/i);
+      stmt.innerHTML = lines.map(function(line){
+        return line.trim().split(/\s+/).filter(Boolean).map(function(w){ return '<span class="w">' + w + '</span>'; }).join(' ');
+      }).join('<br>');
       const spans = Array.prototype.slice.call(stmt.querySelectorAll('.w'));
       if(matchMedia('(prefers-reduced-motion: reduce)').matches){ spans.forEach(s=>s.classList.add('lit')); return; }
       let lit = -1;
