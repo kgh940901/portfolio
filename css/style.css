@@ -326,7 +326,7 @@
   .fw-media:hover .fw-frame img{ transform:scale(1.05); filter:brightness(1); }
 
   .fw-info{ display:flex; flex-direction:column; flex:1; gap:22px; }
-  @media(min-width:833px){ .fw-info{ min-height:260px; padding-top:0; } }
+  @media(min-width:833px){ .fw-info{ min-height:260px; margin-top:35px; } }   /* 이미지 상단보다 35px 아래에서 시작 */
   .fw-desc{ display:block; font-size:16px; line-height:1.82; color:var(--body); max-width:44ch; text-wrap:balance; word-break:keep-all; }
   .fw-link{ display:inline-flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--text);
     border-bottom:1px solid rgba(255,255,255,.26); padding-bottom:7px; transition:color .3s, border-color .3s, gap .3s; }
