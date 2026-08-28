@@ -28,6 +28,8 @@
   .head .demo:hover{ background:#f4f4f2; color:#0a0a0a; }
   .shots{ max-width:1080px; margin:0 auto; padding:10px 16px 90px; }
   .shots img{ width:100%; border-radius:10px; margin-bottom:16px; }
+  /* 상단 버튼으로 이동했을 때 고정 topbar 에 이미지 윗부분이 가리지 않도록 */
+  .shots img[id], .shots .shot-main[id]{ scroll-margin-top:76px; }
   .shots .shot-main{ display:block; position:relative; cursor:pointer; }
   .shots .shot-main img{ transition:opacity .25s ease; }
   .shots .shot-main:hover img{ opacity:.92; }
@@ -47,14 +49,16 @@
   <header class="head">
     <p class="cat">Web Design</p>
     <h1>Kids Pension</h1>
-    <div class="demos"><a class="demo" href="https://campwithpet.co.kr/" target="_blank" rel="noopener">캠프위드펫 ↗</a><a class="demo" href="https://youkids.co.kr/" target="_blank" rel="noopener">유키즈 ↗</a></div>
+    <!-- 각 버튼은 아래 해당 작업물 이미지로 스크롤됩니다 (외부 링크 아님) -->
+    <div class="demos"><a class="demo" href="#kids-1">캠프위드펫 ↓</a><a class="demo" href="#kids-2">벨로시 키즈풀빌라 ↓</a><a class="demo" href="#kids-3">유키즈 ↓</a></div>
   </header>
 
   <div class="shots">
-    <a class="shot-main" href="https://campwithpet.co.kr/" target="_blank" rel="noopener" aria-label="캠프위드펫 라이브 데모 보기"><img src="assets/company2/kids01.jpg" alt="캠프위드펫 펜션 템플릿" loading="lazy" /></a>
-    <!-- 옐로우레이크는 라이브 사이트가 없어 링크를 걸지 않음 -->
-    <img src="assets/company2/kids02.jpg" alt="옐로우레이크 펜션 템플릿" loading="lazy" />
-    <a class="shot-main" href="https://youkids.co.kr/" target="_blank" rel="noopener" aria-label="유키즈 라이브 데모 보기"><img src="assets/company2/kids03.jpg" alt="유키즈 펜션 템플릿" loading="lazy" /></a>
+    <!-- campwithpet.co.kr 도메인이 만료되어(Non-existent domain) 링크를 걸지 않음 -->
+    <img id="kids-1" src="assets/company2/kids01.jpg" alt="에스엔제이 애견&amp;키즈 펜션 템플릿" />
+    <!-- 벨로시 키즈풀빌라는 라이브 사이트 주소가 없어 링크를 걸지 않음 -->
+    <img id="kids-2" src="assets/company2/kids02.jpg" alt="벨로시 키즈풀빌라 펜션 템플릿" loading="lazy" />
+    <a id="kids-3" class="shot-main" href="https://youkids.co.kr/" target="_blank" rel="noopener" aria-label="유키즈 라이브 데모 보기"><img src="assets/company2/kids03.jpg" alt="유키즈 펜션 템플릿" loading="lazy" /></a>
   </div>
 
   <footer>© 2026 Gahyun Kyoung · <a href="index.html">Portfolio</a></footer>
