@@ -124,15 +124,9 @@
   @media(prefers-reduced-motion:reduce){ .hmq-track{ animation:none; } .glitch{ animation:none; } }
   /* 커스텀 커서 (마우스 포인터) */
   /* 커서: 흰 점 + difference 블렌드, 빠른 트레일링. hover 시 확대 */
-  .cur-ring{ display:none; }
-  .cur-dot{ position:fixed; top:0; left:0; width:12px; height:12px; border-radius:50%; background:#fff; pointer-events:none; z-index:10000; opacity:0;
-    mix-blend-mode:difference; transform:translate(-50%,-50%); will-change:transform, width, height;
-    transition:transform .12s cubic-bezier(.22,.61,.36,1), width .28s ease, height .28s ease, opacity .3s; }
-  .cursor-on .cur-dot{ opacity:1; }
-  .no-dot .cur-dot{ opacity:0 !important; } /* 프로필 위에선 커서 점 숨김(하얀 원 방지) */
-  .cursor-on, .cursor-on a, .cursor-on button, .cursor-on summary{ cursor:none; }
-  .cur-dot.hover{ width:40px; height:40px; }
-  .cur-dot.lens{ opacity:0; } /* 돋보기 렌즈 켜지면 점 숨김 */
+  /* 커스텀 커서(흰 점) 제거 — cursor:none + mix-blend-mode + transition 조합이
+     페이지가 버벅일 때(특히 개발자도구 열었을 때) 포인터 렉으로 그대로 드러났음.
+     OS 가 그리는 기본 커서는 페이지 성능과 무관해 절대 밀리지 않음. */
 
   /* 볼록렌즈 돋보기 (프로젝트 이미지 위에서 확대) */
   .lens{ position:fixed; top:0; left:0; width:190px; height:190px; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; z-index:9998; opacity:0;

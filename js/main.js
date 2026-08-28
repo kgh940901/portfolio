@@ -121,18 +121,8 @@ function initSite(){
       }
     })();
 
-    // 커스텀 마우스 커서 (mango-media 스타일: 흰 점 + difference + 0.7s 트레일링, hover 시 확대)
-    (function(){
-      if(!matchMedia('(pointer:fine)').matches) return;
-      const dot=document.getElementById('curDot');
-      if(!dot) return;
-      document.body.classList.add('cursor-on');
-      addEventListener('pointermove', e=>{ dot.style.transform='translate('+e.clientX+'px,'+e.clientY+'px) translate(-50%,-50%)'; }, {passive:true});
-      document.querySelectorAll('a, button, summary, .dock a, .fw-media, .fw-link, .ab, .pf-btn, .hmq-track').forEach(el=>{
-        el.addEventListener('pointerenter',()=>dot.classList.add('hover'));
-        el.addEventListener('pointerleave',()=>dot.classList.remove('hover'));
-      });
-    })();
+    // 커스텀 마우스 커서는 제거함 — pointermove 마다 transform 을 쓰고 mix-blend-mode 로 재합성하느라
+    // 페이지가 느려지면 포인터가 눈에 띄게 밀렸음. 이제 OS 기본 커서를 그대로 사용.
 
     // 텍스트 하이라이트: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 켜지고, 올리면 꺼짐
     (function(){
@@ -267,13 +257,13 @@ function initSite(){
         const r = pf.getBoundingClientRect();
         tx = cx = e.clientX - r.left; ty = cy = e.clientY - r.top;
         badge.style.left = cx+'px'; badge.style.top = cy+'px';
-        active = true; document.body.classList.add('no-dot'); if(!raf) loop();
+        active = true; if(!raf) loop();
       });
       pf.addEventListener('pointermove', e=>{
         const r = pf.getBoundingClientRect();
         tx = e.clientX - r.left; ty = e.clientY - r.top;
       }, {passive:true});
-      pf.addEventListener('pointerleave', ()=>{ active = false; document.body.classList.remove('no-dot'); });
+      pf.addEventListener('pointerleave', ()=>{ active = false; });
     })();
 
 }
