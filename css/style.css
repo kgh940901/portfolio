@@ -124,9 +124,7 @@
   @media(prefers-reduced-motion:reduce){ .hmq-track{ animation:none; } .glitch{ animation:none; } }
   /* 커스텀 커서 (마우스 포인터) */
   /* 커서: 흰 점 + difference 블렌드, 빠른 트레일링. hover 시 확대 */
-  /* 커스텀 커서(흰 점) 제거 — cursor:none + mix-blend-mode + transition 조합이
-     페이지가 버벅일 때(특히 개발자도구 열었을 때) 포인터 렉으로 그대로 드러났음.
-     OS 가 그리는 기본 커서는 페이지 성능과 무관해 절대 밀리지 않음. */
+  /* 커스텀 커서는 js/cursor.js 가 스타일까지 함께 주입합니다 (여기엔 규칙 없음) */
 
   /* 볼록렌즈 돋보기 (프로젝트 이미지 위에서 확대) */
   .lens{ position:fixed; top:0; left:0; width:190px; height:190px; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; z-index:9998; opacity:0;
