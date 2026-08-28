@@ -398,7 +398,8 @@
   .essay summary .chev{ margin-left:auto; color:var(--muted); transition:transform .25s; }
   .essay[open] summary .chev{ transform:rotate(180deg); }
   .essay .essay-body{ padding:0 4px 30px; max-width:900px; }
-  .essay .essay-body p{ color:var(--body); margin-bottom:16px; font-size:16.5px; line-height:1.85; }
+  /* keep-all: 한글이 단어 중간에서 끊겨 '있습니 / 다.' 처럼 남는 것 방지 / pretty: 마지막 줄에 한 단어만 남는 것 방지 */
+  .essay .essay-body p{ color:var(--body); margin-bottom:16px; font-size:16.5px; line-height:1.85; word-break:keep-all; text-wrap:pretty; }
 
   /* ===== ABOUT ===== */
   .about-grid{ display:grid; grid-template-columns:1.2fr 1fr; gap:60px; align-items:start; }
