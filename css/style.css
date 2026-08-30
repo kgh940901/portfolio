@@ -153,6 +153,16 @@
   .reveal{ opacity:0; transform:translateY(46px); transition:opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1); }
   .reveal.in{ opacity:1; transform:none; }
 
+  /* 텍스트 로우 프리뷰: data-peek 이미지가 마우스를 따라 떠오름 (Project Details · Work Experience)
+     위치(커서 추적)는 .peek 이 맡고, 등장 팝은 .peek-in 이 맡아 서로 간섭하지 않음 */
+  .peek{ position:fixed; left:0; top:0; z-index:40; pointer-events:none; width:min(330px,26vw); aspect-ratio:4/3; will-change:transform; }
+  .peek-in{ display:block; width:100%; height:100%; border-radius:14px; overflow:hidden; background:#0e0e0e;
+    border:1px solid rgba(255,255,255,.14); box-shadow:0 30px 80px rgba(0,0,0,.55);
+    opacity:0; transform:scale(.82) rotate(-4deg);
+    transition:opacity .3s ease, transform .5s cubic-bezier(.22,1,.36,1); }
+  .peek.on .peek-in{ opacity:1; transform:scale(1) rotate(0deg); }
+  .peek img{ width:100%; height:100%; object-fit:cover; display:block; }
+
   /* ===== SKILLS: 스태킹 카드 + 고정 이미지 ===== */
   .skills-grid{ display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:start; }
   @media(max-width:880px){ .skills-grid{ grid-template-columns:1fr; } }

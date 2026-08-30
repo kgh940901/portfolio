@@ -64,6 +64,46 @@ function initSite(){
       frame();
     })();
 
+    // 텍스트 로우 프리뷰: data-peek 이미지가 마우스를 따라 떠오름 (Project Details · Work Experience)
+    (function(){
+      if(!matchMedia('(pointer:fine)').matches) return;
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const items = Array.prototype.slice.call(document.querySelectorAll('[data-peek]'));
+      if(!items.length) return;
+      const peek = document.createElement('div');
+      peek.className = 'peek'; peek.setAttribute('aria-hidden','true');
+      peek.innerHTML = '<span class="peek-in"><img alt=""></span>';
+      document.body.appendChild(peek);
+      const img = peek.querySelector('img');
+      // 첫 호버에서 로딩 지연이 없도록 미리 받아둠
+      items.forEach(function(el){ const s = new Image(); s.src = el.getAttribute('data-peek'); });
+      let x=0, y=0, cx=0, cy=0, raf=0, on=false;
+      function place(){
+        const w = peek.offsetWidth, h = peek.offsetHeight;
+        let px = cx + 28;                                        // 기본은 커서 오른쪽
+        if(px + w > innerWidth - 12) px = cx - 28 - w;           // 화면을 벗어나면 왼쪽으로
+        let py = cy - h/2;
+        py = Math.max(12, Math.min(py, innerHeight - h - 12));   // 상하 화면 밖 방지
+        peek.style.transform = 'translate3d(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px,0)';
+      }
+      function loop(){
+        cx += (x-cx)*0.16; cy += (y-cy)*0.16;                    // 살짝 뒤따라오는 트레일링
+        place();
+        if(on || Math.abs(x-cx)>0.4 || Math.abs(y-cy)>0.4){ raf = requestAnimationFrame(loop); } else { raf = 0; }
+      }
+      items.forEach(function(el){
+        el.addEventListener('pointerenter', function(e){
+          img.src = el.getAttribute('data-peek');
+          x = e.clientX; y = e.clientY;
+          if(!on){ cx = x; cy = y; place(); }                    // 첫 등장은 현재 위치에서 바로
+          on = true; peek.classList.add('on');
+          if(!raf) raf = requestAnimationFrame(loop);
+        });
+        el.addEventListener('pointermove', function(e){ x = e.clientX; y = e.clientY; }, { passive:true });
+        el.addEventListener('pointerleave', function(){ on = false; peek.classList.remove('on'); });
+      });
+    })();
+
     // 진행바
     const sprog = document.getElementById('sprog');
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
