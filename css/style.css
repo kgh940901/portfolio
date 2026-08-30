@@ -91,41 +91,37 @@
   .hero-corner.top{ top:96px; } .hero-corner.bottom{ bottom:56px; }
   .mono{ font-family:'Courier New', ui-monospace, monospace; font-size:12px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
   .hero-center{ position:relative; z-index:2; display:flex; align-items:center; justify-content:center; width:100%; }
-  /* 프로필 카드: 평소엔 숨김 — 가운데 텍스트 띠에 마우스를 올리면 사진이 떠오름 (loop-agency 스타일)
-     떠오른 사진 위에 마우스를 올리면 뒤집혀 RESUME(뒷면), 클릭하면 이력서로 이동 */
-  .hero-pf{ position:relative; display:block; width:clamp(178px,19vw,290px); aspect-ratio:3/4; border-radius:18px; z-index:2; box-shadow:0 34px 90px rgba(0,0,0,.6); perspective:1200px;
-    opacity:0; transform:scale(.86) translateY(14px); pointer-events:none;
-    transition:opacity .45s ease, transform .6s cubic-bezier(.22,1,.36,1); }
-  .hero-center:hover .hero-pf{ opacity:1; transform:none; pointer-events:auto; }
-  /* 터치 기기는 호버가 없으므로 항상 표시 */
-  @media(hover:none){ .hero-pf{ opacity:1; transform:none; pointer-events:auto; } }
-  .pf-card{ position:absolute; inset:0; display:block; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.22,1,.36,1); will-change:transform; }
-  .hero-pf:hover .pf-card, .hero-pf:focus-visible .pf-card{ transform:rotateY(180deg); }
-  .pf-face{ position:absolute; inset:0; display:block; border-radius:18px; overflow:hidden; border:1px solid var(--line);
-    backface-visibility:hidden; -webkit-backface-visibility:hidden; }
-  .pf-front img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .pf-back{ transform:rotateY(180deg); background:#ff7a1a; color:#1a0e00; border-color:rgba(255,180,128,.5);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; }
-  .pfb-ring{ width:54px; height:54px; border-radius:50%; border:1.6px solid rgba(26,14,0,.5); display:flex; align-items:center; justify-content:center; }
-  .pfb-ring svg{ width:20px; height:20px; }
-  .pfb-title{ font-size:clamp(22px,2.4vw,30px); font-weight:800; letter-spacing:3px; }
-  .pfb-cap{ font-family:'Courier New', ui-monospace, monospace; font-size:11px; font-weight:600; letter-spacing:1px; opacity:.75; }
-  /* 오른쪽 하단 작은 원형 화살표 (외부 링크 표시) */
-  .pf-corner{ position:absolute; right:14px; bottom:14px; z-index:5; pointer-events:none;
-    width:40px; height:40px; border-radius:50%; background:#fff; color:#111;
-    display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,0,0,.4); }
-  .pf-corner svg{ width:17px; height:17px; }
-  @media(prefers-reduced-motion:reduce){ .pf-card, .hero-pf{ transition:none; } }
-  .glitch{ position:absolute; top:14%; left:16%; width:8px; height:8px; background:var(--accent); z-index:3; opacity:.5;
-    box-shadow:11px 0 var(--accent), -7px 9px #7c3aed, 18px 13px #7c3aed, 3px -9px var(--accent), 22px -3px var(--accent);
-    mix-blend-mode:screen; animation:glitch .9s steps(2) infinite; }
-  @keyframes glitch{ 0%{transform:translate(0,0)} 50%{transform:translate(6px,-4px)} 100%{transform:translate(-4px,3px)} }
+  /* 프로필 카드 — 평소엔 리퀴드 글래스(빈 유리판)만 보이고, 마우스 오버·스크롤에 따라
+     뒤집혀 사진 + 반투명 검정 + 흰 글씨 면이 나타남 (회전은 main.js 가 구동) */
+  .hero-pf{ position:relative; display:block; width:clamp(178px,19vw,290px); aspect-ratio:3/4; border-radius:18px; z-index:2; perspective:1200px; }
+  .pf-card{ position:absolute; inset:0; display:block; transform-style:preserve-3d; will-change:transform; }
+  .pf-face{ position:absolute; inset:0; display:block; border-radius:18px; overflow:hidden;
+    backface-visibility:hidden; -webkit-backface-visibility:hidden; box-shadow:0 34px 90px rgba(0,0,0,.55); }
+  /* 앞면: 리퀴드 글래스 — 뒤로 지나가는 대형 텍스트가 유리 너머로 번져 보임 */
+  .pf-front{ border:1px solid rgba(255,255,255,.30);
+    background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.045) 36%, rgba(255,255,255,.02) 60%, rgba(255,255,255,.12));
+    -webkit-backdrop-filter:blur(16px) saturate(160%) brightness(1.06);
+    backdrop-filter:blur(16px) saturate(160%) brightness(1.06);
+    box-shadow:0 34px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.38),
+      inset 0 -1px 0 rgba(255,255,255,.10), inset 1px 0 0 rgba(255,255,255,.14), inset -1px 0 0 rgba(255,255,255,.14); }
+  .pf-sheen{ position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(120% 60% at 18% 6%, rgba(255,255,255,.26), transparent 46%),
+      radial-gradient(90% 50% at 86% 96%, rgba(255,255,255,.13), transparent 52%); }
+  /* 뒷면: 사진 위 반투명 검정 + 흰 글씨 */
+  .pf-back{ transform:rotateY(180deg); border:1px solid var(--line); background:#0e0e0e; }
+  .pf-back img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .pf-shade{ position:absolute; inset:0; background:rgba(8,8,10,.52); }
+  .pf-id{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; text-align:center; color:#fff; padding:0 14px; }
+  .pf-name{ font-size:clamp(17px,1.8vw,24px); font-weight:800; letter-spacing:.5px; }
+  .pf-role{ font-size:13px; color:rgba(255,255,255,.78); }
+  .pf-cta{ margin-top:12px; font-family:'Courier New', ui-monospace, monospace; font-size:11px; font-weight:700; letter-spacing:1px;
+    color:rgba(255,255,255,.92); border:1px solid rgba(255,255,255,.35); border-radius:999px; padding:7px 14px; }
   .hero-marquee{ position:absolute; left:-12vw; right:-12vw; top:50%; transform:translateY(-50%); z-index:1; overflow:hidden; pointer-events:none; }
   .hmq-track{ display:flex; width:max-content; white-space:nowrap; animation:hmq 30s linear infinite; pointer-events:auto; }
   .hmq-track:hover{ animation-play-state:paused; } /* 마우스 올리면 정지 */
   .hmq-track span{ font-size:clamp(56px,13vw,182px); font-weight:800; letter-spacing:-5px; color:#fff; text-transform:uppercase; line-height:1; }
   @keyframes hmq{ to{ transform:translateX(-50%); } }
-  @media(prefers-reduced-motion:reduce){ .hmq-track{ animation:none; } .glitch{ animation:none; } }
+  @media(prefers-reduced-motion:reduce){ .hmq-track{ animation:none; } }
   /* 커스텀 커서 (마우스 포인터) */
   /* 커서: 흰 점 + difference 블렌드, 빠른 트레일링. hover 시 확대 */
   /* 커스텀 커서는 js/cursor.js 가 스타일까지 함께 주입합니다 (여기엔 규칙 없음) */
@@ -479,11 +475,9 @@
     .hero-corner{ padding:0 18px; }
     .hero-corner.bottom{ bottom:104px; flex-direction:column; align-items:center; gap:6px; text-align:center; }
     .mono{ font-size:11px; letter-spacing:.5px; }
-    /* 프로필 위 요소 크기 축소 */
-    .pf-corner{ width:32px; height:32px; right:10px; bottom:10px; }
-    .pf-corner svg{ width:14px; height:14px; }
-    .pfb-title{ font-size:19px; letter-spacing:2px; }
-    .pfb-ring{ width:44px; height:44px; }
+    /* 프로필 카드 뒷면 글씨 축소 */
+    .pf-name{ font-size:16px; }
+    .pf-role{ font-size:12px; }
     /* 푸터 아웃라인 이름이 잘리던 문제 */
     .foot-name{ font-size:34px; letter-spacing:-1px; }
     .foot-bottom{ flex-direction:column; gap:8px; text-align:center; }

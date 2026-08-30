@@ -280,6 +280,34 @@ function initSite(){
       setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 4000); // 안전장치
     })();
 
+    // 히어로 카드: 리퀴드 글래스 앞면 ↔ 프로필 뒷면 — 마우스 오버 또는 스크롤 진행에 따라 회전
+    (function(){
+      const pf = document.querySelector('.hero-pf');
+      const card = pf && pf.querySelector('.pf-card');
+      if(!pf || !card) return;
+      const ease = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0.14;   // 모션 최소화 시 즉시 전환
+      let hover = false, cur = 0, raf = 0;
+      function target(){
+        const p = Math.min(1, Math.max(0, scrollY / (innerHeight * 0.55)));   // 반 화면쯤 내리면 완전히 뒤집힘
+        return hover ? 180 : p * 180;
+      }
+      function frame(){
+        raf = 0;
+        const t = target();
+        cur = Math.abs(t - cur) < 0.08 ? t : cur + (t - cur) * ease;
+        card.style.transform = 'rotateY(' + cur.toFixed(2) + 'deg)';
+        if(cur !== t) raf = requestAnimationFrame(frame);
+      }
+      function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
+      pf.addEventListener('pointerenter', function(){ hover = true;  kick(); });
+      pf.addEventListener('pointerleave', function(){ hover = false; kick(); });
+      pf.addEventListener('focus', function(){ hover = true;  kick(); });
+      pf.addEventListener('blur',  function(){ hover = false; kick(); });
+      addEventListener('scroll', kick, { passive:true });
+      addEventListener('resize', kick);
+      kick();
+    })();
+
     // 실시간 시계 [ HH:MM:SS ]
     (function(){
       const clk = document.getElementById('heroClock'); if(!clk) return;
