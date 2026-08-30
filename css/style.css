@@ -91,8 +91,14 @@
   .hero-corner.top{ top:96px; } .hero-corner.bottom{ bottom:56px; }
   .mono{ font-family:'Courier New', ui-monospace, monospace; font-size:12px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
   .hero-center{ position:relative; z-index:2; display:flex; align-items:center; justify-content:center; width:100%; }
-  /* 프로필 카드: 평소엔 사진(앞면), 마우스 오버 시 뒤집혀 RESUME(뒷면) — 클릭하면 이력서로 이동 */
-  .hero-pf{ position:relative; display:block; width:clamp(178px,19vw,290px); aspect-ratio:3/4; border-radius:18px; z-index:2; box-shadow:0 34px 90px rgba(0,0,0,.6); perspective:1200px; }
+  /* 프로필 카드: 평소엔 숨김 — 가운데 텍스트 띠에 마우스를 올리면 사진이 떠오름 (loop-agency 스타일)
+     떠오른 사진 위에 마우스를 올리면 뒤집혀 RESUME(뒷면), 클릭하면 이력서로 이동 */
+  .hero-pf{ position:relative; display:block; width:clamp(178px,19vw,290px); aspect-ratio:3/4; border-radius:18px; z-index:2; box-shadow:0 34px 90px rgba(0,0,0,.6); perspective:1200px;
+    opacity:0; transform:scale(.86) translateY(14px); pointer-events:none;
+    transition:opacity .45s ease, transform .6s cubic-bezier(.22,1,.36,1); }
+  .hero-center:hover .hero-pf{ opacity:1; transform:none; pointer-events:auto; }
+  /* 터치 기기는 호버가 없으므로 항상 표시 */
+  @media(hover:none){ .hero-pf{ opacity:1; transform:none; pointer-events:auto; } }
   .pf-card{ position:absolute; inset:0; display:block; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.22,1,.36,1); will-change:transform; }
   .hero-pf:hover .pf-card, .hero-pf:focus-visible .pf-card{ transform:rotateY(180deg); }
   .pf-face{ position:absolute; inset:0; display:block; border-radius:18px; overflow:hidden; border:1px solid var(--line);
@@ -109,7 +115,7 @@
     width:40px; height:40px; border-radius:50%; background:#fff; color:#111;
     display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,0,0,.4); }
   .pf-corner svg{ width:17px; height:17px; }
-  @media(prefers-reduced-motion:reduce){ .pf-card{ transition:none; } }
+  @media(prefers-reduced-motion:reduce){ .pf-card, .hero-pf{ transition:none; } }
   .glitch{ position:absolute; top:14%; left:16%; width:8px; height:8px; background:var(--accent); z-index:3; opacity:.5;
     box-shadow:11px 0 var(--accent), -7px 9px #7c3aed, 18px 13px #7c3aed, 3px -9px var(--accent), 22px -3px var(--accent);
     mix-blend-mode:screen; animation:glitch .9s steps(2) infinite; }
