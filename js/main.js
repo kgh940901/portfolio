@@ -12,10 +12,16 @@
 
 function initSite(){
     // 스크롤 등장
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), (i % 4) * 70); io.unobserve(e.target); } });
-    }, { threshold: 0.12 });
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    function makeReveal(opts){
+      const o = new IntersectionObserver((entries) => {
+        entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), (i % 4) * 70); o.unobserve(e.target); } });
+      }, opts);
+      return o;
+    }
+    const io = makeReveal({ threshold: 0.12 });
+    // Selected Work 고정 제목: 텅 빈 100vh 영역이라 하단에 걸치자마자 나오면 갑작스러움 → 화면을 1/4쯤 올라온 뒤 등장
+    const ioLate = makeReveal({ threshold: 0, rootMargin: '0px 0px -28% 0px' });
+    document.querySelectorAll('.reveal').forEach(el => (el.closest('.fw-pin') ? ioLate : io).observe(el));
 
     // Selected Work — 로우 등장(라인 마스크 솟아오름) + 썸네일 패럴랙스
     (function(){
@@ -25,7 +31,7 @@ function initSite(){
 
       const rio = new IntersectionObserver(function(entries){
         entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); rio.unobserve(e.target); } });
-      }, { threshold:0.15, rootMargin:'0px 0px -6% 0px' });
+      }, { threshold:0.15, rootMargin:'0px 0px -16% 0px' });   // 하단 16% 위로 올라온 뒤 솟아오름(너무 이른 등장 방지)
       rows.forEach(r => rio.observe(r));
 
       // 화면을 지나는 동안 썸네일이 스크롤과 다른 속도로 움직임
