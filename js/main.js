@@ -305,7 +305,16 @@ function initSite(){
       pf.addEventListener('pointerleave', function(){ hover = false; kick(); });
       pf.addEventListener('focus', function(){ hover = true;  kick(); });
       pf.addEventListener('blur',  function(){ hover = false; kick(); });
-      addEventListener('scroll', kick, { passive:true });
+      // 스크롤로 카드가 마우스 밑에서 벗어나면 pointerleave 가 안 오므로 좌표로 직접 확인해 호버를 해제
+      let mx = null, my = null;
+      addEventListener('pointermove', function(e){ mx = e.clientX; my = e.clientY; }, { passive:true });
+      addEventListener('scroll', function(){
+        if(hover && mx !== null){
+          const r = pf.getBoundingClientRect();
+          if(mx < r.left || mx > r.right || my < r.top || my > r.bottom) hover = false;
+        }
+        kick();
+      }, { passive:true });
       addEventListener('resize', kick);
       kick();
     })();
