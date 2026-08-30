@@ -12,16 +12,13 @@
   if(document.querySelector('.mcur')) return;
 
   // 마우스를 올리면 링으로 커지는 대상 (썸네일·프로필도 전부 a 태그라 여기에 포함됨)
-  var LINK = 'a, button, summary, [role="button"], input, select, textarea, .dock a, .demo, .ab, .pf-btn, .hmq-track';
-  // 커서를 아예 숨기는 대상 — 프로필 카드는 뒤집히며 RESUME 가 떠서 커서까지 겹치면 과함
-  var HIDE = '.hero-pf';
+  var LINK = 'a, button, summary, [role="button"], input, select, textarea, .dock a, .demo, .ab, .pf-btn';
 
   var css = [
     'html.mcur-on, html.mcur-on *{ cursor:none !important; }',
     '.mcur{ position:fixed; top:0; left:0; z-index:10000; pointer-events:none; opacity:0;',
     '  transition:opacity .25s ease; will-change:transform; }',
     '.mcur.on{ opacity:1; }',
-    '.mcur.hide{ opacity:0; }',   // .on 보다 뒤에 선언해 카드 위에서는 항상 숨김이 이김
     '.mcur span{ position:absolute; top:0; left:0; border-radius:50%; display:block;',
     '  transition:transform .3s cubic-bezier(.22,1,.36,1), opacity .2s ease; }',
     // 기본 상태 — 작은 흰 점
@@ -69,7 +66,6 @@
     var t = e.target;
     if(!t || !t.closest) return;
     cur.classList.toggle('link', !!t.closest(LINK));
-    cur.classList.toggle('hide', !!t.closest(HIDE));
   }, { passive:true });
 
   addEventListener('pointerdown', function(){ cur.classList.add('down'); }, { passive:true });

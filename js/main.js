@@ -280,8 +280,7 @@ function initSite(){
       setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 4000); // 안전장치
     })();
 
-    // 히어로 카드: 리퀴드 글래스 앞면 ↔ 프로필 뒷면 — 마우스 오버 또는 스크롤 진행에 따라 회전
-    // 호버로 뒤집히면 글씨 없는 사진만(.plain), 스크롤로 뒤집히면 반투명 검정 + 흰 글씨
+    // 히어로 카드: 리퀴드 글래스 앞면 ↔ 사진 뒷면 — 마우스 오버 또는 스크롤 진행에 따라 회전
     (function(){
       const pf = document.querySelector('.hero-pf');
       const card = pf && pf.querySelector('.pf-card');
@@ -302,11 +301,10 @@ function initSite(){
         if(cur !== t) raf = requestAnimationFrame(frame);
       }
       function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
-      function setHover(h){ hover = h; pf.classList.toggle('plain', h); kick(); }
-      pf.addEventListener('pointerenter', function(){ setHover(true); });
-      pf.addEventListener('pointerleave', function(){ setHover(false); });
-      pf.addEventListener('focus', function(){ setHover(true); });
-      pf.addEventListener('blur',  function(){ setHover(false); });
+      pf.addEventListener('pointerenter', function(){ hover = true;  kick(); });
+      pf.addEventListener('pointerleave', function(){ hover = false; kick(); });
+      pf.addEventListener('focus', function(){ hover = true;  kick(); });
+      pf.addEventListener('blur',  function(){ hover = false; kick(); });
       addEventListener('scroll', kick, { passive:true });
       addEventListener('resize', kick);
       kick();
