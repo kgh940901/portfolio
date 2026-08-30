@@ -281,9 +281,11 @@ function initSite(){
     })();
 
     // 히어로 카드: 리퀴드 글래스 앞면 ↔ 프로필 뒷면 — 마우스 오버 또는 스크롤 진행에 따라 회전
+    // 호버로 뒤집히면 글씨 없는 사진만(.plain), 스크롤로 뒤집히면 반투명 검정 + 흰 글씨
     (function(){
       const pf = document.querySelector('.hero-pf');
       const card = pf && pf.querySelector('.pf-card');
+      const glass = pf && pf.querySelector('.pf-glass');
       if(!pf || !card) return;
       const ease = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0.14;   // 모션 최소화 시 즉시 전환
       let hover = false, cur = 0, raf = 0;
@@ -296,13 +298,15 @@ function initSite(){
         const t = target();
         cur = Math.abs(t - cur) < 0.08 ? t : cur + (t - cur) * ease;
         card.style.transform = 'rotateY(' + cur.toFixed(2) + 'deg)';
+        if(glass) glass.style.opacity = Math.max(0, 1 - cur/90).toFixed(3);   // 사진 면이 나오며 유리판은 사라짐
         if(cur !== t) raf = requestAnimationFrame(frame);
       }
       function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
-      pf.addEventListener('pointerenter', function(){ hover = true;  kick(); });
-      pf.addEventListener('pointerleave', function(){ hover = false; kick(); });
-      pf.addEventListener('focus', function(){ hover = true;  kick(); });
-      pf.addEventListener('blur',  function(){ hover = false; kick(); });
+      function setHover(h){ hover = h; pf.classList.toggle('plain', h); kick(); }
+      pf.addEventListener('pointerenter', function(){ setHover(true); });
+      pf.addEventListener('pointerleave', function(){ setHover(false); });
+      pf.addEventListener('focus', function(){ setHover(true); });
+      pf.addEventListener('blur',  function(){ setHover(false); });
       addEventListener('scroll', kick, { passive:true });
       addEventListener('resize', kick);
       kick();
