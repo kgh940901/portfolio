@@ -35,8 +35,8 @@ window.initHeroFluid = function(){
     '  vec2 disp = (texture2D(uDisp, vUv).rg - 0.5) * 2.0;',
     '  vec2 uv = vUv - disp * 0.42;',
     '  vec2 iuv = (uv - 0.5) * uCover + 0.5;',
-    '  vec3 col = texture2D(uImage, iuv).rgb * 1.6;',   // 어두운 텍스처를 살짝 띄움
-    '  col += vec3(min(length(disp), 0.14)) * 0.85;',   // 번진 자리가 은은하게 빛남 (상한으로 과열 방지)
+    '  vec3 col = texture2D(uImage, iuv).rgb;',
+    '  col += vec3(min(length(disp), 0.14)) * 0.7;',    // 번진 자리가 은은하게 빛남 (상한으로 과열 방지)
     '  gl_FragColor = vec4(col, 1.0);',
     '}'].join('\n');
 
@@ -109,7 +109,7 @@ window.initHeroFluid = function(){
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     imgReady = true;
   };
-  img.src = 'assets/hero-black.jpg';
+  img.src = 'assets/work-sensemom.jpg';   // 히어로 배경 = 본인 작업물 (어두운 그라디언트는 CSS .hero::before 가 담당)
 
   // ---- 크기 ----
   var dpr = Math.min(devicePixelRatio || 1, 1.5);
@@ -144,7 +144,8 @@ window.initHeroFluid = function(){
 
   function frame(){
     raf = 0;
-    if(!visible || document.hidden){ return; }
+    // 히어로가 고정(sticky)이라 IntersectionObserver 만으론 부족 — 화면 밖으로 충분히 덮이면 중단
+    if(!visible || document.hidden || scrollY > innerHeight * 1.35){ return; }
     // 속도: 이번 프레임 이동량 (부드럽게 따라붙도록 보간)
     if(lx >= 0 && mx >= 0){ vx += ((mx - lx) - vx) * 0.55; vy += ((my - ly) - vy) * 0.55; }
     lx = mx; ly = my;
@@ -182,6 +183,7 @@ window.initHeroFluid = function(){
   }
   function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) kick(); });
+  addEventListener('scroll', kick, { passive:true });   // 위로 되돌아오면 재개
   kick();
 };
 // 섹션이 이미 조립된 뒤에 로드된 경우를 대비해 한 번 시도 (initSite 에서도 호출함)

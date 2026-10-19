@@ -9,6 +9,7 @@
     --text:#f3f3f1; --gray:#8f8f8b; --gray-ink:#9a9a96; --body-ink:#6f6f6b;
     --line-d:rgba(255,255,255,.14); --line-l:rgba(0,0,0,.14);
     --maxw:1440px;
+    --cut:clamp(48px,6.5vw,120px);   /* 사선 분할 높이 (전역) */
     --font:'Pretendard', system-ui, -apple-system, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
@@ -47,7 +48,7 @@
   section{ padding:26px 0 120px; }
   .sec-light, .sec-dark{ position:relative; }
   /* 사선 섹션 분할 — 이전 섹션 위를 비스듬히 덮으며 시작 (Fuel) */
-  .slant{ --cut:clamp(48px,6.5vw,120px);
+  .slant{
     clip-path:polygon(0 var(--cut), 100% 0, 100% 100%, 0 100%);
     margin-top:calc(var(--cut) * -1);
     padding-top:calc(26px + var(--cut)); }
@@ -69,11 +70,20 @@
   .reveal{ opacity:0; transform:translateY(36px); transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
   .reveal.in{ opacity:1; transform:none; }
 
-  /* ===== HERO — 검정 배경(마우스 유체 왜곡) + 상단 바 + 좌측 카피 + 크롭 워드마크 ===== */
-  .hero{ position:relative; height:100vh; min-height:640px; overflow:hidden; padding:0; }
-  /* 유체 왜곡 캔버스 — 커서를 따라 배경 텍스처가 번짐 (js/fluid.js) */
+  /* ===== HERO — 작업물 배경(마우스 유체 왜곡) + 상단 바 + 좌측 카피 + 크롭 워드마크 =====
+     레퍼런스처럼 히어로는 뷰포트에 고정(sticky)되고, 흰 About 섹션이 사선으로 그 위를 덮으며 올라옴.
+     margin-bottom:var(--cut) 은 About 의 음수 마진을 상쇄 — 첫 화면(y=0)에선 사선이 보이지 않게 함 */
+  .hero{ position:sticky; top:0; height:100vh; min-height:640px; overflow:hidden; padding:0;
+    margin-bottom:var(--cut);
+    background:#0a0a0a url('../assets/work-sensemom.jpg') center/cover no-repeat; }
+  /* 유체 왜곡 캔버스 — 커서를 따라 배경 작업물 이미지가 번짐 (js/fluid.js) */
   .hero-fluid{ position:absolute; inset:0; z-index:0; }
   .hero-fluid canvas{ display:block; width:100%; height:100%; }
+  /* 텍스트 가독성·무드용 어두운 그라디언트 (캔버스 위, 콘텐츠 아래) */
+  .hero::before{ content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(to bottom, rgba(10,10,10,.6), rgba(10,10,10,.14) 32%, rgba(10,10,10,.16) 60%, rgba(10,10,10,.7)),
+      linear-gradient(100deg, rgba(10,10,10,.6), transparent 44%),
+      radial-gradient(90% 72% at 50% 46%, transparent, rgba(10,10,10,.38)); }
   .hero-bar{ position:absolute; top:0; left:0; right:0; z-index:6; display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding:22px 24px; }
   .hb-logo{ font-size:17px; font-weight:800; letter-spacing:.5px; display:flex; align-items:center; gap:8px; padding-top:9px; }
   .hb-logo .px{ display:inline-block; width:14px; height:14px;
@@ -95,6 +105,14 @@
   .hb-meet .m-tx em{ font-style:normal; font-size:12px; color:#9a9a96; }
   .hb-meet .m-ic{ position:absolute; right:10px; top:9px; font-size:12px; color:#111; }
   @media(max-width:900px){ .hb-menu{ display:none; } .hb-meet{ width:auto; } .hb-meet .m-tx span{ display:none; } }
+  @media(max-width:600px){
+    .hb-meet{ padding:7px; gap:9px; }
+    .hb-meet img{ width:44px; height:44px; }
+    .hb-meet .m-tx b{ font-size:12.5px; }
+    .hb-meet .m-tx em{ font-size:11px; }
+    .hb-meet .m-ic{ display:none; }
+    .hero-copy p .dim{ color:#b9b9b4; }
+  }
 
   .hero-copy{ position:absolute; left:24px; top:24vh; z-index:5; max-width:360px; }
   .hero-copy p{ font-size:16.5px; font-weight:600; line-height:1.45; word-break:keep-all; }
@@ -106,9 +124,11 @@
   .hero-ruler{ display:flex; gap:5px; align-items:center; }
   .hero-ruler i{ display:block; width:1px; height:9px; background:rgba(255,255,255,.5); }
   .hero-ruler i:nth-child(4n+1){ height:13px; }
-  /* 하단 크롭 거대 워드마크 */
-  .hero-word{ position:absolute; left:50%; bottom:0; transform:translate(-50%,30%); z-index:4; white-space:nowrap;
-    font-size:clamp(58px,9.6vw,150px); font-weight:800; letter-spacing:-.02em; line-height:1; color:#fff; pointer-events:none;
+  /* 하단 크롭 거대 워드마크 — 바깥(.ha 등장용)과 안쪽(크롭 이동)을 분리:
+     .ha 가 transform 을 none 으로 되돌려도 안쪽 translateY 크롭이 유지됨 */
+  .hero-word{ position:absolute; left:0; right:0; bottom:0; z-index:4; text-align:center; pointer-events:none; }
+  .hero-word span{ display:inline-block; transform:translateY(26%); white-space:nowrap;
+    font-size:clamp(54px,11vw,175px); font-weight:800; letter-spacing:-.02em; line-height:1;
     background:linear-gradient(180deg,#ffffff 36%, #b9b9c2 70%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
   .hero .cx.c1{ left:30%; top:45%; } .hero .cx.c2{ left:48%; top:41%; } .hero .cx.c3{ left:66%; top:52%; } .hero .cx.c4{ left:84%; top:41%; }
   /* 진입 애니메이션 */
@@ -118,8 +138,9 @@
   body.loaded .ha.d3{ transition-delay:.24s; } body.loaded .ha.d4{ transition-delay:.34s; }
 
   /* ===== (01) ABOUT — 대형 문장 + (Pre)/(+Post) + (=Results) + 툴 카드 띠 ===== */
-  .stmt-big{ margin-top:clamp(46px,7vw,110px); font-size:clamp(34px,5.6vw,76px); font-weight:600; letter-spacing:-.025em; line-height:1.04; word-break:keep-all; }
-  .stmt-big .ind{ display:inline-block; width:clamp(90px,28%,380px); }
+  /* 한글은 영문보다 획 밀도가 높아 레퍼런스보다 가늘고(500) 행간을 넉넉히(1.28) */
+  .stmt-big{ margin-top:clamp(28px,4.2vw,64px); font-size:clamp(26px,4.4vw,58px); font-weight:500; letter-spacing:-.02em; line-height:1.28; word-break:keep-all; }
+  .stmt-big .ind{ display:inline-block; width:clamp(70px,22%,300px); }
   .ab-row{ display:grid; grid-template-columns:minmax(200px,330px) 1fr minmax(260px,390px); gap:30px; align-items:start; margin-top:clamp(60px,8vw,120px); }
   .ab-row + .ab-row{ margin-top:70px; }
   .ab-row .lab{ grid-column:2; text-align:center; font-size:14.5px; font-weight:700; }
@@ -174,7 +195,7 @@
   /* ===== (03) SERVICES — 다크: 점등 문장 + 거대 번호 행 ===== */
   #services .svc-intro{ display:flex; gap:26px; align-items:flex-start; margin-top:clamp(44px,6vw,90px); }
   #services .svc-intro img{ width:min(178px,24vw); aspect-ratio:1/1.3; object-fit:cover; flex-shrink:0; }
-  .stmt-lit{ font-size:clamp(30px,4.9vw,66px); font-weight:600; letter-spacing:-.025em; line-height:1.06; word-break:keep-all; }
+  .stmt-lit{ font-size:clamp(25px,4vw,54px); font-weight:500; letter-spacing:-.02em; line-height:1.3; word-break:keep-all; }
   .stmt-lit .w{ color:#5c5c5a; transition:color .35s ease; }
   .stmt-lit .w.lit{ color:#f3f3f1; }
   #services .svc-cta-row{ position:relative; margin:clamp(40px,5vw,70px) 0 clamp(60px,8vw,110px); }
