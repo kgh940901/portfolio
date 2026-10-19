@@ -39,17 +39,9 @@ function initSite(){
       const items = Array.prototype.slice.call(ring.children);
       const N = items.length; if(!N) return;
       const STEP = 360 / N;
-      function radius(){ return Math.max(400, Math.min(innerWidth * 0.52, 700)); }
-      function layout(){
-        const r = radius();
-        items.forEach(function(el, i){
-          const oy = parseFloat(el.getAttribute('data-oy') || '0');
-          el.style.transform = 'translateY(calc(-50% + ' + oy + 'px)) rotateY(' + (i * STEP) + 'deg) translateZ(' + r + 'px)';
-        });
-      }
-      layout(); addEventListener('resize', layout);
+      function radius(){ return Math.max(380, Math.min(innerWidth * 0.46, 600)); }
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let cur = 0, raf = 0, lastIdx = -1;
+      let cur = -1, raf = 0, lastIdx = -1;
       function target(){
         const rect = wrap.getBoundingClientRect();
         const total = rect.height - innerHeight;
@@ -61,7 +53,16 @@ function initSite(){
         raf = 0;
         const t = target();
         cur = reduce ? t : (Math.abs(t - cur) < 0.04 ? t : cur + (t - cur) * 0.11);
-        ring.style.transform = 'translateZ(' + (-radius()) + 'px) rotateY(' + (-cur) + 'deg)';
+        const r = radius();
+        ring.style.transform = 'translateZ(' + (-r) + 'px) rotateY(' + (-cur) + 'deg)';
+        // 정면에 가까울수록 급격히 커짐 — 레퍼런스의 크기 대비 (정면 ≈ 2.4배)
+        items.forEach(function(el, i){
+          let d = ((i * STEP - cur) % 360 + 360) % 360; if(d > 180) d -= 360;
+          const c = Math.max(0, Math.cos(d * Math.PI / 180));
+          const s = 1 + 1.4 * Math.pow(c, 8);
+          const oy = parseFloat(el.getAttribute('data-oy') || '0');
+          el.style.transform = 'translateY(calc(-50% + ' + oy + 'px)) rotateY(' + (i * STEP) + 'deg) translateZ(' + r + 'px) scale(' + s.toFixed(3) + ')';
+        });
         const idx = Math.min(N - 1, Math.max(0, Math.round(cur / STEP)));
         if(idx !== lastIdx){
           items.forEach(function(el, i){ el.classList.toggle('front', i === idx); });

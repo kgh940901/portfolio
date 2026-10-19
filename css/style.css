@@ -152,13 +152,16 @@
   .pf-hint{ position:absolute; left:50%; bottom:26px; transform:translateX(-50%);
     font-size:12.5px; font-weight:600; color:var(--gray-ink); }
   .ring{ position:relative; width:0; height:0; transform-style:preserve-3d; will-change:transform; }
-  .ring-item{ position:absolute; left:0; top:0; width:min(var(--w,340px), 58vw); margin-left:calc(min(var(--w,340px), 58vw) / -2);
+  .ring-item{ position:absolute; left:0; top:0; width:min(var(--w,180px), 34vw); margin-left:calc(min(var(--w,180px), 34vw) / -2);
     display:block; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
-  .ring-item img{ width:100%; display:block; box-shadow:0 22px 60px rgba(0,0,0,.16); background:#e8e8e6; }
-  .ring-cap{ position:absolute; left:0; right:0; bottom:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:6px 8px; background:#ececea; opacity:0; transition:opacity .4s ease; }
-  .ring-cap b{ font-size:14.5px; font-weight:700; letter-spacing:-.1px; white-space:nowrap; }
-  .ring-cap .vc{ background:#111; color:#fff; font-size:12px; font-weight:700; padding:4px 10px; white-space:nowrap; }
+  .ring-item img{ width:100%; display:block; aspect-ratio:1/1.18; object-fit:cover; box-shadow:0 16px 44px rgba(0,0,0,.15); background:#e8e8e6; }
+  .ring-item:nth-child(even) img{ aspect-ratio:1/1.32; }
+  .ring-item:nth-child(3n) img{ aspect-ratio:1/1.02; }
+  /* 캡션 글씨는 정면에서 2.4배로 확대된 상태 기준으로 작게 설계 (비정면은 opacity 0) */
+  .ring-cap{ position:absolute; left:0; right:0; bottom:100%; display:flex; align-items:center; justify-content:space-between; gap:6px;
+    padding:3px 4px; background:#ececea; opacity:0; transition:opacity .4s ease; }
+  .ring-cap b{ font-size:6.6px; font-weight:700; letter-spacing:0; white-space:nowrap; }
+  .ring-cap .vc{ background:#111; color:#fff; font-size:5.4px; font-weight:700; padding:2px 5px; white-space:nowrap; }
   .ring-item.front .ring-cap{ opacity:1; }
   .ring-item:hover img{ filter:brightness(1.03); }
   @media(max-width:760px){ .pf-caro{ height:420vh; } }
