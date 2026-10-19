@@ -17,9 +17,16 @@ window.initHeroFluid = function(){
   var VS = 'attribute vec2 aPos; varying vec2 vUv; void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.0,1.0); }';
   var FS_UPDATE = [
     'precision highp float; varying vec2 vUv;',
-    'uniform sampler2D uPrev; uniform vec2 uMouse; uniform vec2 uVel; uniform float uRadius; uniform vec2 uAspect; uniform float uDecay;',
+    'uniform sampler2D uPrev; uniform vec2 uMouse; uniform vec2 uVel; uniform float uRadius; uniform vec2 uAspect; uniform float uDecay; uniform vec2 uTexel;',
     'void main(){',
-    '  vec2 disp = (texture2D(uPrev, vUv).rg - 0.5) * 2.0;',
+    // 4방향 확산 — 변위가 주변으로 스며들어 비단처럼 부드럽게 번짐
+    '  vec2 c  = texture2D(uPrev, vUv).rg;',
+    '  vec2 n1 = texture2D(uPrev, vUv + vec2(uTexel.x, 0.0)).rg;',
+    '  vec2 n2 = texture2D(uPrev, vUv - vec2(uTexel.x, 0.0)).rg;',
+    '  vec2 n3 = texture2D(uPrev, vUv + vec2(0.0, uTexel.y)).rg;',
+    '  vec2 n4 = texture2D(uPrev, vUv - vec2(0.0, uTexel.y)).rg;',
+    '  vec2 d = c * 0.64 + (n1 + n2 + n3 + n4) * 0.09;',
+    '  vec2 disp = (d - 0.5) * 2.0;',
     '  disp *= uDecay;',
     '  if(length(disp) < 0.0015) disp = vec2(0.0);',   // 8bit 잔상 방지
     '  vec2 diff = (vUv - uMouse) * uAspect;',
@@ -138,7 +145,8 @@ window.initHeroFluid = function(){
   }
   var uU = { prev:gl.getUniformLocation(progU,'uPrev'), mouse:gl.getUniformLocation(progU,'uMouse'),
              vel:gl.getUniformLocation(progU,'uVel'), radius:gl.getUniformLocation(progU,'uRadius'),
-             aspect:gl.getUniformLocation(progU,'uAspect'), decay:gl.getUniformLocation(progU,'uDecay') };
+             aspect:gl.getUniformLocation(progU,'uAspect'), decay:gl.getUniformLocation(progU,'uDecay'),
+             texel:gl.getUniformLocation(progU,'uTexel') };
   var uR = { disp:gl.getUniformLocation(progR,'uDisp'), image:gl.getUniformLocation(progR,'uImage'),
              cover:gl.getUniformLocation(progR,'uCover') };
 
@@ -147,9 +155,9 @@ window.initHeroFluid = function(){
     // 히어로가 고정(sticky)이라 IntersectionObserver 만으론 부족 — 화면 밖으로 충분히 덮이면 중단
     if(!visible || document.hidden || scrollY > innerHeight * 1.35){ return; }
     // 속도: 이번 프레임 이동량 (부드럽게 따라붙도록 보간)
-    if(lx >= 0 && mx >= 0){ vx += ((mx - lx) - vx) * 0.55; vy += ((my - ly) - vy) * 0.55; }
+    if(lx >= 0 && mx >= 0){ vx += ((mx - lx) - vx) * 0.38; vy += ((my - ly) - vy) * 0.38; }   // 속도를 더 완만히 따라가 부드럽게
     lx = mx; ly = my;
-    var sp = Math.min(1, Math.hypot(vx, vy) * 26);
+    var sp = Math.min(1, Math.hypot(vx, vy) * 22);
 
     // 1) 변위 업데이트 (핑퐁)
     gl.useProgram(progU); bindQuad(progU);
@@ -158,10 +166,11 @@ window.initHeroFluid = function(){
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, a.tex);
     gl.uniform1i(uU.prev, 0);
     gl.uniform2f(uU.mouse, mx, my);
-    gl.uniform2f(uU.vel, vx * 9.0 * sp, vy * 9.0 * sp);
-    gl.uniform1f(uU.radius, 0.16);
+    gl.uniform2f(uU.vel, vx * 6.5 * sp, vy * 6.5 * sp);
+    gl.uniform1f(uU.radius, 0.21);                       // 브러시를 크고 연하게 — 뻑뻑한 느낌 제거
     gl.uniform2f(uU.aspect, canvas.width / canvas.height, 1.0);
-    gl.uniform1f(uU.decay, 0.974);
+    gl.uniform1f(uU.decay, 0.967);
+    gl.uniform2f(uU.texel, 1 / SIM_W, 1 / SIM_H);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     var t = a; a = b; b = t;
 
