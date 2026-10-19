@@ -144,19 +144,21 @@ window.initHeroSpace = function(){
   // ---- 글자 뒤판 텍스처: DOM 과 같은 타이포를 캔버스로 그려 올림 (WebGL 켜지면 DOM 텍스트는 숨김) ----
   var textTex = gl.createTexture();
   function makeTextTex(){
-    var w = 1280, h = Math.max(2, Math.round(w * host.clientHeight / Math.max(1, host.clientWidth)));
+    // 캔버스 실제 픽셀 해상도로 그려야 확대 없이 선명함 (고정 저해상도로 그리면 글자가 뭉개짐)
+    var w = Math.max(640, Math.min(canvas.width || 1280, 2560));
+    var h = Math.max(2, Math.round(w * host.clientHeight / Math.max(1, host.clientWidth)));
     var c = document.createElement('canvas'); c.width = w; c.height = h;
     var x = c.getContext('2d');
     x.clearRect(0, 0, w, h);
     x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    var namePx = Math.min(w * 0.102, h * 0.26);
+    var namePx = Math.min(w * 0.105, h * 0.26);
     x.font = '800 ' + namePx + "px 'Pretendard', sans-serif";
-    x.fillText('GAHYUN K', w/2, h * 0.465);
+    x.fillText('PORTFOLIO', w/2, h * 0.465);
     var subPx = Math.max(12, namePx * 0.115);
     try{ x.letterSpacing = (subPx * 0.42) + 'px'; }catch(e){}
     x.font = '600 ' + subPx + "px 'Pretendard', sans-serif";
     x.globalAlpha = 0.74;
-    x.fillText('WEB DESIGNER & PUBLISHER', w/2 + subPx*0.21, h * 0.465 + namePx * 0.78);
+    x.fillText('GAHYUN KYOUNG · WEB DESIGNER & PUBLISHER', w/2 + subPx*0.21, h * 0.465 + namePx * 0.80);
     x.globalAlpha = 1;
     gl.bindTexture(gl.TEXTURE_2D, textTex);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
