@@ -46,6 +46,11 @@
   .sec-dark .shead{ border-top:1px solid var(--line-d); }
   section{ padding:26px 0 120px; }
   .sec-light, .sec-dark{ position:relative; }
+  /* 사선 섹션 분할 — 이전 섹션 위를 비스듬히 덮으며 시작 (Fuel) */
+  .slant{ --cut:clamp(48px,6.5vw,120px);
+    clip-path:polygon(0 var(--cut), 100% 0, 100% 100%, 0 100%);
+    margin-top:calc(var(--cut) * -1);
+    padding-top:calc(26px + var(--cut)); }
 
   /* 공통 — 코너 브래킷 CTA (텍스트 + 밑줄 + ┐) */
   .cta{ position:relative; display:block; width:min(250px,64vw); font-size:15px; font-weight:700; padding:8px 0 13px;
@@ -64,8 +69,11 @@
   .reveal{ opacity:0; transform:translateY(36px); transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
   .reveal.in{ opacity:1; transform:none; }
 
-  /* ===== HERO — 검정 배경(마우스 물결) + 상단 바 + 좌측 카피 + 크롭 워드마크 ===== */
+  /* ===== HERO — 검정 배경(마우스 유체 왜곡) + 상단 바 + 좌측 카피 + 크롭 워드마크 ===== */
   .hero{ position:relative; height:100vh; min-height:640px; overflow:hidden; padding:0; }
+  /* 유체 왜곡 캔버스 — 커서를 따라 배경 텍스처가 번짐 (js/fluid.js) */
+  .hero-fluid{ position:absolute; inset:0; z-index:0; }
+  .hero-fluid canvas{ display:block; width:100%; height:100%; }
   .hero-bar{ position:absolute; top:0; left:0; right:0; z-index:6; display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding:22px 24px; }
   .hb-logo{ font-size:17px; font-weight:800; letter-spacing:.5px; display:flex; align-items:center; gap:8px; padding-top:9px; }
   .hb-logo .px{ display:inline-block; width:14px; height:14px;
@@ -131,8 +139,9 @@
   .logo-strip{ margin-top:clamp(70px,9vw,130px); overflow:hidden; }
   .logo-track{ display:flex; gap:16px; width:max-content; animation:lsmarq 36s linear infinite; }
   .logo-track:hover{ animation-play-state:paused; }
-  .logo-card{ width:224px; height:168px; background:var(--paper-card); border-radius:6px; display:flex; align-items:center; justify-content:center;
-    font-size:19px; font-weight:800; letter-spacing:-.2px; color:#161616; flex-shrink:0; }
+  .logo-card{ width:212px; height:168px; background:var(--paper-card); border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+    font-size:15.5px; font-weight:700; letter-spacing:-.1px; color:#161616; flex-shrink:0; }
+  .logo-card .lg{ width:34px; height:34px; object-fit:contain; display:block; }
   @keyframes lsmarq{ to{ transform:translateX(-50%); } }
 
   /* ===== (02) PORTFOLIO — 좌측 고정 라벨 + 스택 카드 덱 + See all ===== */

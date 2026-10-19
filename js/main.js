@@ -22,39 +22,13 @@ function initSite(){
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
-    // 히어로 물결(WebGL) — 검정 텍스처 위, 마우스를 따라 파문이 생기는 메인 효과
+    // 히어로 유체 왜곡 — 마우스를 따라 배경이 액체처럼 번짐 (js/fluid.js)
+    if(window.initHeroFluid){ try{ window.initHeroFluid(); }catch(e){} }
+
+    // 툴 카드 마퀴: 끊김 없는 루프를 위해 트랙 내용을 한 번 복제
     (function(){
-      if(!window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if(reduce || innerWidth < 820 || !matchMedia('(pointer:fine)').matches) return;
-      const el = document.getElementById('pageWater'); if(!el) return;
-      const $el = jQuery(el);
-      try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.012, interactive: false }); }
-      catch(e){ return; } // WebGL 미지원 시 정적 배경 유지
-      // 파문 전파를 절반 속도로 — 잔잔하게
-      (function(){
-        const inst = $el.data('ripples'); if(!inst || !inst.update) return;
-        const orig = inst.update; let f = 0;
-        inst.update = function(){ if((f++ % 2) === 0) orig.call(inst); };
-      })();
-      // 마우스 트레일: 커서가 움직이는 자리마다 작은 파문 (배경이 보이는 히어로·CTA에서 체감)
-      let lastT = 0;
-      addEventListener('pointermove', function(e){
-        if(e.pointerType && e.pointerType !== 'mouse') return;
-        const now = performance.now();
-        if(now - lastT < 55) return; lastT = now;
-        try{ $el.ripples('drop', e.clientX, e.clientY, 42, 0.014); }catch(err){}
-      }, { passive:true });
-      // 이따금 떨어지는 큰 물방울
-      let playing = true;
-      function setPlay(p){ if(p===playing) return; playing=p; try{ $el.ripples(p ? 'play' : 'pause'); }catch(e){} }
-      setInterval(function(){
-        if(!playing || document.hidden) return;
-        const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
-        try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.03); }catch(e){}
-      }, 3200);
-      let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
-      document.addEventListener('visibilitychange', ()=>{ setPlay(!document.hidden); });
+      const track = document.getElementById('toolTrack');
+      if(track) track.innerHTML += track.innerHTML;
     })();
 
     // (03) 점등 문장: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 밝아짐 (Fuel 의 흰→회색 진행)
