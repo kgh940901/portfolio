@@ -11,6 +11,14 @@
 })();
 
 function initSite(){
+    // 섹션이 fetch 로 늦게 조립되므로, 주소에 해시가 있으면 조립 후 앵커 위치를 복원
+    if(location.hash){
+      try{
+        const t = document.querySelector(location.hash);
+        if(t) setTimeout(function(){ t.scrollIntoView(); }, 80);
+      }catch(e){}
+    }
+
     // 스크롤 등장
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), (i % 4) * 70); io.unobserve(e.target); } });

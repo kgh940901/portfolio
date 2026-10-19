@@ -127,10 +127,13 @@
   .hero-ruler i:nth-child(4n+1){ height:13px; }
   /* 하단 크롭 거대 워드마크 — 바깥(.ha 등장용)과 안쪽(크롭 이동)을 분리:
      .ha 가 transform 을 none 으로 되돌려도 안쪽 translateY 크롭이 유지됨 */
-  .hero-word{ position:absolute; left:0; right:0; bottom:0; z-index:4; text-align:center; pointer-events:none; }
-  .hero-word span{ display:inline-block; transform:translateY(26%); white-space:nowrap;
-    font-size:clamp(54px,11vw,175px); font-weight:800; letter-spacing:-.02em; line-height:1;
+  .hero-word{ position:absolute; left:0; right:0; bottom:14px; z-index:4; text-align:center; pointer-events:none; }
+  .hero-word span{ display:inline-block; white-space:nowrap;
+    font-size:clamp(50px,10.4vw,164px); font-weight:800; letter-spacing:-.02em; line-height:.92;
     background:linear-gradient(180deg,#ffffff 36%, #b9b9c2 70%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  /* 배경이 본인 작업물임을 알리는 캡션 — 하단 메타 줄에 함께 */
+  .hero-meta .hm-cap{ font-size:12px; font-weight:600; color:rgba(255,255,255,.62); margin-left:8px; }
+  @media(max-width:700px){ .hero-meta .hm-cap{ display:none; } }
   .hero .cx.c1{ left:30%; top:45%; } .hero .cx.c2{ left:48%; top:41%; } .hero .cx.c3{ left:66%; top:52%; } .hero .cx.c4{ left:84%; top:41%; }
   /* 진입 애니메이션 */
   .ha{ opacity:0; transform:translateY(26px); }
@@ -266,11 +269,13 @@
 
   /* ===== (06) ARCHIVE — 연도/이름/썸네일 행 ===== */
   .arch{ margin-top:46px; }
-  .arow{ display:grid; grid-template-columns:minmax(60px,1fr) minmax(0,2.2fr) minmax(120px,1fr); align-items:center; gap:16px;
+  /* 3열 정렬: 분류 | 제목(화면 약 1/3 지점에서 시작) | 썸네일 */
+  .arow{ display:grid; grid-template-columns:minmax(90px,32%) minmax(0,1fr) minmax(120px,auto); align-items:center; gap:16px;
     border-top:1px solid var(--line-l); padding:13px 2px; transition:background .3s, opacity .3s; }
   .arch .arow:last-child{ border-bottom:1px solid var(--line-l); }
   .arow .ay{ font-size:14px; font-weight:600; color:var(--ink); }
-  .arow .an{ font-size:clamp(26px,3.4vw,46px); font-weight:600; letter-spacing:-.02em; line-height:1.14; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
+  /* 긴 제목(Promotion Design 등) 기준으로 크기·굵기 하향 */
+  .arow .an{ font-size:clamp(20px,2.5vw,34px); font-weight:600; letter-spacing:-.015em; line-height:1.14; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
   .arow:hover .an{ transform:translateX(12px); }
   .arow .at{ display:flex; gap:7px; justify-content:flex-end; }
   .arow .at img{ width:84px; height:56px; object-fit:cover; border-radius:2px; transition:transform .4s cubic-bezier(.2,.7,.2,1); }
@@ -279,16 +284,15 @@
   .arch .arow:hover{ opacity:1; }
   @media(max-width:640px){ .arow .at img{ width:56px; height:40px; } }
 
-  /* ===== CTA 배너 — 다크 텍스처 + 대형 마퀴 + 인물 + Contact ===== */
+  /* ===== CTA 배너 — 작업물 공간 컷 배경 + 대형 마퀴 + Contact ===== */
   .ctaband{ position:relative; margin:0 24px; height:clamp(420px,66vh,620px); border-radius:4px; overflow:hidden;
-    background:#101010 url('../assets/hero-black.jpg') center/cover no-repeat; color:#f3f3f1; }
-  .ctaband::after{ content:""; position:absolute; inset:0; background:radial-gradient(90% 90% at 50% 10%, transparent, rgba(0,0,0,.5)); }
-  .cb-marq{ position:absolute; left:0; right:0; top:38%; transform:translateY(-50%); overflow:hidden; z-index:1; }
-  .cb-track{ display:flex; width:max-content; white-space:nowrap; animation:lsmarq 26s linear infinite; }
-  .cb-track span{ font-size:clamp(64px,9vw,128px); font-weight:700; letter-spacing:-.02em; line-height:1; color:#efefec; padding-right:40px; }
-  .cb-photo{ position:absolute; left:50%; top:34%; transform:translate(-50%,-50%); width:clamp(150px,17vw,224px); z-index:2; }
-  .cb-photo img{ width:100%; aspect-ratio:1/1.35; object-fit:cover; }
-  .ctaband .cta{ position:absolute; left:50%; top:60%; transform:translateX(-50%); z-index:3; color:#fff; }
+    background:#101010 url('../assets/work-pension.jpg') center/cover no-repeat; color:#f3f3f1; }
+  .ctaband::after{ content:""; position:absolute; inset:0;
+    background:linear-gradient(to bottom, rgba(8,8,10,.52), rgba(8,8,10,.22) 42%, rgba(8,8,10,.58)); }
+  .cb-marq{ position:absolute; left:0; right:0; top:44%; transform:translateY(-50%); overflow:hidden; z-index:1; }
+  .cb-track{ display:flex; width:max-content; white-space:nowrap; animation:lsmarq 30s linear infinite; }
+  .cb-track span{ font-size:clamp(42px,6.2vw,88px); font-weight:600; letter-spacing:-.02em; line-height:1; color:rgba(243,243,241,.92); padding-right:40px; }
+  .ctaband .cta{ position:absolute; left:50%; top:63%; transform:translateX(-50%); z-index:3; color:#fff; }
   .ctaband .cx{ color:#dadad6; } .ctaband .cx.b1{ left:15%; top:76%; } .ctaband .cx.b2{ left:50%; top:84%; transform:scale(.7); opacity:.6; } .ctaband .cx.b3{ right:15%; top:76%; }
 
   /* ===== (07) STATS — 2×2 대형 숫자 ===== */
