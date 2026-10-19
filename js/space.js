@@ -62,21 +62,30 @@ window.initHeroSpace = function(){
     '  float R = 0.125;',                                                                 // 렌즈 반경 (화면높이 기준)
     '  vec3 col;',
     '  float inL = step(r, R) * uStr;',
+    // 렌즈 유리 공식은 Originkit glass-icon 공식 셰이더 이식: IOR 1.5 굴절 + 분산, 프레넬^4,
+    // 골든앵글 프로스트 블러, 반사 믹스 (환경맵은 프로시저럴 근사)
     '  if(inL > 0.001){',
     '    float k = r / R;',
-    '    float bump = sqrt(max(1.0 - k*k, 0.0));',                                        // 구면 캡 높이
-    '    vec2 nd = toL / max(r, 1e-5);',
-    '    float disp = (1.0 - bump) * 0.42 * uStr;',                                       // 중심 0, 가장자리 강하게
-    '    vec2 off = nd * disp * R;',
-    '    vec3 cr; ',
-    '    cr.r = space(q - off*1.06, cd, t).r;',                                           // 채널별 굴절 — 색 번짐
-    '    cr.g = space(q - off,      cd, t).g;',
-    '    cr.b = space(q - off*0.94, cd, t).b;',
-    '    col = cr * (1.0 + bump*0.22*uStr);',                                             // 렌즈 안 미세한 밝기
-    '    float rim = smoothstep(0.86, 0.975, k) * smoothstep(1.0, 0.985, k);',            // 얇은 림
-    '    col += vec3(0.62,0.72,1.0) * rim * 0.42 * uStr;',                                // 블루 림 하이라이트
-    '    float spec = pow(max(1.0 - length((q - lq - vec2(-0.35,0.35)*R)) / R, 0.0), 3.0);',
-    '    col += vec3(1.0) * spec * 0.10 * uStr;',                                         // 좌상단 은은한 반사
+    '    float bump = sqrt(max(1.0 - k*k, 0.0));',                                        // 구면 캡
+    '    vec3 n = normalize(vec3(toL / R, bump * 0.9));',
+    '    float fresnel = pow(1.0 - max(n.z, 0.0), 4.0);',                                 // 공식과 동일 지수
+    '    vec3 rfr = refract(vec3(0.0,0.0,-1.0), n, 1.0/1.5);',                            // IOR 1.5
+    '    vec2 off = rfr.xy * 0.2 * uStr;',                                                // THICKNESS*0.1 상당
+    '    float disp = 0.07;',                                                              // 채널 분산
+    '    vec3 trans = vec3(0.0);',
+    '    float rnd = hash(vUv * 437.58) * 6.2831853;',
+    '    for(int i = 0; i < 4; i++){',                                                     // 프로스트(축소판 골든앵글)
+    '      float th = float(i) * 2.39996323 + rnd;',
+    '      vec2 bo = vec2(cos(th), sin(th)) * (float(i)+1.0) * 0.00135;',
+    '      trans.r += space(q + off*(1.0+disp) + bo, cd, t).r;',
+    '      trans.g += space(q + off            + bo, cd, t).g;',
+    '      trans.b += space(q + off*(1.0-disp) + bo, cd, t).b;',
+    '    }',
+    '    trans *= 0.25;',
+    '    vec3 rfl = reflect(vec3(0.0,0.0,-1.0), n);',                                      // 환경 반사 근사
+    '    vec3 reflCol = mix(vec3(0.05,0.06,0.11), vec3(0.72,0.80,1.0), pow(max(rfl.y*0.5+0.5,0.0), 3.0));',
+    '    vec3 glass = mix(trans * 1.25, reflCol, clamp(fresnel * 0.8, 0.0, 1.0));',        // 공식의 최종 믹스
+    '    col = mix(space(q, cd, t), glass, uStr);',                                        // 진입/이탈 페이드
     '  } else {',
     '    col = space(q, cd, t);',
     '  }',
