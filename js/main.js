@@ -11,90 +11,56 @@
 })();
 
 function initSite(){
-    // 스크롤 등장 — 화면 하단에서 12% 올라온 뒤 시작 (너무 이른 등장 방지)
+    // 스크롤 등장
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), (i % 4) * 70); io.unobserve(e.target); } });
-    }, { threshold: 0.1, rootMargin: '0px 0px -12% 0px' });
+    }, { threshold: 0.08, rootMargin: '0px 0px -10% 0px' });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-    // 텍스트 로우 프리뷰: data-peek 이미지가 마우스를 따라 떠오름 (Work · Experience · Project Details)
-    (function(){
-      if(!matchMedia('(pointer:fine)').matches) return;
-      if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const items = Array.prototype.slice.call(document.querySelectorAll('[data-peek]'));
-      if(!items.length) return;
-      const peek = document.createElement('div');
-      peek.className = 'peek'; peek.setAttribute('aria-hidden','true');
-      peek.innerHTML = '<span class="peek-in"><img alt=""></span>';
-      document.body.appendChild(peek);
-      const img = peek.querySelector('img');
-      // 첫 호버에서 로딩 지연이 없도록 미리 받아둠
-      items.forEach(function(el){ const s = new Image(); s.src = el.getAttribute('data-peek'); });
-      let x=0, y=0, cx=0, cy=0, raf=0, on=false;
-      function place(){
-        const w = peek.offsetWidth, h = peek.offsetHeight;
-        let px = cx + 28;                                        // 기본은 커서 오른쪽
-        if(px + w > innerWidth - 12) px = cx - 28 - w;           // 화면을 벗어나면 왼쪽으로
-        let py = cy - h/2;
-        py = Math.max(12, Math.min(py, innerHeight - h - 12));   // 상하 화면 밖 방지
-        peek.style.transform = 'translate3d(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px,0)';
-      }
-      function loop(){
-        cx += (x-cx)*0.16; cy += (y-cy)*0.16;                    // 살짝 뒤따라오는 트레일링
-        place();
-        if(on || Math.abs(x-cx)>0.4 || Math.abs(y-cy)>0.4){ raf = requestAnimationFrame(loop); } else { raf = 0; }
-      }
-      items.forEach(function(el){
-        el.addEventListener('pointerenter', function(e){
-          img.src = el.getAttribute('data-peek');
-          x = e.clientX; y = e.clientY;
-          if(!on){ cx = x; cy = y; place(); }                    // 첫 등장은 현재 위치에서 바로
-          on = true; peek.classList.add('on');
-          if(!raf) raf = requestAnimationFrame(loop);
-        });
-        el.addEventListener('pointermove', function(e){ x = e.clientX; y = e.clientY; }, { passive:true });
-        el.addEventListener('pointerleave', function(){ on = false; peek.classList.remove('on'); });
-      });
-    })();
 
     // 진행바
     const sprog = document.getElementById('sprog');
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
-    // 물결(WebGL ripple) — 순검정 텍스처 위 파문
+    // 히어로 물결(WebGL) — 검정 텍스처 위, 마우스를 따라 파문이 생기는 메인 효과
     (function(){
       if(!window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      // 모바일/터치에서는 성능을 위해 물결 비활성화(정적 다크 배경 유지)
       if(reduce || innerWidth < 820 || !matchMedia('(pointer:fine)').matches) return;
       const el = document.getElementById('pageWater'); if(!el) return;
       const $el = jQuery(el);
       try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.012, interactive: false }); }
       catch(e){ return; } // WebGL 미지원 시 정적 배경 유지
-      // 파문이 퍼지는 속도를 느리게 — 시뮬레이션을 2프레임 중 1번만 실행(렌더는 매 프레임)
+      // 파문 전파를 절반 속도로 — 잔잔하게
       (function(){
         const inst = $el.data('ripples'); if(!inst || !inst.update) return;
         const orig = inst.update; let f = 0;
         inst.update = function(){ if((f++ % 2) === 0) orig.call(inst); };
       })();
+      // 마우스 트레일: 커서가 움직이는 자리마다 작은 파문 (배경이 보이는 히어로·CTA에서 체감)
+      let lastT = 0;
+      addEventListener('pointermove', function(e){
+        if(e.pointerType && e.pointerType !== 'mouse') return;
+        const now = performance.now();
+        if(now - lastT < 55) return; lastT = now;
+        try{ $el.ripples('drop', e.clientX, e.clientY, 42, 0.014); }catch(err){}
+      }, { passive:true });
+      // 이따금 떨어지는 큰 물방울
       let playing = true;
       function setPlay(p){ if(p===playing) return; playing=p; try{ $el.ripples(p ? 'play' : 'pause'); }catch(e){} }
-      function drop(){
-        if(!playing || document.hidden) return;   // 정지 중엔 물방울을 쌓지 않음(재개 시 폭우 방지)
+      setInterval(function(){
+        if(!playing || document.hidden) return;
         const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
-        try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.028+Math.random()*0.02); }catch(e){}
-      }
-      setInterval(drop, 2400);
+        try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.03); }catch(e){}
+      }, 3200);
       let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
       document.addEventListener('visibilitychange', ()=>{ setPlay(!document.hidden); });
     })();
 
-    // (01) About 큰 문장: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 켜지고, 올리면 꺼짐
+    // (03) 점등 문장: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 밝아짐 (Fuel 의 흰→회색 진행)
     (function(){
       const stmt = document.getElementById('stmt2');
       if(!stmt) return;
-      // 마크업의 <br> 줄바꿈은 유지하고, 각 줄 안의 단어만 span 으로 감쌈
       const lines = stmt.innerHTML.split(/<br\s*\/?>/i);
       stmt.innerHTML = lines.map(function(line){
         return line.trim().split(/\s+/).filter(Boolean).map(function(w){ return '<span class="w">' + w + '</span>'; }).join(' ');
@@ -104,12 +70,12 @@ function initSite(){
       let lit = -1;
       function update(){
         const r = stmt.getBoundingClientRect(), vh = innerHeight;
-        const start = vh * 0.82;   // 문단이 화면에 보이기 시작할 때 진행도 0
-        const end   = vh * 0.30;   // 문단 상단이 여기 도달하면 진행도 1 (전부 켜짐)
+        const start = vh * 0.86;
+        const end   = vh * 0.34;
         let p = (start - r.top) / (start - end);
         p = p < 0 ? 0 : (p > 1 ? 1 : p);
         const n = Math.round(p * spans.length);
-        if(n === lit) return;      // 변화 없으면 스킵
+        if(n === lit) return;
         for(let i=0;i<spans.length;i++){ spans[i].classList.toggle('lit', i < n); }
         lit = n;
       }
@@ -118,18 +84,17 @@ function initSite(){
       update();
     })();
 
-    // 로딩: 도트 매트릭스 로고 [ PORTFOLIO ]
+    // 로딩: 도트 매트릭스 [ PORTFOLIO ]
     (function(){
       const loader = document.getElementById('loader');
       const canvas = document.getElementById('loaderCanvas');
       function reveal(){ document.body.classList.remove('loading'); document.body.classList.add('loaded'); }
       if(!loader || !canvas){ reveal(); return; }
-      // 같은 세션(재방문)에서는 로더 생략
       try{ if(sessionStorage.getItem('pf_seen')){ reveal(); loader.style.display='none'; return; } }catch(e){}
       document.body.classList.add('loading');
       const ctx = canvas.getContext('2d');
       const TEXT = 'PORTFOLIO';
-      let W=0, H=0, dpr=1, dots=[], startT=0, raf=0, done=false, grad=null, sprite=null;
+      let W=0, H=0, dpr=1, dots=[], startT=0, raf=0, done=false, sprite=null;
       const R = Math.random;
       function makeSprite(){
         const s = document.createElement('canvas'); s.width=s.height=20; const c=s.getContext('2d');
@@ -140,10 +105,10 @@ function initSite(){
       }
       function buildDots(){
         dpr = Math.min(window.devicePixelRatio||1, 2);
-        const cssW = Math.min(window.innerWidth*0.88, 960);   // 텍스트를 더 크게
+        const cssW = Math.min(window.innerWidth*0.88, 960);
         const off = document.createElement('canvas'); const o = off.getContext('2d');
         const FF = "px 'Arial',Helvetica,sans-serif";
-        let fs = 160; o.font = '800 '+fs+FF;                  // 굵은 획(도톰·또렷)
+        let fs = 160; o.font = '800 '+fs+FF;
         let mw = o.measureText(TEXT).width; fs = fs*(cssW*0.97)/mw;
         o.font = '800 '+fs+FF;
         const textH = Math.ceil(fs*1.05); const padY = 180;
@@ -152,11 +117,11 @@ function initSite(){
         o.fillStyle='#fff'; o.textAlign='center'; o.textBaseline='middle';
         o.clearRect(0,0,W,textH); o.fillText(TEXT, W/2, textH/2);
         const img = o.getImageData(0,0,W,textH).data;
-        const gap = Math.max(3, Math.round(fs/26)); dots=[]; grad=null;   // 촘촘·작은 별(확대 스케일에 맞춰)
+        const gap = Math.max(3, Math.round(fs/26)); dots=[];
         for(let y=0;y<textH;y+=gap){ for(let x=0;x<W;x+=gap){ if(img[(y*W+x)*4+3]>110){
-          const tx=x+(R()-0.5)*gap*0.5, ty=y+(R()-0.5)*gap*0.5+padY;      // 살짝 흐트러진 별자리
+          const tx=x+(R()-0.5)*gap*0.5, ty=y+(R()-0.5)*gap*0.5+padY;
           dots.push({ tx:tx, ty:ty, sx:tx+(R()-0.5)*80, sy:ty-(80+R()*340),
-            delay:R()*420, dur:620+R()*520, r:0.4+R()*0.7, base:0.55+R()*0.45, // 작은 점·밝기 편차
+            delay:R()*420, dur:620+R()*520, r:0.4+R()*0.7, base:0.55+R()*0.45,
             swA:(R()-0.5)*14, swF:0.9+R()*1.2, tw:R()*6.283 });
         } } }
         makeSprite();
@@ -167,29 +132,27 @@ function initSite(){
       function loop(){
         const t = performance.now() - startT;
         ctx.clearRect(0,0,W,H);
-        // 1) 별빛 입자가 위에서 은은하게 흩날려 내려와 글자로 모임
         let allIn = true;
-        ctx.fillStyle = '#ffffff';             // 순백색
+        ctx.fillStyle = '#ffffff';
         for(const d of dots){
           let lp=(t-d.delay)/d.dur;
-          if(lp<0){ allIn=false; continue; }   // 아직 안 내려온 별
+          if(lp<0){ allIn=false; continue; }
           if(lp<1) allIn=false;
           const cl = lp>1?1:lp;
-          const e = 1-Math.pow(1-cl,3);         // 부드럽게 착지
-          const cx = d.sx + (d.tx-d.sx)*e + Math.sin(t*0.001*d.swF + d.tw)*d.swA*(1-e); // 흩날림(착지하며 감쇠)
+          const e = 1-Math.pow(1-cl,3);
+          const cx = d.sx + (d.tx-d.sx)*e + Math.sin(t*0.001*d.swF + d.tw)*d.swA*(1-e);
           const cy = d.sy + (d.ty-d.sy)*e;
-          let a = cl*1.8; if(a>1) a=1;           // 내려오며 서서히 밝아짐
-          a *= d.base;                            // 별마다 밝기 편차 (별자리 무드)
-          a *= 0.85 + 0.15*Math.sin(t*0.0035 + d.tw); // 은은한 반짝임
+          let a = cl*1.8; if(a>1) a=1;
+          a *= d.base;
+          a *= 0.85 + 0.15*Math.sin(t*0.0035 + d.tw);
           if(a<0) a=0;
           const size = d.r*5;
           ctx.globalAlpha = a*0.85;
-          ctx.drawImage(sprite, cx-size/2, cy-size/2, size, size);   // 작은 글로우
+          ctx.drawImage(sprite, cx-size/2, cy-size/2, size, size);
           ctx.globalAlpha = a;
-          ctx.beginPath(); ctx.arc(cx, cy, d.r*0.85, 0, Math.PI*2); ctx.fill(); // 아주 작은 코어
+          ctx.beginPath(); ctx.arc(cx, cy, d.r*0.85, 0, Math.PI*2); ctx.fill();
         }
         ctx.globalAlpha = 1;
-        // 촤르르 떨어진 뒤 완성된 PORTFOLIO를 잠시 멈춰 읽히게 (착지 후 홀드)
         if(allIn && t>1950 && !done){ done=true; finish(); }
         raf = requestAnimationFrame(loop);
       }
@@ -199,12 +162,4 @@ function initSite(){
       setTimeout(()=>{ if(!W) start(); }, 200);
       setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 4000); // 안전장치
     })();
-
-    // 실시간 시계 [ HH:MM:SS ] — 상단 바
-    (function(){
-      const clk = document.getElementById('heroClock'); if(!clk) return;
-      function tick(){ const d=new Date(); clk.textContent = '[ ' + d.toLocaleTimeString('en-GB',{hour12:false}) + ' ]'; }
-      tick(); setInterval(tick, 1000);
-    })();
-
 }
