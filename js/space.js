@@ -1,9 +1,9 @@
-// ===== 히어로: 우주 배경 + 커서 유리 렌즈 =====
-// 배경: 딥 네이비 + 해시 그리드 별 3겹(크기·밝기 편차, 아주 느린 드리프트·반짝임) + 저주파 FBM 성운(블루·보라).
-//       중앙은 성운·밝은 별을 줄여 텍스트 가독성 확보. 모두 프로시저럴이라 렌즈 굴절 시 배경을 재평가만 하면 됨.
-// 렌즈: 포인터 위치의 구면 캡 — 배경 UV 를 안쪽으로 굴절(가장자리일수록 강하게), 채널별 오프셋으로 색 번짐,
-//       림 하이라이트 + 은은한 스펙큘러. 포인터를 빠르게(0.3 lerp) 따라오고, 영역을 벗어나면 강도가 서서히 0 으로.
-// 터치 기기: 렌즈 없음(배경만). prefers-reduced-motion: 정지 1프레임. WebGL 실패: 숨김(텍스트·메뉴 무관).
+// ===== 히어로: 우주 배경 + 중앙 텍스트 + 유리 토러스 링 (Originkit glass-icon 공식 재현) =====
+// 데모와 동일 구성: 중앙 큰 텍스트 '뒤판(plate)' 을 텍스처로 올리고, 그 앞에 유리 링을 레이마칭.
+// 링에 맞은 픽셀은 공식 셰이더 공식(IOR 1.5 굴절 + 채널 분산 + 프레넬^4 + 프로스트 + 반사 믹스)으로
+// 뒤판(별 배경 + 글자)을 왜곡해 샘플링 → 글자가 유리 속에서 일그러지고 가장자리에 색 번짐.
+// 모션: 느린 yaw 회전 + 포인터 틸트(공식 TILT_RANGE 0.5, 0.6s급 이즈). 터치: 틸트 없음(회전만).
+// prefers-reduced-motion: 정지 1프레임. WebGL 실패: 캔버스 숨김 → DOM 텍스트가 그대로 보임.
 window.initHeroSpace = function(){
   var host = document.getElementById('heroSpace');
   if(!host || host.querySelector('canvas')) return;
@@ -13,11 +13,12 @@ window.initHeroSpace = function(){
   host.appendChild(canvas);
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var fine = matchMedia('(pointer:fine)').matches;
+  var center = document.querySelector('.hero-center');
 
   var VS = 'attribute vec2 aPos; varying vec2 vUv; void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.0,1.0); }';
   var FS = [
     'precision highp float; varying vec2 vUv;',
-    'uniform float uTime; uniform vec2 uRes; uniform vec2 uLens; uniform float uStr;',
+    'uniform float uTime; uniform vec2 uRes; uniform vec2 uTilt; uniform sampler2D uText;',
     'float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }',
     'float vnoise(vec2 p){',
     '  vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);',
@@ -25,7 +26,6 @@ window.initHeroSpace = function(){
     '  return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);',
     '}',
     'float fbm(vec2 p){ float v = 0.0, a = 0.5; for(int i=0;i<4;i++){ v += a*vnoise(p); p *= 2.03; a *= 0.5; } return v; }',
-    // 별 한 겹: 그리드 셀마다 확률적으로 하나, 크기·밝기·반짝임 편차
     'float starLayer(vec2 uv, float scale, float density, float t){',
     '  vec2 g = uv * scale;',
     '  vec2 id = floor(g); vec2 f = fract(g);',
@@ -34,62 +34,90 @@ window.initHeroSpace = function(){
     '  vec2 pos = vec2(hash(id+7.1), hash(id+3.7)) * 0.8 + 0.1;',
     '  float d = length(f - pos);',
     '  float size = 0.028 + hash(id+11.3) * 0.05;',
-    '  float tw = 0.78 + 0.22 * sin(t * (0.3 + hash(id+5.5)*0.5) + h * 6.283);',  // 느린 반짝임
+    '  float tw = 0.78 + 0.22 * sin(t * (0.3 + hash(id+5.5)*0.5) + h * 6.283);',
     '  return smoothstep(size, 0.0, d) * (0.35 + hash(id+9.2)*0.65) * tw;',
     '}',
-    // 우주 배경 (aspect 보정된 좌표 q, 중심 거리 cd)
-    'vec3 space(vec2 q, float cd, float t){',
-    '  vec3 col = mix(vec3(0.022,0.026,0.045), vec3(0.040,0.048,0.082), q.y*0.5+0.5);', // 딥 네이비
-    '  float calm = smoothstep(0.12, 0.52, cd);',                                        // 중앙은 차분하게
+    'vec3 space(vec2 q, float t){',
+    '  float cd = length(q);',
+    '  vec3 col = mix(vec3(0.022,0.026,0.045), vec3(0.040,0.048,0.082), q.y*0.5+0.5);',
+    '  float calm = smoothstep(0.12, 0.52, cd);',
     '  float neb1 = fbm(q*1.5 + vec2(t*0.006, -t*0.004));',
     '  float neb2 = fbm(q*2.3 - vec2(t*0.004, t*0.005) + 3.7);',
-    '  col += vec3(0.16,0.22,0.46) * pow(max(neb1-0.42,0.0)/0.58, 1.5) * 0.44 * calm;',  // 블루 성운
-    '  col += vec3(0.30,0.20,0.44) * pow(max(neb2-0.48,0.0)/0.52, 1.7) * 0.36 * calm;',  // 보라 성운
+    '  col += vec3(0.16,0.22,0.46) * pow(max(neb1-0.42,0.0)/0.58, 1.5) * 0.44 * calm;',
+    '  col += vec3(0.30,0.20,0.44) * pow(max(neb2-0.48,0.0)/0.52, 1.7) * 0.36 * calm;',
     '  float s = 0.0;',
-    '  s += starLayer(q + vec2(t*0.0016, 0.0), 26.0, 0.14, t) * 1.00;',                   // 밝고 적게
+    '  s += starLayer(q + vec2(t*0.0016, 0.0), 26.0, 0.14, t) * 1.00;',
     '  s += starLayer(q + vec2(-t*0.0009, t*0.0005) + 4.2, 52.0, 0.20, t) * 0.55;',
-    '  s += starLayer(q + vec2(t*0.0005, -t*0.0008) + 9.1, 96.0, 0.26, t) * 0.30;',       // 어둡고 많게
-    '  col += vec3(0.92,0.95,1.0) * s * (0.55 + 0.45*calm);',                             // 중앙 별은 약하게
+    '  s += starLayer(q + vec2(t*0.0005, -t*0.0008) + 9.1, 96.0, 0.26, t) * 0.30;',
+    '  col += vec3(0.92,0.95,1.0) * s * (0.55 + 0.45*calm);',
+    '  col *= 1.0 - smoothstep(0.55, 1.05, cd) * 0.35;',
     '  return col;',
+    '}',
+    // 뒤판 = 우주 배경 + 흰 글자 (screen uv 기준)
+    'vec3 plate(vec2 suv, float aspect, float t){',
+    '  vec2 q = (suv - 0.5) * vec2(aspect, 1.0);',
+    '  vec3 col = space(q, t);',
+    '  float a = texture2D(uText, clamp(suv, 0.0, 1.0)).a;',
+    '  return mix(col, vec3(1.0), a);',
+    '}',
+    'mat3 rotY(float a){ float c=cos(a), s=sin(a); return mat3(c,0.,-s, 0.,1.,0., s,0.,c); }',
+    'mat3 rotX(float a){ float c=cos(a), s=sin(a); return mat3(1.,0.,0., 0.,c,s, 0.,-s,c); }',
+    'mat3 orient(){',
+    '  return rotX(uTilt.y + sin(uTime*0.26)*0.05) * rotY(1.15 + uTime*0.22 + uTilt.x);',  // 세워진 링 + 느린 회전
+    '}',
+    'float map(vec3 p){',
+    '  p = orient() * p;',
+    '  vec2 q = vec2(length(p.xy) - 0.85, p.z);',                                     // 공식 Torus: R 0.8급
+    '  return length(q) - 0.24;',                                                     // tube
+    '}',
+    'vec3 mapNormal(vec3 p){',
+    '  const float e = 0.0015;',
+    '  vec2 k = vec2(1.0, -1.0);',
+    '  return normalize(k.xyy*map(p+k.xyy*e) + k.yyx*map(p+k.yyx*e) + k.yxy*map(p+k.yxy*e) + k.xxx*map(p+k.xxx*e));',
     '}',
     'void main(){',
     '  float aspect = uRes.x / uRes.y;',
-    '  vec2 q = (vUv - 0.5) * vec2(aspect, 1.0);',
-    '  float cd = length(q);',
     '  float t = uTime;',
-    '  vec2 lq = (uLens - 0.5) * vec2(aspect, 1.0);',
-    '  vec2 toL = q - lq; float r = length(toL);',
-    '  float R = 0.125;',                                                                 // 렌즈 반경 (화면높이 기준)
-    '  vec3 col;',
-    '  float inL = step(r, R) * uStr;',
-    // 렌즈 유리 공식은 Originkit glass-icon 공식 셰이더 이식: IOR 1.5 굴절 + 분산, 프레넬^4,
-    // 골든앵글 프로스트 블러, 반사 믹스 (환경맵은 프로시저럴 근사)
-    '  if(inL > 0.001){',
-    '    float k = r / R;',
-    '    float bump = sqrt(max(1.0 - k*k, 0.0));',                                        // 구면 캡
-    '    vec3 n = normalize(vec3(toL / R, bump * 0.9));',
-    '    float fresnel = pow(1.0 - max(n.z, 0.0), 4.0);',                                 // 공식과 동일 지수
-    '    vec3 rfr = refract(vec3(0.0,0.0,-1.0), n, 1.0/1.5);',                            // IOR 1.5
-    '    vec2 off = rfr.xy * 0.2 * uStr;',                                                // THICKNESS*0.1 상당
-    '    float disp = 0.07;',                                                              // 채널 분산
-    '    vec3 trans = vec3(0.0);',
-    '    float rnd = hash(vUv * 437.58) * 6.2831853;',
-    '    for(int i = 0; i < 4; i++){',                                                     // 프로스트(축소판 골든앵글)
-    '      float th = float(i) * 2.39996323 + rnd;',
-    '      vec2 bo = vec2(cos(th), sin(th)) * (float(i)+1.0) * 0.00135;',
-    '      trans.r += space(q + off*(1.0+disp) + bo, cd, t).r;',
-    '      trans.g += space(q + off            + bo, cd, t).g;',
-    '      trans.b += space(q + off*(1.0-disp) + bo, cd, t).b;',
-    '    }',
-    '    trans *= 0.25;',
-    '    vec3 rfl = reflect(vec3(0.0,0.0,-1.0), n);',                                      // 환경 반사 근사
-    '    vec3 reflCol = mix(vec3(0.05,0.06,0.11), vec3(0.72,0.80,1.0), pow(max(rfl.y*0.5+0.5,0.0), 3.0));',
-    '    vec3 glass = mix(trans * 1.25, reflCol, clamp(fresnel * 0.8, 0.0, 1.0));',        // 공식의 최종 믹스
-    '    col = mix(space(q, cd, t), glass, uStr);',                                        // 진입/이탈 페이드
-    '  } else {',
-    '    col = space(q, cd, t);',
+    '  vec2 ndc = vUv * 2.0 - 1.0;',
+    '  vec3 ro = vec3(0.0, 0.0, 6.1);',
+    '  vec3 rd = normalize(vec3(ndc.x * 0.414 * aspect, ndc.y * 0.414, -1.0));',      // FOV 45°
+    '  float tt = 0.0; bool hit = false;',
+    '  for(int i = 0; i < 80; i++){',
+    '    float d = map(ro + rd * tt);',
+    '    if(d < 0.0012){ hit = true; break; }',
+    '    tt += d * 0.9; if(tt > 9.5) break;',
     '  }',
-    '  col *= 1.0 - smoothstep(0.55, 1.05, cd) * 0.35;',                                  // 비네트
+    '  if(!hit){ gl_FragColor = vec4(plate(vUv, aspect, t), 1.0); return; }',
+    // ---- 이하 Originkit glass-icon 공식 셰이더 공식 ----
+    '  vec3 p = ro + rd * tt;',
+    '  vec3 n = mapNormal(p);',
+    '  vec3 viewDir = -rd;',
+    '  float fresnel = pow(1.0 - max(dot(n, viewDir), 0.0), 4.0);',
+    '  float coreFactor = pow(max(dot(n, viewDir), 0.0), 2.0);',
+    '  vec2 lensOffset = (vUv - 0.5) * 0.15 * coreFactor;',                            // CORE_REFRACT 1.0
+    '  vec3 refractView = refract(rd, n, 1.0/1.5);',                                   // IOR 1.5
+    '  vec2 offset = refractView.xy * 0.17 - lensOffset;',                             // THICKNESS 2.0 * 0.1 급
+    '  float disp = 0.16;',                                                            // 분산(색 번짐)
+    '  vec2 uvR = vUv + offset * (1.0 + disp);',
+    '  vec2 uvG = vUv + offset;',
+    '  vec2 uvB = vUv + offset * (1.0 - disp);',
+    '  vec3 trans; ',
+    '  float rnd = hash(vUv * 437.58) * 6.2831853;',
+    '  trans = vec3(0.0);',
+    '  for(int i = 0; i < 4; i++){',                                                   // 가벼운 프로스트
+    '    float th = float(i) * 2.39996323 + rnd;',
+    '    vec2 bo = vec2(cos(th), sin(th)) * (float(i)+1.0) * 0.0005;',
+    '    trans.r += plate(uvR + bo, aspect, t).r;',
+    '    trans.g += plate(uvG + bo, aspect, t).g;',
+    '    trans.b += plate(uvB + bo, aspect, t).b;',
+    '  }',
+    '  trans *= 0.25;',
+    // 반사(스튜디오 소프트박스 근사): 위쪽 밝은 띠 + 은은한 블루
+    '  vec3 rfl = reflect(rd, n);',
+    '  float band = smoothstep(0.15, 0.45, rfl.y) * smoothstep(0.9, 0.5, rfl.y);',
+    '  vec3 reflCol = vec3(0.04,0.045,0.07) + vec3(1.0) * band * 0.9 + vec3(0.35,0.45,0.9) * pow(max(rfl.y,0.0), 5.0) * 0.4;',
+    '  vec3 col = mix(trans, reflCol, clamp(fresnel * 0.8, 0.0, 1.0));',
+    '  col += vec3(1.0) * pow(max(dot(rfl, normalize(vec3(0.35,0.75,0.55))), 0.0), 60.0) * 0.8;', // 스펙
     '  gl_FragColor = vec4(col, 1.0);',
     '}'].join('\n');
 
@@ -111,7 +139,37 @@ window.initHeroSpace = function(){
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   var U = { time:gl.getUniformLocation(prog,'uTime'), res:gl.getUniformLocation(prog,'uRes'),
-            lens:gl.getUniformLocation(prog,'uLens'), str:gl.getUniformLocation(prog,'uStr') };
+            tilt:gl.getUniformLocation(prog,'uTilt'), text:gl.getUniformLocation(prog,'uText') };
+
+  // ---- 글자 뒤판 텍스처: DOM 과 같은 타이포를 캔버스로 그려 올림 (WebGL 켜지면 DOM 텍스트는 숨김) ----
+  var textTex = gl.createTexture();
+  function makeTextTex(){
+    var w = 1280, h = Math.max(2, Math.round(w * host.clientHeight / Math.max(1, host.clientWidth)));
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    var x = c.getContext('2d');
+    x.clearRect(0, 0, w, h);
+    x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    var namePx = Math.min(w * 0.102, h * 0.26);
+    x.font = '800 ' + namePx + "px 'Pretendard', sans-serif";
+    x.fillText('GAHYUN K', w/2, h * 0.465);
+    var subPx = Math.max(12, namePx * 0.115);
+    try{ x.letterSpacing = (subPx * 0.42) + 'px'; }catch(e){}
+    x.font = '600 ' + subPx + "px 'Pretendard', sans-serif";
+    x.globalAlpha = 0.74;
+    x.fillText('WEB DESIGNER & PUBLISHER', w/2 + subPx*0.21, h * 0.465 + namePx * 0.78);
+    x.globalAlpha = 1;
+    gl.bindTexture(gl.TEXTURE_2D, textTex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  }
+  makeTextTex();
+  if(center) center.classList.add('gl-on');   // 캔버스가 글자를 그리므로 DOM 텍스트 숨김(접근성 위해 DOM 은 유지)
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ makeTextTex(); kick(); }); }
 
   var dpr = Math.min(devicePixelRatio || 1, innerWidth < 860 ? 1 : 1.4);
   function resize(){
@@ -120,45 +178,42 @@ window.initHeroSpace = function(){
     canvas.height = Math.max(1, Math.round(h * dpr));
     canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
     gl.viewport(0, 0, canvas.width, canvas.height);
+    makeTextTex();
   }
   resize(); addEventListener('resize', function(){ resize(); kick(); });
 
-  // 포인터 — 렌즈는 빠르게 따라오고(0.3), 영역을 벗어나면 강도만 서서히 0 으로
-  var mx = 0.5, my = 0.5, lx = 0.5, ly = 0.5, str = 0, strT = 0;
+  // 포인터 틸트 — 공식 TILT_RANGE(0.5rad)로 포인터 방향으로 기울고, ~0.6s 이즈
+  var tx = 0, ty = 0, cx = 0, cy = 0;
   if(fine && !reduce){
     addEventListener('pointermove', function(e){
       if(e.pointerType && e.pointerType !== 'mouse') return;
       var r = host.getBoundingClientRect();
-      var inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-      strT = inside ? 1 : 0;
-      if(inside){
-        mx = (e.clientX - r.left) / r.width;
-        my = 1 - (e.clientY - r.top) / r.height;
-        if(str < 0.02){ lx = mx; ly = my; }   // 처음 들어올 땐 그 자리에서 바로 떠오름
-      }
+      if(e.clientY < r.top || e.clientY > r.bottom) return;
+      tx = ((e.clientX - r.left) / r.width  - 0.5) * 0.5;
+      ty = ((e.clientY - r.top)  / r.height - 0.5) * 0.5;
       kick();
     }, { passive:true });
-    document.addEventListener('mouseleave', function(){ strT = 0; kick(); });
+    document.addEventListener('mouseleave', function(){ tx = 0; ty = 0; kick(); });
   }
 
   var raf = 0, start = performance.now();
   function draw(now){
     gl.uniform1f(U.time, (now - start) / 1000);
     gl.uniform2f(U.res, canvas.width, canvas.height);
-    lx += (mx - lx) * 0.3; ly += (my - ly) * 0.3;
-    str += (strT - str) * 0.07;
-    gl.uniform2f(U.lens, lx, ly);
-    gl.uniform1f(U.str, str);
+    cx += (tx - cx) * 0.07; cy += (ty - cy) * 0.07;
+    gl.uniform2f(U.tilt, cx, cy);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, textTex);
+    gl.uniform1i(U.text, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
   function frame(now){
     raf = 0;
-    if(document.hidden || scrollY > innerHeight * 1.2) return;   // 히어로가 덮이면 중단
+    if(document.hidden || scrollY > innerHeight * 1.2) return;
     draw(now);
     raf = requestAnimationFrame(frame);
   }
   function kick(){ if(!raf && !reduce) raf = requestAnimationFrame(frame); }
-  if(reduce){ draw(performance.now()); }                          // 모션 최소화: 정지 1프레임
+  if(reduce){ draw(performance.now()); }
   else{
     kick();
     addEventListener('scroll', kick, { passive:true });
