@@ -86,8 +86,8 @@
   /* 중앙 이름 — 배경 효과 위에서도 선명하게 */
   .hero-center{ position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:clamp(7px,.85vw,10px); text-align:center; pointer-events:none; }
-  .hero-name{ font-size:clamp(30px,8.8vw,116px); font-weight:800; letter-spacing:-.025em; line-height:1; color:#fff;
-    text-shadow:0 2px 60px rgba(0,0,0,.55); }   /* 캔버스 텍스트와 동일 수치 (제목 폭 ≈ 화면 46%) */
+  .hero-name{ font-size:clamp(32px,10vw,132px); font-weight:800; letter-spacing:-.025em; line-height:1; color:#fff;
+    text-shadow:0 2px 60px rgba(0,0,0,.55); }   /* 캔버스 텍스트와 동일 수치 (제목 폭 ≈ 화면 52%) */
   .hero-sub{ font-size:clamp(10px,1vw,13px); font-weight:600; letter-spacing:.15em; padding-left:.15em; text-transform:uppercase;
     color:rgba(255,255,255,.7); }
   @media(max-width:700px){

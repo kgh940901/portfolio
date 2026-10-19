@@ -67,10 +67,8 @@ window.initHeroSpace = function(){
     'mat3 rotX(float a){ float c=cos(a), s=sin(a); return mat3(1.,0.,0., 0.,c,s, 0.,-s,c); }',
     'mat3 rotZ(float a){ float c=cos(a), s=sin(a); return mat3(c,s,0., -s,c,0., 0.,0.,1.); }',
     'mat3 orient(){',
-    // 기본 자세: 가로로 누워 살짝 대각선(레퍼런스). 회전은 ±0.5rad 스윙으로 제한 — 세로로 서지 않음.
-    // uAng 는 JS 누적(호버 시 가속) → sin 으로 좌우로 느리게 흔들림
-    '  float osc = sin(uAng) * 0.5;',
-    '  return rotZ(-0.22) * rotX(1.22 + uTilt.y + sin(uTime*0.3)*0.04) * rotY(osc + uTilt.x);',
+    // 가로로 누운 대각선 자세를 기본으로 계속 회전 (uAng 는 JS 누적 — 호버 시 가속)
+    '  return rotZ(-0.22) * rotX(1.18 + uTilt.y + sin(uTime*0.3)*0.04) * rotY(uAng + uTilt.x);',
     '}',
     'float map(vec3 p){',
     '  p = orient() * p;',
@@ -168,7 +166,7 @@ window.initHeroSpace = function(){
     var scale = w / Math.max(1, host.clientWidth);                 // css px → 텍스처 px
     var cssName = host.clientWidth < 700
       ? host.clientWidth * 0.11
-      : Math.max(30, Math.min(host.clientWidth * 0.088, 116));   // 실측 기준: 제목 폭 ≈ 화면의 46%
+      : Math.max(32, Math.min(host.clientWidth * 0.10, 132));    // 실측 기준: 제목 폭 ≈ 화면의 52%
     var namePx = Math.min(cssName * scale, h * 0.25);
     try{ x.letterSpacing = (-namePx * 0.025) + 'px'; }catch(e){}
     x.font = '800 ' + namePx + "px 'Pretendard', sans-serif";
@@ -221,10 +219,10 @@ window.initHeroSpace = function(){
   }
 
   var raf = 0, start = performance.now(), last = start;
-  var ang = 0, spin = 0.22;                                      // 기본 회전 속도 / 호버 시 가속
+  var ang = 0, spin = 0.3;                                       // 기본 회전 속도 / 호버 시 가속
   function draw(now){
     var dt = Math.min(0.05, (now - last) / 1000); last = now;
-    spin += ((hov ? 0.78 : 0.22) - spin) * 0.055;                // 부드럽게 가속·감속
+    spin += ((hov ? 0.9 : 0.3) - spin) * 0.055;                  // 부드럽게 가속·감속
     ang += spin * dt;
     gl.uniform1f(U.time, (now - start) / 1000);
     gl.uniform1f(U.ang, ang);
