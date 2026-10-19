@@ -11,60 +11,13 @@
 })();
 
 function initSite(){
-    // 스크롤 등장
-    function makeReveal(opts){
-      const o = new IntersectionObserver((entries) => {
-        entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), (i % 4) * 70); o.unobserve(e.target); } });
-      }, opts);
-      return o;
-    }
-    const io = makeReveal({ threshold: 0.12 });
-    // Selected Work 고정 제목: 텅 빈 100vh 영역이라 하단에 걸치자마자 나오면 갑작스러움 → 화면을 1/4쯤 올라온 뒤 등장
-    const ioLate = makeReveal({ threshold: 0, rootMargin: '0px 0px -28% 0px' });
-    document.querySelectorAll('.reveal').forEach(el => (el.closest('.fw-pin') ? ioLate : io).observe(el));
+    // 스크롤 등장 — 화면 하단에서 12% 올라온 뒤 시작 (너무 이른 등장 방지)
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), (i % 4) * 70); io.unobserve(e.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -12% 0px' });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-    // Selected Work — 로우 등장(라인 마스크 솟아오름) + 썸네일 패럴랙스
-    (function(){
-      const rows = Array.prototype.slice.call(document.querySelectorAll('.fw'));
-      if(!rows.length) return;
-      if(matchMedia('(prefers-reduced-motion: reduce)').matches){ rows.forEach(r => r.classList.add('in')); return; }
-
-      const rio = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); rio.unobserve(e.target); } });
-      }, { threshold:0.15, rootMargin:'0px 0px -16% 0px' });   // 하단 16% 위로 올라온 뒤 솟아오름(너무 이른 등장 방지)
-      rows.forEach(r => rio.observe(r));
-
-      // 화면을 지나는 동안 썸네일이 스크롤과 다른 속도로 움직임
-      const media = rows.map(r => r.querySelector('.fw-media')).filter(Boolean);
-      // 고정된 제목은 첫 프로젝트가 올라오면 서서히 사라짐(글자 겹침 방지)
-      const pin = document.querySelector('.fw-pin');
-      const list = document.querySelector('.fw-list');
-      let ticking = false;
-      function frame(){
-        ticking = false;
-        const vh = innerHeight, amp = innerWidth < 833 ? 16 : 38;
-        for(const m of media){
-          const r = m.getBoundingClientRect();
-          if(r.bottom < -240 || r.top > vh + 240) continue;
-          let p = (r.top + r.height/2 - vh/2) / (vh/2 + r.height/2);   // -1(아래) ~ 1(위)
-          p = p < -1 ? -1 : (p > 1 ? 1 : p);
-          m.style.transform = 'translate3d(0,' + (p * amp).toFixed(1) + 'px,0)';
-        }
-        if(pin && list){
-          const t = list.getBoundingClientRect().top;
-          let o = (t - vh*0.34) / (vh*0.82 - vh*0.34);   // 0.82vh부터 옅어져 0.34vh에서 완전히 사라짐
-          o = o < 0 ? 0 : (o > 1 ? 1 : o);
-          pin.style.opacity = o.toFixed(3);
-          pin.style.pointerEvents = o < 0.06 ? 'none' : '';
-        }
-      }
-      function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(frame); } }
-      addEventListener('scroll', onScroll, { passive:true });
-      addEventListener('resize', onScroll);
-      frame();
-    })();
-
-    // 텍스트 로우 프리뷰: data-peek 이미지가 마우스를 따라 떠오름 (Project Details · Work Experience)
+    // 텍스트 로우 프리뷰: data-peek 이미지가 마우스를 따라 떠오름 (Work · Experience · Project Details)
     (function(){
       if(!matchMedia('(pointer:fine)').matches) return;
       if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -109,68 +62,35 @@ function initSite(){
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
-    // 독 스크롤 스파이: 현재 섹션 메뉴에 .active (CTA 제외)
-    (function(){
-      const links = Array.prototype.slice.call(document.querySelectorAll('.dock a'));
-      if(!links.length) return;
-      const map = links.map(function(a){ const id=a.getAttribute('href'); return { a:a, el:(id && id.charAt(0)==='#') ? document.querySelector(id) : null }; }).filter(function(m){ return m.el && !m.a.classList.contains('dock-cta'); });
-      const workLink = links.filter(function(a){ return a.getAttribute('href')==='#work'; })[0];
-      const projects = document.getElementById('projects');
-      function spy(){
-        const mid = innerHeight*0.42; let cur=null;
-        for(const m of map){ const r=m.el.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid){ cur=m.a; } }
-        // Work + Project Details를 하나의 영역으로: projects 구간에선 Work 메뉴를 유지
-        if(projects && workLink){ const r=projects.getBoundingClientRect(); if(r.top<=mid && r.bottom>=mid){ cur=workLink; } }
-        map.forEach(function(m){ m.a.classList.toggle('active', m.a===cur); });
-      }
-      addEventListener('scroll', spy, { passive:true }); addEventListener('resize', spy); spy();
-    })();
-
-    // 물결(WebGL ripple) — 인트로(물빛 텍스처) + 그 아래(순검정, 파문만)
+    // 물결(WebGL ripple) — 순검정 텍스처 위 파문
     (function(){
       if(!window.jQuery || !jQuery.fn || !jQuery.fn.ripples) return;
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       // 모바일/터치에서는 성능을 위해 물결 비활성화(정적 다크 배경 유지)
       if(reduce || innerWidth < 820 || !matchMedia('(pointer:fine)').matches) return;
-      function setup(id, interval){
-        const el = document.getElementById(id); if(!el) return null;
-        const $el = jQuery(el);
-        try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.012, interactive: false }); }
-        catch(e){ return null; } // WebGL 미지원 시 정적 배경 유지
-        if(reduce){ try{ $el.ripples('pause'); }catch(e){} return null; }
-        // 파문이 퍼지는 속도를 느리게 — 시뮬레이션을 2프레임 중 1번만 실행(렌더는 매 프레임)
-        (function(){
-          const inst = $el.data('ripples'); if(!inst || !inst.update) return;
-          const orig = inst.update; let f = 0;
-          inst.update = function(){ if((f++ % 2) === 0) orig.call(inst); }; // 절반 속도로 잔잔히
-        })();
-        let playing = true;
-        function setPlay(p){ if(p===playing) return; playing=p; try{ $el.ripples(p ? 'play' : 'pause'); }catch(e){} }
-        function drop(){
-          if(!playing || document.hidden) return;   // 정지 중엔 물방울을 쌓지 않음(재개 시 폭우 방지)
-          const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
-          try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.028+Math.random()*0.02); }catch(e){}
-        }
-        setInterval(drop, interval);
-        let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
-        document.addEventListener('visibilitychange', ()=>{ setPlay(!document.hidden); });
-        return { setPlay };
+      const el = document.getElementById('pageWater'); if(!el) return;
+      const $el = jQuery(el);
+      try{ $el.ripples({ resolution: 512, dropRadius: 60, perturbance: 0.012, interactive: false }); }
+      catch(e){ return; } // WebGL 미지원 시 정적 배경 유지
+      // 파문이 퍼지는 속도를 느리게 — 시뮬레이션을 2프레임 중 1번만 실행(렌더는 매 프레임)
+      (function(){
+        const inst = $el.data('ripples'); if(!inst || !inst.update) return;
+        const orig = inst.update; let f = 0;
+        inst.update = function(){ if((f++ % 2) === 0) orig.call(inst); };
+      })();
+      let playing = true;
+      function setPlay(p){ if(p===playing) return; playing=p; try{ $el.ripples(p ? 'play' : 'pause'); }catch(e){} }
+      function drop(){
+        if(!playing || document.hidden) return;   // 정지 중엔 물방울을 쌓지 않음(재개 시 폭우 방지)
+        const w=el.clientWidth, h=el.clientHeight; if(!w||!h) return;
+        try{ $el.ripples('drop', Math.random()*w, Math.random()*h, 70+Math.random()*50, 0.028+Math.random()*0.02); }catch(e){}
       }
-      const hero = setup('heroWater', 3800);   // 인트로 전용 — 물빛 텍스처, 파문 조금 더 천천히
-      setup('pageWater', 2400);                // 전체 배경 — 순검정 위 파문만
-
-      // 인트로가 화면 밖이면 인트로 물결 정지(성능) — 정지 중엔 drop도 멈춤
-      if(hero){
-        const top=document.getElementById('top');
-        addEventListener('scroll', ()=>{ const rc=top.getBoundingClientRect();
-          hero.setPlay(rc.bottom>0 && rc.top<innerHeight); }, {passive:true});
-      }
+      setInterval(drop, 2400);
+      let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ $el.ripples('updateSize'); }catch(e){} }, 200); });
+      document.addEventListener('visibilitychange', ()=>{ setPlay(!document.hidden); });
     })();
 
-    // 커스텀 마우스 커서는 제거함 — pointermove 마다 transform 을 쓰고 mix-blend-mode 로 재합성하느라
-    // 페이지가 느려지면 포인터가 눈에 띄게 밀렸음. 이제 OS 기본 커서를 그대로 사용.
-
-    // 텍스트 하이라이트: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 켜지고, 올리면 꺼짐
+    // (01) About 큰 문장: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 켜지고, 올리면 꺼짐
     (function(){
       const stmt = document.getElementById('stmt2');
       if(!stmt) return;
@@ -198,7 +118,7 @@ function initSite(){
       update();
     })();
 
-    // 로딩: 도트 매트릭스 로고 [ GAHYUN ]
+    // 로딩: 도트 매트릭스 로고 [ PORTFOLIO ]
     (function(){
       const loader = document.getElementById('loader');
       const canvas = document.getElementById('loaderCanvas');
@@ -280,46 +200,7 @@ function initSite(){
       setTimeout(()=>{ if(!document.body.classList.contains('loaded')){ finish(); } }, 4000); // 안전장치
     })();
 
-    // 히어로 카드: 리퀴드 글래스 앞면 ↔ 사진 뒷면 — 마우스 오버 또는 스크롤 진행에 따라 회전
-    (function(){
-      const pf = document.querySelector('.hero-pf');
-      const card = pf && pf.querySelector('.pf-card');
-      const glass = pf && pf.querySelector('.pf-glass');
-      if(!pf || !card) return;
-      const ease = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0.14;   // 모션 최소화 시 즉시 전환
-      let hover = false, cur = 0, raf = 0;
-      function target(){
-        const p = Math.min(1, Math.max(0, scrollY / (innerHeight * 0.55)));   // 반 화면쯤 내리면 완전히 뒤집힘
-        return hover ? 180 : p * 180;
-      }
-      function frame(){
-        raf = 0;
-        const t = target();
-        cur = Math.abs(t - cur) < 0.08 ? t : cur + (t - cur) * ease;
-        card.style.transform = 'rotateY(' + cur.toFixed(2) + 'deg)';
-        if(glass) glass.style.opacity = Math.max(0, 1 - cur/90).toFixed(3);   // 사진 면이 나오며 유리판은 사라짐
-        if(cur !== t) raf = requestAnimationFrame(frame);
-      }
-      function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
-      pf.addEventListener('pointerenter', function(){ hover = true;  kick(); });
-      pf.addEventListener('pointerleave', function(){ hover = false; kick(); });
-      pf.addEventListener('focus', function(){ hover = true;  kick(); });
-      pf.addEventListener('blur',  function(){ hover = false; kick(); });
-      // 스크롤로 카드가 마우스 밑에서 벗어나면 pointerleave 가 안 오므로 좌표로 직접 확인해 호버를 해제
-      let mx = null, my = null;
-      addEventListener('pointermove', function(e){ mx = e.clientX; my = e.clientY; }, { passive:true });
-      addEventListener('scroll', function(){
-        if(hover && mx !== null){
-          const r = pf.getBoundingClientRect();
-          if(mx < r.left || mx > r.right || my < r.top || my > r.bottom) hover = false;
-        }
-        kick();
-      }, { passive:true });
-      addEventListener('resize', kick);
-      kick();
-    })();
-
-    // 실시간 시계 [ HH:MM:SS ]
+    // 실시간 시계 [ HH:MM:SS ] — 상단 바
     (function(){
       const clk = document.getElementById('heroClock'); if(!clk) return;
       function tick(){ const d=new Date(); clk.textContent = '[ ' + d.toLocaleTimeString('en-GB',{hour12:false}) + ' ]'; }
