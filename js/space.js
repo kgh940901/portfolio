@@ -18,7 +18,7 @@ window.initHeroSpace = function(){
   var VS = 'attribute vec2 aPos; varying vec2 vUv; void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.0,1.0); }';
   var FS = [
     'precision highp float; varying vec2 vUv;',
-    'uniform float uTime; uniform float uAng; uniform vec2 uRes; uniform vec2 uTilt; uniform sampler2D uText;',
+    'uniform float uTime; uniform float uAng; uniform float uRh; uniform vec2 uRes; uniform vec2 uTilt; uniform sampler2D uText;',
     'float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }',
     'float vnoise(vec2 p){',
     '  vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);',
@@ -65,14 +65,20 @@ window.initHeroSpace = function(){
     '}',
     'mat3 rotY(float a){ float c=cos(a), s=sin(a); return mat3(c,0.,-s, 0.,1.,0., s,0.,c); }',
     'mat3 rotX(float a){ float c=cos(a), s=sin(a); return mat3(1.,0.,0., 0.,c,s, 0.,-s,c); }',
+    'mat3 rotZ(float a){ float c=cos(a), s=sin(a); return mat3(c,s,0., -s,c,0., 0.,0.,1.); }',
     'mat3 orient(){',
-    // 데모처럼 크게 세워져 계속 회전(각도 uAng 는 JS 가 누적 — 호버 시 가속) + 포인터 틸트
-    '  return rotX(uTilt.y + sin(uTime*0.26)*0.05) * rotY(1.15 + uAng + uTilt.x);',
+    // 기본 자세: 가로로 누워 살짝 대각선(레퍼런스). 회전은 ±0.5rad 스윙으로 제한 — 세로로 서지 않음.
+    // uAng 는 JS 누적(호버 시 가속) → sin 으로 좌우로 느리게 흔들림
+    '  float osc = sin(uAng) * 0.5;',
+    '  return rotZ(-0.22) * rotX(1.22 + uTilt.y + sin(uTime*0.3)*0.04) * rotY(osc + uTilt.x);',
     '}',
     'float map(vec3 p){',
     '  p = orient() * p;',
-    '  vec2 q = vec2(length(p.xy) - 0.85, p.z);',                                     // 큰 링 (데모 비율)
-    '  return length(q) - 0.24;',
+    // 링 크기는 제목 폭에 연동: uRh = 제목폭의 70% 에 해당하는 NDC 반폭 (JS 계산)
+    '  float RT = uRh * 0.414 * (uRes.x / uRes.y) * 6.1;',
+    '  float tube = RT * 0.19;',
+    '  vec2 q = vec2(length(p.xy) - (RT - tube), p.z);',
+    '  return length(q) - tube;',
     '}',
     'vec3 mapNormal(vec3 p){',
     '  const float e = 0.0015;',
@@ -100,8 +106,8 @@ window.initHeroSpace = function(){
     '  float coreFactor = pow(max(dot(n, viewDir), 0.0), 2.0);',
     '  vec2 lensOffset = (vUv - 0.5) * 0.15 * coreFactor;',                            // CORE_REFRACT 1.0
     '  vec3 refractView = refract(rd, n, 1.0/1.5);',                                   // IOR 1.5
-    '  vec2 offset = refractView.xy * 0.17 - lensOffset;',                             // THICKNESS 2.0 * 0.1 급
-    '  float disp = 0.16;',                                                            // 분산(색 번짐)
+    '  vec2 offset = refractView.xy * 0.14 - lensOffset;',                             // 굴절 유지, 소폭 완화
+    '  float disp = 0.06;',                                                            // 분산 대폭 축소
     '  vec2 uvR = vUv + offset * (1.0 + disp);',
     '  vec2 uvG = vUv + offset;',
     '  vec2 uvB = vUv + offset * (1.0 - disp);',
@@ -110,7 +116,7 @@ window.initHeroSpace = function(){
     '  vec3 ink = vec3(1.0);',                                                         // 유리 투과 글자색 — 무색(흰색)
     '  for(int i = 0; i < 4; i++){',                                                   // 가벼운 프로스트
     '    float th = float(i) * 2.39996323 + rnd;',
-    '    vec2 bo = vec2(cos(th), sin(th)) * (float(i)+1.0) * 0.0005;',
+    '    vec2 bo = vec2(cos(th), sin(th)) * (float(i)+1.0) * 0.0003;',                 // 노이즈 축소
     '    trans.r += plate(uvR + bo, aspect, t, ink).r;',
     '    trans.g += plate(uvG + bo, aspect, t, ink).g;',
     '    trans.b += plate(uvB + bo, aspect, t, ink).b;',
@@ -118,10 +124,11 @@ window.initHeroSpace = function(){
     '  trans *= 0.25;',
     // 반사(스튜디오 소프트박스 근사): 위쪽 밝은 띠 + 은은한 블루
     '  vec3 rfl = reflect(rd, n);',
-    '  float band = smoothstep(0.15, 0.45, rfl.y) * smoothstep(0.9, 0.5, rfl.y);',
-    '  vec3 reflCol = vec3(0.04,0.045,0.07) + vec3(1.0) * band * 0.9 + vec3(0.35,0.45,0.9) * pow(max(rfl.y,0.0), 5.0) * 0.4;',
-    '  vec3 col = mix(trans, reflCol, clamp(fresnel * 0.8, 0.0, 1.0));',
-    '  col += vec3(1.0) * pow(max(dot(rfl, normalize(vec3(0.35,0.75,0.55))), 0.0), 60.0) * 0.8;', // 스펙
+    '  float band = smoothstep(0.1, 0.4, rfl.y) * smoothstep(0.95, 0.5, rfl.y);',
+    '  vec3 reflCol = vec3(0.10,0.11,0.15) + vec3(1.0) * band * 0.75 + vec3(0.5,0.58,0.95) * pow(max(rfl.y,0.0), 5.0) * 0.25;',
+    '  vec3 col = mix(trans * 1.12, reflCol, clamp(fresnel * 0.55, 0.0, 1.0));',       // 밝고 투명한 유리
+    '  col += vec3(1.0) * fresnel * 0.18;',                                            // 가장자리 흰 하이라이트
+    '  col += vec3(1.0) * pow(max(dot(rfl, normalize(vec3(0.35,0.75,0.55))), 0.0), 60.0) * 0.6;', // 스펙
     '  gl_FragColor = vec4(col, 1.0);',
     '}'].join('\n');
 
@@ -143,11 +150,12 @@ window.initHeroSpace = function(){
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   var U = { time:gl.getUniformLocation(prog,'uTime'), ang:gl.getUniformLocation(prog,'uAng'),
-            res:gl.getUniformLocation(prog,'uRes'), tilt:gl.getUniformLocation(prog,'uTilt'),
-            text:gl.getUniformLocation(prog,'uText') };
+            rh:gl.getUniformLocation(prog,'uRh'), res:gl.getUniformLocation(prog,'uRes'),
+            tilt:gl.getUniformLocation(prog,'uTilt'), text:gl.getUniformLocation(prog,'uText') };
 
   // ---- 글자 뒤판 텍스처: DOM 과 같은 타이포를 캔버스로 그려 올림 (WebGL 켜지면 DOM 텍스트는 숨김) ----
   var textTex = gl.createTexture();
+  var titleFrac = 0.46;   // 제목 폭 / 화면 폭 (makeTextTex 에서 실측)
   function makeTextTex(){
     // 캔버스 실제 픽셀 해상도로 그려야 확대 없이 선명함 (고정 저해상도로 그리면 글자가 뭉개짐)
     var w = Math.max(640, Math.min(canvas.width || 1280, 2560));
@@ -160,16 +168,17 @@ window.initHeroSpace = function(){
     var scale = w / Math.max(1, host.clientWidth);                 // css px → 텍스처 px
     var cssName = host.clientWidth < 700
       ? host.clientWidth * 0.11
-      : Math.max(28, Math.min(host.clientWidth * 0.073, 100));   // 실측 기준: 제목 폭 ≈ 화면의 42%
-    var namePx = Math.min(cssName * scale, h * 0.22);
+      : Math.max(30, Math.min(host.clientWidth * 0.088, 116));   // 실측 기준: 제목 폭 ≈ 화면의 46%
+    var namePx = Math.min(cssName * scale, h * 0.25);
     try{ x.letterSpacing = (-namePx * 0.025) + 'px'; }catch(e){}
     x.font = '800 ' + namePx + "px 'Pretendard', sans-serif";
+    titleFrac = Math.min(0.9, x.measureText('PORTFOLIO').width / w);   // 링 크기 연동용 실측 폭
     x.fillText('PORTFOLIO', w/2, h * 0.47);
     var subPx = Math.max(10 * scale, namePx * 0.135);
     try{ x.letterSpacing = (subPx * 0.15) + 'px'; }catch(e){}
     x.font = '600 ' + subPx + "px 'Pretendard', sans-serif";
     x.globalAlpha = 0.72;
-    x.fillText('GAHYUN KYOUNG · WEB DESIGNER & PUBLISHER', w/2 + subPx*0.075, h * 0.47 + namePx * 0.95);
+    x.fillText('GAHYUN KYOUNG · WEB DESIGNER & PUBLISHER', w/2 + subPx*0.075, h * 0.47 + namePx * 0.88);
     x.globalAlpha = 1;
     try{ x.letterSpacing = '0px'; }catch(e){}
     gl.bindTexture(gl.TEXTURE_2D, textTex);
@@ -204,8 +213,8 @@ window.initHeroSpace = function(){
       var r = host.getBoundingClientRect();
       if(e.clientY < r.top || e.clientY > r.bottom){ tx = 0; ty = 0; hov = false; kick(); return; }
       hov = true;
-      tx = ((e.clientX - r.left) / r.width  - 0.5) * 0.5;
-      ty = ((e.clientY - r.top)  / r.height - 0.5) * 0.5;
+      tx = ((e.clientX - r.left) / r.width  - 0.5) * 0.24;   // 틸트 제한 — 균형 유지
+      ty = ((e.clientY - r.top)  / r.height - 0.5) * 0.18;
       kick();
     }, { passive:true });
     document.addEventListener('mouseleave', function(){ tx = 0; ty = 0; hov = false; kick(); });
@@ -219,6 +228,7 @@ window.initHeroSpace = function(){
     ang += spin * dt;
     gl.uniform1f(U.time, (now - start) / 1000);
     gl.uniform1f(U.ang, ang);
+    gl.uniform1f(U.rh, titleFrac * 0.70);   // 링 폭 = 제목 폭의 70%
     gl.uniform2f(U.res, canvas.width, canvas.height);
     cx += (tx - cx) * 0.07; cy += (ty - cy) * 0.07;
     gl.uniform2f(U.tilt, cx, cy);
