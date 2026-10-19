@@ -31,6 +31,50 @@ function initSite(){
       if(track) track.innerHTML += track.innerHTML;
     })();
 
+    // (02) 포트폴리오 — 3D 회전 링 갤러리 (Bureau Nine): 스크롤 진행도만큼 링이 회전
+    (function(){
+      const wrap = document.getElementById('pfCarousel');
+      const ring = wrap && wrap.querySelector('.ring');
+      if(!wrap || !ring) return;
+      const items = Array.prototype.slice.call(ring.children);
+      const N = items.length; if(!N) return;
+      const STEP = 360 / N;
+      function radius(){ return Math.max(400, Math.min(innerWidth * 0.52, 700)); }
+      function layout(){
+        const r = radius();
+        items.forEach(function(el, i){
+          const oy = parseFloat(el.getAttribute('data-oy') || '0');
+          el.style.transform = 'translateY(calc(-50% + ' + oy + 'px)) rotateY(' + (i * STEP) + 'deg) translateZ(' + r + 'px)';
+        });
+      }
+      layout(); addEventListener('resize', layout);
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let cur = 0, raf = 0, lastIdx = -1;
+      function target(){
+        const rect = wrap.getBoundingClientRect();
+        const total = rect.height - innerHeight;
+        let p = total > 0 ? -rect.top / total : 0;
+        p = Math.max(0, Math.min(1, p));
+        return p * STEP * (N - 1);   // 마지막 작업물이 정면에서 끝남
+      }
+      function frame(){
+        raf = 0;
+        const t = target();
+        cur = reduce ? t : (Math.abs(t - cur) < 0.04 ? t : cur + (t - cur) * 0.11);
+        ring.style.transform = 'translateZ(' + (-radius()) + 'px) rotateY(' + (-cur) + 'deg)';
+        const idx = Math.min(N - 1, Math.max(0, Math.round(cur / STEP)));
+        if(idx !== lastIdx){
+          items.forEach(function(el, i){ el.classList.toggle('front', i === idx); });
+          lastIdx = idx;
+        }
+        if(cur !== t) raf = requestAnimationFrame(frame);
+      }
+      function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
+      addEventListener('scroll', kick, { passive:true });
+      addEventListener('resize', kick);
+      kick();
+    })();
+
     // (03) 점등 문장: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 밝아짐 (Fuel 의 흰→회색 진행)
     (function(){
       const stmt = document.getElementById('stmt2');
