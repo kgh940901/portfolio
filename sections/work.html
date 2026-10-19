@@ -1,48 +1,66 @@
-﻿  <!-- (02) PORTFOLIO — 좌측 GH-26' + 스택 카드 덱 + See all -->
+﻿  <!-- (02) CASE STUDIES — Signal-A 방식: 이름 중심 목록, 호버 시 큰 타이틀 등장 + 커서를 따라다니는 프리뷰
+       ▸ 프로젝트 데이터는 각 행(a.cs-row)의 속성에 모여 있음: href(상세), data-img(대표 이미지),
+         .cs-big(큰 제목), .cs-name(작은 라벨), WORK TYPE/PROJECT SCOPE 값. 행 추가·순서 변경은 행 블록만 복사/이동. -->
   <section id="work" class="sec-light">
     <div class="wrap">
-      <div class="shead"><span class="sl">(02)</span><span>(Portfolio)</span><span class="sr">© 2026</span></div>
+      <div class="shead"><span class="sl">(02)</span><span>(Case Studies)</span><span class="sr">© 2026</span></div>
 
-      <div class="pf-grid">
-        <div class="pf-side-l">
-          <h2>GH-26'</h2>
-          <a class="cta" href="#archive">More Projects</a>
-        </div>
+      <div class="cs-list" id="csList">
 
-        <div class="deck">
-          <div class="dcard reveal">
-            <a class="dcard-media" href="sensemom.html" target="_blank" rel="noopener" aria-label="센스맘 공식몰 리뉴얼 상세 보기">
-              <img class="blur" src="assets/work-sensemom.jpg" alt="" aria-hidden="true" />
-              <img class="main" src="assets/work-sensemom.jpg" alt="센스맘 공식몰 리뉴얼" />
-            </a>
-            <div class="dcard-cap"><span>(01)</span><span class="cc">Sense Mom<em>UIUX · Web · Publishing — 실무 작업</em></span><span class="cr">© 26'</span></div>
-          </div>
-          <div class="dcard reveal">
-            <a class="dcard-media" href="bobbibrown.html" target="_blank" rel="noopener" aria-label="Bobbi Brown 리디자인 상세 보기">
-              <img class="blur" src="assets/work-bobbi.jpg" alt="" aria-hidden="true" />
-              <img class="main" src="assets/work-bobbi.jpg" alt="Bobbi Brown 리디자인" />
-            </a>
-            <div class="dcard-cap"><span>(02)</span><span class="cc">Bobbi Brown<em>Web · UIUX · Beauty — 개인 리디자인</em></span><span class="cr">© 26'</span></div>
-          </div>
-          <div class="dcard reveal">
-            <a class="dcard-media" href="patagonia.html" target="_blank" rel="noopener" aria-label="Patagonia 리디자인 상세 보기">
-              <img class="blur" src="assets/work-patagonia.jpg" alt="" aria-hidden="true" />
-              <img class="main" src="assets/work-patagonia.jpg" alt="Patagonia 리디자인" />
-            </a>
-            <div class="dcard-cap"><span>(03)</span><span class="cc">Patagonia<em>Web · Brand · UX — 개인 리디자인</em></span><span class="cr">© 26'</span></div>
-          </div>
-          <div class="dcard reveal">
-            <a class="dcard-media" href="museum.html" target="_blank" rel="noopener" aria-label="Hermitage Museum 리디자인 상세 보기">
-              <img class="blur" src="assets/work-hermitage.jpg" alt="" aria-hidden="true" />
-              <img class="main" src="assets/work-hermitage.jpg" alt="Hermitage Museum 리디자인" />
-            </a>
-            <div class="dcard-cap"><span>(04)</span><span class="cc">Hermitage Museum<em>Web · UIUX · Culture — 개인 리디자인</em></span><span class="cr">© 26'</span></div>
-          </div>
-        </div>
+        <a class="cs-row" href="sensemom.html" target="_blank" rel="noopener" data-img="assets/work-sensemom.jpg">
+          <span class="cs-line top">
+            <span class="cs-mono">G — 1</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">WORK TYPE</span><span class="cs-v">실무 작업<br>공식몰 리뉴얼·운영</span></span>
+          </span>
+          <span class="cs-big">Sense Mom</span>
+          <img class="cs-thumb-m" src="assets/work-sensemom.jpg" alt="" loading="lazy" />
+          <span class="cs-line bot">
+            <span class="cs-mono cs-name" aria-hidden="true">SENSE MOM</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">PROJECT SCOPE</span><span class="cs-v">UIUX<br>WEB<br>PUBLISHING</span></span>
+          </span>
+        </a>
 
-        <div class="pf-side-r">
-          <a class="seeall" href="#archive"><img src="assets/work-peony.jpg" alt="" aria-hidden="true" /><span>다른 작업 (05)</span></a>
-        </div>
+        <a class="cs-row" href="bobbibrown.html" target="_blank" rel="noopener" data-img="assets/work-bobbi.jpg">
+          <span class="cs-line top">
+            <span class="cs-mono">G — 2</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">WORK TYPE</span><span class="cs-v">개인 리디자인</span></span>
+          </span>
+          <span class="cs-big">Bobbi Brown</span>
+          <img class="cs-thumb-m" src="assets/work-bobbi.jpg" alt="" loading="lazy" />
+          <span class="cs-line bot">
+            <span class="cs-mono cs-name" aria-hidden="true">BOBBI BROWN</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">PROJECT SCOPE</span><span class="cs-v">WEB<br>UIUX<br>BEAUTY</span></span>
+          </span>
+        </a>
+
+        <a class="cs-row" href="patagonia.html" target="_blank" rel="noopener" data-img="assets/work-patagonia.jpg">
+          <span class="cs-line top">
+            <span class="cs-mono">G — 3</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">WORK TYPE</span><span class="cs-v">개인 리디자인</span></span>
+          </span>
+          <span class="cs-big">Patagonia</span>
+          <img class="cs-thumb-m" src="assets/work-patagonia.jpg" alt="" loading="lazy" />
+          <span class="cs-line bot">
+            <span class="cs-mono cs-name" aria-hidden="true">PATAGONIA</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">PROJECT SCOPE</span><span class="cs-v">WEB<br>BRAND<br>UX</span></span>
+          </span>
+        </a>
+
+        <a class="cs-row" href="museum.html" target="_blank" rel="noopener" data-img="assets/work-hermitage.jpg">
+          <span class="cs-line top">
+            <span class="cs-mono">G — 4</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">WORK TYPE</span><span class="cs-v">개인 리디자인</span></span>
+          </span>
+          <span class="cs-big">Hermitage Museum</span>
+          <img class="cs-thumb-m" src="assets/work-hermitage.jpg" alt="" loading="lazy" />
+          <span class="cs-line bot">
+            <span class="cs-mono cs-name" aria-hidden="true">HERMITAGE MUSEUM</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">PROJECT SCOPE</span><span class="cs-v">WEB<br>UIUX<br>CULTURE</span></span>
+          </span>
+        </a>
+
       </div>
+
+      <a class="cta cs-more" href="#archive">More Projects</a>
     </div>
   </section>

@@ -25,6 +25,68 @@ function initSite(){
     }, { threshold: 0.08, rootMargin: '0px 0px -10% 0px' });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
+    // (02) Case Studies — 커서를 따라다니는 프로젝트 프리뷰 (Signal-A 방식)
+    // 확인된 레퍼런스 동작: position:fixed 이미지가 커서 중앙에 고정되어 따라오고,
+    // 프로젝트별 엘리먼트가 각자 opacity 로 크로스페이드(이전 것은 마지막 위치에서 사라짐),
+    // 목록 이탈 시 모두 페이드아웃, 이미지는 글자 위(z 높음)·pointer-events 없음.
+    (function(){
+      const list = document.getElementById('csList');
+      if(!list) return;
+      const rows = Array.prototype.slice.call(list.querySelectorAll('.cs-row'));
+      if(!rows.length) return;
+      if(!matchMedia('(pointer:fine)').matches) return;                    // 터치: CSS 모바일 레이아웃이 담당
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // 모션 최소화: 큰 제목(CSS)만
+      // 프로젝트별 이미지 엘리먼트를 미리 만들어 로딩 — 첫 호버에 빈 화면 방지, 잘못된 이미지 교체 없음
+      const imgs = rows.map(function(row){
+        const im = document.createElement('img');
+        im.src = row.getAttribute('data-img'); im.alt = '';
+        im.className = 'cs-cursor-img'; im.setAttribute('aria-hidden','true');
+        document.body.appendChild(im);
+        return im;
+      });
+      let x = 0, y = 0, cx = 0, cy = 0, active = -1, raf = 0;
+      function placeActive(){
+        if(active < 0) return;
+        imgs[active].style.transform = 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0) translate(-50%,-50%)';
+      }
+      function frame(){
+        raf = 0;
+        cx += (x - cx) * 0.3; cy += (y - cy) * 0.3;    // 경쾌한 추적 (과한 지연 없음)
+        placeActive();
+        if(active >= 0 && (Math.abs(x - cx) > 0.3 || Math.abs(y - cy) > 0.3)) raf = requestAnimationFrame(frame);
+      }
+      function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
+      function setActive(i){
+        if(i === active) return;
+        if(active >= 0) imgs[active].classList.remove('on');   // 이전 프리뷰는 제자리에서 페이드아웃
+        active = i;
+        if(i >= 0){ placeActive(); imgs[i].classList.add('on'); }
+        kick();
+      }
+      rows.forEach(function(row, i){
+        row.addEventListener('pointerenter', function(e){
+          if(e.pointerType && e.pointerType !== 'mouse') return;
+          x = e.clientX; y = e.clientY;
+          if(active < 0){ cx = x; cy = y; }                    // 목록 첫 진입은 커서 자리에서 바로
+          setActive(i);
+        });
+        row.addEventListener('focusin',  function(){            // 키보드 포커스: 행 중앙에 프리뷰
+          const r = row.getBoundingClientRect();
+          x = cx = r.left + r.width * 0.5; y = cy = r.top + r.height * 0.55;
+          setActive(i);
+        });
+        row.addEventListener('focusout', function(){ setActive(-1); });
+      });
+      list.addEventListener('pointerleave', function(){ setActive(-1); });
+      addEventListener('pointermove', function(e){
+        if(active < 0) return;
+        if(e.pointerType && e.pointerType !== 'mouse') return;
+        x = e.clientX; y = e.clientY; kick();
+      }, { passive:true });
+      // 스크롤로 커서 밑 행이 바뀌면 상태가 어긋나므로 정리 (fixed 라 위치 자체는 어긋나지 않음)
+      addEventListener('scroll', function(){ if(active >= 0) setActive(-1); }, { passive:true });
+    })();
+
     // 진행바
     const sprog = document.getElementById('sprog');
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }

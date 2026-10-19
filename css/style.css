@@ -151,31 +151,37 @@
   .logo-card .lg{ width:34px; height:34px; object-fit:contain; display:block; }
   @keyframes lsmarq{ to{ transform:translateX(-50%); } }
 
-  /* ===== (02) PORTFOLIO — 좌측 고정 라벨 + 스택 카드 덱 + See all ===== */
-  .pf-grid{ display:grid; grid-template-columns:minmax(170px,1fr) minmax(0,660px) minmax(170px,1fr); gap:28px; margin-top:40px; }
-  .pf-side-l{ position:sticky; top:38vh; align-self:start; }
-  .pf-side-l h2{ font-size:clamp(40px,4.6vw,62px); font-weight:600; letter-spacing:-.03em; line-height:1; margin-bottom:26px; }
-  .pf-side-r{ position:sticky; top:40vh; align-self:start; justify-self:end; }
-  .seeall{ display:flex; align-items:center; gap:14px; background:var(--paper-card); border-radius:6px; padding:0; overflow:hidden;
-    font-size:15px; font-weight:700; transition:transform .3s; }
-  .seeall:hover{ transform:translateY(-3px); }
-  .seeall img{ width:64px; height:68px; object-fit:cover; }
-  .seeall span{ padding-right:18px; }
-  .deck{ display:flex; flex-direction:column; gap:56px; }
-  .dcard{ position:sticky; top:12vh; }
-  .dcard-media{ position:relative; display:block; aspect-ratio:1.42/1; overflow:hidden; border-radius:4px; background:#e8e8e6; }
-  .dcard-media .blur{ position:absolute; inset:-6%; width:112%; height:112%; object-fit:cover; filter:blur(26px) saturate(1.08); transform:scale(1.06); }
-  .dcard-media .main{ position:absolute; left:50%; top:50%; width:66%; transform:translate(-50%,-50%); box-shadow:0 20px 60px rgba(0,0,0,.18);
-    transition:transform .6s cubic-bezier(.2,.7,.2,1); }
-  .dcard-media:hover .main{ transform:translate(-50%,-50%) scale(1.035); }
-  .dcard-cap{ display:grid; grid-template-columns:1fr auto 1fr; gap:10px; padding:11px 2px 0; font-size:13.5px; font-weight:600; }
-  .dcard-cap .cc{ text-align:center; line-height:1.35; }
-  .dcard-cap .cc em{ display:block; font-style:normal; color:var(--gray-ink); font-weight:500; }
-  .dcard-cap .cr{ text-align:right; color:var(--ink); }
-  .dcard{ background:var(--paper); padding-bottom:16px; }
-  @media(max-width:960px){
-    .pf-grid{ grid-template-columns:1fr; }
-    .pf-side-l{ position:static; } .pf-side-r{ position:static; justify-self:start; order:3; }
+  /* ===== (02) CASE STUDIES — 이름 중심 목록 (Signal-A 방식) =====
+     기본: 작은 모노 정보만. 호버/포커스: 행 가운데 큰 제목 등장 + 커서를 따라다니는 프리뷰(main.js) */
+  .cs-list{ margin-top:34px; border-top:1px solid var(--line-l); }
+  .cs-row{ position:relative; display:flex; flex-direction:column; justify-content:space-between; gap:14px;
+    min-height:clamp(200px,25vw,310px); padding:16px 2px 14px; border-bottom:1px solid var(--line-l); color:var(--ink); }
+  .cs-line{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
+  .cs-mono{ font-size:12.5px; font-weight:600; letter-spacing:.4px; line-height:1.7; }
+  .cs-k{ color:var(--gray-ink); }
+  .cs-v{ text-align:right; }
+  .cs-meta{ display:flex; gap:clamp(26px,5vw,84px); align-items:flex-start; }
+  /* 호버 시 행 가운데에 떠오르는 큰 제목 (스크린리더용 실제 이름 — 작은 라벨이 aria-hidden) */
+  .cs-big{ position:absolute; left:0; right:0; top:50%; transform:translateY(calc(-50% + 14px));
+    font-size:clamp(38px,5.4vw,82px); font-weight:800; letter-spacing:-.02em; line-height:1; z-index:2;
+    opacity:0; transition:opacity .4s ease, transform .5s cubic-bezier(.2,.7,.2,1); pointer-events:none; }
+  .cs-row:hover .cs-big, .cs-row:focus-visible .cs-big{ opacity:1; transform:translateY(-50%); }
+  /* 커서 프리뷰 — fixed·커서 중앙·글자 위(z 90)·프로젝트별 엘리먼트 크로스페이드 (레퍼런스 s-a-image-cursor 방식) */
+  .cs-cursor-img{ position:fixed; left:0; top:0; width:min(320px,26vw); height:auto; z-index:90;
+    pointer-events:none; opacity:0; transition:opacity .35s ease; will-change:transform; }
+  .cs-cursor-img.on{ opacity:1; }
+  .cs-thumb-m{ display:none; }
+  .cs-more{ margin-top:40px; }
+  @media(max-width:860px){
+    /* 터치: 호버 없음 — 큰 제목과 대표 이미지를 행 안에 항상 노출, 한 번 탭 = 상세 이동 */
+    .cs-row{ min-height:0; }
+    .cs-big{ position:static; transform:none; opacity:1; order:2; font-size:clamp(28px,8vw,42px); }
+    .cs-thumb-m{ display:block; width:100%; max-width:440px; order:3; }
+    .cs-line.top{ order:1; } .cs-line.bot{ order:4; }
+    .cs-name{ display:none; }   /* 큰 제목이 항상 보이므로 중복 라벨 숨김 */
+  }
+  @media(prefers-reduced-motion:reduce){
+    .cs-big{ transition:none; }
   }
 
   /* ===== (03) SERVICES — 다크: 점등 문장 + 거대 번호 행 ===== */
