@@ -31,51 +31,6 @@ function initSite(){
       if(track) track.innerHTML += track.innerHTML;
     })();
 
-    // (02) 포트폴리오 — 3D 회전 링 갤러리 (Bureau Nine): 스크롤 진행도만큼 링이 회전
-    (function(){
-      const wrap = document.getElementById('pfCarousel');
-      const ring = wrap && wrap.querySelector('.ring');
-      if(!wrap || !ring) return;
-      const items = Array.prototype.slice.call(ring.children);
-      const N = items.length; if(!N) return;
-      const STEP = 360 / N;
-      function radius(){ return Math.max(380, Math.min(innerWidth * 0.46, 600)); }
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let cur = -1, raf = 0, lastIdx = -1;
-      function target(){
-        const rect = wrap.getBoundingClientRect();
-        const total = rect.height - innerHeight;
-        let p = total > 0 ? -rect.top / total : 0;
-        p = Math.max(0, Math.min(1, p));
-        return p * STEP * (N - 1);   // 마지막 작업물이 정면에서 끝남
-      }
-      function frame(){
-        raf = 0;
-        const t = target();
-        cur = reduce ? t : (Math.abs(t - cur) < 0.04 ? t : cur + (t - cur) * 0.11);
-        const r = radius();
-        ring.style.transform = 'translateZ(' + (-r) + 'px) rotateY(' + (-cur) + 'deg)';
-        // 정면에 가까울수록 급격히 커짐 — 레퍼런스의 크기 대비 (정면 ≈ 2.4배)
-        items.forEach(function(el, i){
-          let d = ((i * STEP - cur) % 360 + 360) % 360; if(d > 180) d -= 360;
-          const c = Math.max(0, Math.cos(d * Math.PI / 180));
-          const s = 1 + 1.4 * Math.pow(c, 8);
-          const oy = parseFloat(el.getAttribute('data-oy') || '0');
-          el.style.transform = 'translateY(calc(-50% + ' + oy + 'px)) rotateY(' + (i * STEP) + 'deg) translateZ(' + r + 'px) scale(' + s.toFixed(3) + ')';
-        });
-        const idx = Math.min(N - 1, Math.max(0, Math.round(cur / STEP)));
-        if(idx !== lastIdx){
-          items.forEach(function(el, i){ el.classList.toggle('front', i === idx); });
-          lastIdx = idx;
-        }
-        if(cur !== t) raf = requestAnimationFrame(frame);
-      }
-      function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
-      addEventListener('scroll', kick, { passive:true });
-      addEventListener('resize', kick);
-      kick();
-    })();
-
     // (03) 점등 문장: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 밝아짐 (Fuel 의 흰→회색 진행)
     (function(){
       const stmt = document.getElementById('stmt2');
