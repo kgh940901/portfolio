@@ -30,8 +30,8 @@ function initSite(){
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
     addEventListener('scroll', prog, { passive:true }); addEventListener('resize', prog); prog();
 
-    // 히어로 유리 토러스 — 느린 부유 + 작은 포인터 기울임 (js/glass.js)
-    if(window.initHeroGlass){ try{ window.initHeroGlass(); }catch(e){} }
+    // 히어로 우주 배경 + 커서 유리 렌즈 (js/space.js)
+    if(window.initHeroSpace){ try{ window.initHeroSpace(); }catch(e){} }
 
     // 툴 카드 마퀴: 끊김 없는 루프를 위해 트랙 내용을 한 번 복제
     (function(){

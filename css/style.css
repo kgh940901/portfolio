@@ -73,22 +73,25 @@
   /* ===== HERO — 작업물 배경(마우스 유체 왜곡) + 상단 바 + 좌측 카피 + 크롭 워드마크 =====
      레퍼런스처럼 히어로는 뷰포트에 고정(sticky)되고, 흰 About 섹션이 사선으로 그 위를 덮으며 올라옴.
      margin-bottom:var(--cut) 은 About 의 음수 마진을 상쇄 — 첫 화면(y=0)에선 사선이 보이지 않게 함 */
-  .hero{ position:sticky; top:0; height:100vh; min-height:640px; overflow:hidden; padding:0;
+  .hero{ position:sticky; top:0; height:100vh; min-height:620px; overflow:hidden; padding:0;
     margin-bottom:var(--cut);
+    /* WebGL 미지원 폴백 배경 — 딥 네이비 + 은은한 블루 글로우 */
     background:
-      radial-gradient(54% 48% at 66% 42%, rgba(96,130,255,.14), transparent 70%),
-      radial-gradient(70% 55% at 30% 100%, rgba(40,48,66,.5), transparent 75%),
-      linear-gradient(180deg, #0b0c0f, #0e1014 55%, #0a0b0d); }
-  /* 유리 토러스 캔버스 — 중앙 우측 대표 오브젝트 (js/glass.js, 투명 배경이라 차콜과 자연 합성) */
-  .hero-glass{ position:absolute; right:7vw; top:46%; transform:translateY(-50%); z-index:2;
-    width:min(44vw,560px); aspect-ratio:1/1; pointer-events:none; }
-  .hero-glass canvas{ display:block; width:100%; height:100%; }
-  @media(max-width:860px){
-    /* 모바일: 유리(위) → 소개 문구(아래) 세로 스택 — 서로 가리지 않게 */
-    .hero-glass{ right:50%; transform:translate(50%,-50%); top:31%; width:min(64vw,330px); }
-    .hero .hero-copy{ top:auto; bottom:30vh; }
-    .hero .hero-tags{ display:none; }
-  }
+      radial-gradient(56% 46% at 68% 30%, rgba(70,95,190,.14), transparent 70%),
+      radial-gradient(60% 50% at 24% 78%, rgba(90,70,160,.10), transparent 72%),
+      linear-gradient(180deg, #06070c, #090b12 55%, #05060a); }
+  /* 우주 배경 + 커서 유리 렌즈 캔버스 (js/space.js) */
+  .hero-space{ position:absolute; inset:0; z-index:0; }
+  .hero-space canvas{ display:block; width:100%; height:100%; }
+  /* 중앙 이름 — 배경 효과 위에서도 선명하게 */
+  .hero-center{ position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:clamp(12px,1.8vw,22px); text-align:center; pointer-events:none; }
+  .hero-name{ font-size:clamp(44px,9.4vw,148px); font-weight:800; letter-spacing:-.02em; line-height:1; color:#fff;
+    text-shadow:0 2px 60px rgba(0,0,0,.55); }
+  .hero-sub{ font-size:clamp(11px,1.1vw,13.5px); font-weight:600; letter-spacing:.42em; padding-left:.42em; text-transform:uppercase;
+    color:rgba(255,255,255,.74); }
+  .hero-cta{ position:absolute; right:24px; bottom:26px; z-index:5; width:200px; color:#fff; }
+  @media(max-width:700px){ .hero-cta{ right:20px; bottom:70px; width:170px; font-size:13.5px; } }
   .hero-bar{ position:absolute; top:0; left:0; right:0; z-index:6; display:grid; grid-template-columns:1fr auto 1fr; align-items:start; gap:20px; padding:22px 24px; }
   .hb-menu{ grid-column:2; }
   .hb-logo{ font-size:17px; font-weight:800; letter-spacing:.5px; display:flex; align-items:center; gap:8px; padding-top:9px; }
@@ -100,42 +103,11 @@
   .hb-menu a sup{ font-size:9px; color:var(--gray); font-weight:700; padding-top:2px; }
   .hb-menu:hover a{ opacity:.45; }
   .hb-menu a:hover{ opacity:1; }
-  /* Meet the Designer — 흰 카드 */
-  .hb-meet{ display:flex; gap:11px; background:#f6f6f4; color:#111; border-radius:8px; padding:9px; width:272px;
-    position:relative; transition:transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s; }
-  .hb-meet:hover{ transform:translateY(2px); box-shadow:0 14px 40px rgba(0,0,0,.45); }
-  .hb-meet img{ width:64px; height:64px; object-fit:cover; border-radius:5px; }
-  .hb-meet .m-tx{ display:flex; flex-direction:column; justify-content:center; gap:1px; }
-  .hb-meet .m-tx b{ font-size:15px; font-weight:700; }
-  .hb-meet .m-tx span{ font-size:12.5px; color:#333; }
-  .hb-meet .m-tx em{ font-style:normal; font-size:12px; color:#9a9a96; }
-  .hb-meet .m-ic{ position:absolute; right:10px; top:9px; font-size:12px; color:#111; }
-  @media(max-width:900px){ .hb-menu{ display:none; } .hb-meet{ width:auto; } .hb-meet .m-tx span{ display:none; } }
-  @media(max-width:600px){
-    .hb-meet{ padding:7px; gap:9px; }
-    .hb-meet img{ width:44px; height:44px; }
-    .hb-meet .m-tx b{ font-size:12.5px; }
-    .hb-meet .m-tx em{ font-size:11px; }
-    .hb-meet .m-ic{ display:none; }
-    .hero-copy p .dim{ color:#b9b9b4; }
-  }
-
-  .hero-copy{ position:absolute; left:24px; top:24vh; z-index:5; max-width:360px; }
-  .hero-copy p{ font-size:16.5px; font-weight:600; line-height:1.45; word-break:keep-all; }
-  .hero-copy p .dim{ color:var(--gray); }
-  .hero-copy .cta{ margin-top:34px; }
-  .hero-tags{ position:absolute; left:24px; bottom:34vh; z-index:5; font-size:15px; font-weight:600; line-height:1.72; }
-  .hero-tags .no{ color:var(--gray); margin-right:6px; }
+  @media(max-width:900px){ .hb-menu{ display:none; } }
   .hero-meta{ position:absolute; left:24px; bottom:26px; z-index:5; display:flex; align-items:center; gap:14px; font-size:13.5px; font-weight:600; }
   .hero-ruler{ display:flex; gap:5px; align-items:center; }
   .hero-ruler i{ display:block; width:1px; height:9px; background:rgba(255,255,255,.5); }
   .hero-ruler i:nth-child(4n+1){ height:13px; }
-  /* 하단 크롭 거대 워드마크 — 바깥(.ha 등장용)과 안쪽(크롭 이동)을 분리:
-     .ha 가 transform 을 none 으로 되돌려도 안쪽 translateY 크롭이 유지됨 */
-  .hero-word{ position:absolute; left:0; right:0; bottom:14px; z-index:4; text-align:center; pointer-events:none; }
-  .hero-word span{ display:inline-block; white-space:nowrap;
-    font-size:clamp(50px,10.4vw,164px); font-weight:800; letter-spacing:-.02em; line-height:.92;
-    background:linear-gradient(180deg,#ffffff 36%, #b9b9c2 70%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
   /* 진입 애니메이션 */
   .ha{ opacity:0; transform:translateY(26px); }
   body.loaded .ha{ opacity:1; transform:none; transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
