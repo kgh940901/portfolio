@@ -107,7 +107,7 @@ window.initHeroSpace = function(){
     '  vec2 uvB = vUv + offset * (1.0 - disp);',
     '  vec3 trans = vec3(0.0);',
     '  float rnd = hash(vUv * 437.58) * 6.2831853;',
-    '  vec3 ink = vec3(0.84, 1.0, 0.30);',                                             // 유리 투과 글자색 — 옐로그린
+    '  vec3 ink = vec3(1.0);',                                                         // 유리 투과 글자색 — 무색(흰색)
     '  for(int i = 0; i < 4; i++){',                                                   // 가벼운 프로스트
     '    float th = float(i) * 2.39996323 + rnd;',
     '    vec2 bo = vec2(cos(th), sin(th)) * (float(i)+1.0) * 0.0005;',
@@ -156,15 +156,22 @@ window.initHeroSpace = function(){
     var x = c.getContext('2d');
     x.clearRect(0, 0, w, h);
     x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    var namePx = Math.min(w * 0.105, h * 0.26);
+    // DOM(.hero-name/.hero-sub) 과 동기화: 데스크톱 4.6vw(상한 72px), 모바일 11vw / 자간 -0.025em, .15em
+    var scale = w / Math.max(1, host.clientWidth);                 // css px → 텍스처 px
+    var cssName = host.clientWidth < 700
+      ? host.clientWidth * 0.11
+      : Math.max(28, Math.min(host.clientWidth * 0.073, 100));   // 실측 기준: 제목 폭 ≈ 화면의 42%
+    var namePx = Math.min(cssName * scale, h * 0.22);
+    try{ x.letterSpacing = (-namePx * 0.025) + 'px'; }catch(e){}
     x.font = '800 ' + namePx + "px 'Pretendard', sans-serif";
-    x.fillText('PORTFOLIO', w/2, h * 0.465);
-    var subPx = Math.max(12, namePx * 0.115);
-    try{ x.letterSpacing = (subPx * 0.42) + 'px'; }catch(e){}
+    x.fillText('PORTFOLIO', w/2, h * 0.47);
+    var subPx = Math.max(10 * scale, namePx * 0.135);
+    try{ x.letterSpacing = (subPx * 0.15) + 'px'; }catch(e){}
     x.font = '600 ' + subPx + "px 'Pretendard', sans-serif";
-    x.globalAlpha = 0.74;
-    x.fillText('GAHYUN KYOUNG · WEB DESIGNER & PUBLISHER', w/2 + subPx*0.21, h * 0.465 + namePx * 0.80);
+    x.globalAlpha = 0.72;
+    x.fillText('GAHYUN KYOUNG · WEB DESIGNER & PUBLISHER', w/2 + subPx*0.075, h * 0.47 + namePx * 0.95);
     x.globalAlpha = 1;
+    try{ x.letterSpacing = '0px'; }catch(e){}
     gl.bindTexture(gl.TEXTURE_2D, textTex);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
