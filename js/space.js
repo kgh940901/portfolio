@@ -18,7 +18,7 @@ window.initHeroSpace = function(){
   var VS = 'attribute vec2 aPos; varying vec2 vUv; void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.0,1.0); }';
   var FS = [
     'precision highp float; varying vec2 vUv;',
-    'uniform float uTime; uniform vec2 uRes; uniform vec2 uTilt; uniform sampler2D uText;',
+    'uniform float uTime; uniform vec2 uRes; uniform vec2 uTilt; uniform vec2 uPos; uniform sampler2D uText;',
     'float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }',
     'float vnoise(vec2 p){',
     '  vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);',
@@ -33,7 +33,7 @@ window.initHeroSpace = function(){
     '  if(h > density) return 0.0;',
     '  vec2 pos = vec2(hash(id+7.1), hash(id+3.7)) * 0.8 + 0.1;',
     '  float d = length(f - pos);',
-    '  float size = 0.028 + hash(id+11.3) * 0.05;',
+    '  float size = 0.02 + hash(id+11.3) * 0.028;',                                   // 작은 점 위주
     '  float tw = 0.78 + 0.22 * sin(t * (0.3 + hash(id+5.5)*0.5) + h * 6.283);',
     '  return smoothstep(size, 0.0, d) * (0.35 + hash(id+9.2)*0.65) * tw;',
     '}',
@@ -43,10 +43,10 @@ window.initHeroSpace = function(){
     '  float calm = smoothstep(0.12, 0.52, cd);',
     '  float neb1 = fbm(q*1.5 + vec2(t*0.006, -t*0.004));',
     '  float neb2 = fbm(q*2.3 - vec2(t*0.004, t*0.005) + 3.7);',
-    '  col += vec3(0.16,0.22,0.46) * pow(max(neb1-0.42,0.0)/0.58, 1.5) * 0.44 * calm;',
-    '  col += vec3(0.30,0.20,0.44) * pow(max(neb2-0.48,0.0)/0.52, 1.7) * 0.36 * calm;',
+    '  col += vec3(0.16,0.22,0.46) * pow(max(neb1-0.42,0.0)/0.58, 1.5) * 0.30 * calm;',
+    '  col += vec3(0.30,0.20,0.44) * pow(max(neb2-0.48,0.0)/0.52, 1.7) * 0.24 * calm;',
     '  float s = 0.0;',
-    '  s += starLayer(q + vec2(t*0.0016, 0.0), 26.0, 0.14, t) * 1.00;',
+    '  s += starLayer(q + vec2(t*0.0016, 0.0), 26.0, 0.12, t) * 0.85;',
     '  s += starLayer(q + vec2(-t*0.0009, t*0.0005) + 4.2, 52.0, 0.20, t) * 0.55;',
     '  s += starLayer(q + vec2(t*0.0005, -t*0.0008) + 9.1, 96.0, 0.26, t) * 0.30;',
     '  col += vec3(0.92,0.95,1.0) * s * (0.55 + 0.45*calm);',
@@ -63,12 +63,18 @@ window.initHeroSpace = function(){
     'mat3 rotY(float a){ float c=cos(a), s=sin(a); return mat3(c,0.,-s, 0.,1.,0., s,0.,c); }',
     'mat3 rotX(float a){ float c=cos(a), s=sin(a); return mat3(1.,0.,0., 0.,c,s, 0.,-s,c); }',
     'mat3 orient(){',
-    '  return rotX(uTilt.y + sin(uTime*0.26)*0.05) * rotY(1.15 + uTime*0.22 + uTilt.x);',  // 세워진 링 + 느린 회전
+    // 거의 정면(O) 유지 — 옆면이 두껍게 드러나지 않게 작은 범위로만 흔들림·틸트
+    '  return rotX(uTilt.y*0.6 + sin(uTime*0.21)*0.05) * rotY(sin(uTime*0.15)*0.32 + uTilt.x*0.6);',
     '}',
+    'vec3 ringCenter(float aspect){',
+    // 포인터(uPos, 화면 uv)를 z=0 평면의 월드 좌표로 — 링이 마우스를 따라다님
+    '  return vec3((uPos.x*2.0-1.0) * 0.414 * aspect * 6.1, (uPos.y*2.0-1.0) * 0.414 * 6.1, 0.0);',
+    '}',
+    'vec3 gC;',
     'float map(vec3 p){',
-    '  p = orient() * p;',
-    '  vec2 q = vec2(length(p.xy) - 0.85, p.z);',                                     // 공식 Torus: R 0.8급
-    '  return length(q) - 0.24;',                                                     // tube
+    '  p = orient() * (p - gC);',
+    '  vec2 q = vec2(length(p.xy) - 0.52, p.z);',                                     // 축소된 링 (약 -38%)
+    '  return length(q) - 0.155;',                                                    // 얇은 tube
     '}',
     'vec3 mapNormal(vec3 p){',
     '  const float e = 0.0015;',
@@ -78,6 +84,7 @@ window.initHeroSpace = function(){
     'void main(){',
     '  float aspect = uRes.x / uRes.y;',
     '  float t = uTime;',
+    '  gC = ringCenter(aspect);',
     '  vec2 ndc = vUv * 2.0 - 1.0;',
     '  vec3 ro = vec3(0.0, 0.0, 6.1);',
     '  vec3 rd = normalize(vec3(ndc.x * 0.414 * aspect, ndc.y * 0.414, -1.0));',      // FOV 45°
@@ -94,30 +101,23 @@ window.initHeroSpace = function(){
     '  vec3 viewDir = -rd;',
     '  float fresnel = pow(1.0 - max(dot(n, viewDir), 0.0), 4.0);',
     '  float coreFactor = pow(max(dot(n, viewDir), 0.0), 2.0);',
-    '  vec2 lensOffset = (vUv - 0.5) * 0.15 * coreFactor;',                            // CORE_REFRACT 1.0
+    '  vec2 lensOffset = (vUv - uPos) * 0.06 * coreFactor;',                           // 중심 기준 약한 렌즈
     '  vec3 refractView = refract(rd, n, 1.0/1.5);',                                   // IOR 1.5
-    '  vec2 offset = refractView.xy * 0.17 - lensOffset;',                             // THICKNESS 2.0 * 0.1 급
-    '  float disp = 0.16;',                                                            // 분산(색 번짐)
+    '  vec2 offset = refractView.xy * 0.08 - lensOffset;',                             // 약한 굴절 — 글자 읽힘 유지
+    '  float disp = 0.05;',                                                            // 은은한 색 번짐
     '  vec2 uvR = vUv + offset * (1.0 + disp);',
     '  vec2 uvG = vUv + offset;',
     '  vec2 uvB = vUv + offset * (1.0 - disp);',
-    '  vec3 trans; ',
-    '  float rnd = hash(vUv * 437.58) * 6.2831853;',
-    '  trans = vec3(0.0);',
-    '  for(int i = 0; i < 4; i++){',                                                   // 가벼운 프로스트
-    '    float th = float(i) * 2.39996323 + rnd;',
-    '    vec2 bo = vec2(cos(th), sin(th)) * (float(i)+1.0) * 0.0005;',
-    '    trans.r += plate(uvR + bo, aspect, t).r;',
-    '    trans.g += plate(uvG + bo, aspect, t).g;',
-    '    trans.b += plate(uvB + bo, aspect, t).b;',
-    '  }',
-    '  trans *= 0.25;',
-    // 반사(스튜디오 소프트박스 근사): 위쪽 밝은 띠 + 은은한 블루
+    '  vec3 trans;',
+    '  trans.r = plate(uvR, aspect, t).r;',                                            // 프로스트 제거 — 투명 유리
+    '  trans.g = plate(uvG, aspect, t).g;',
+    '  trans.b = plate(uvB, aspect, t).b;',
+    // 반사: 부드러운 가장자리 하이라이트만
     '  vec3 rfl = reflect(rd, n);',
     '  float band = smoothstep(0.15, 0.45, rfl.y) * smoothstep(0.9, 0.5, rfl.y);',
-    '  vec3 reflCol = vec3(0.04,0.045,0.07) + vec3(1.0) * band * 0.9 + vec3(0.35,0.45,0.9) * pow(max(rfl.y,0.0), 5.0) * 0.4;',
-    '  vec3 col = mix(trans, reflCol, clamp(fresnel * 0.8, 0.0, 1.0));',
-    '  col += vec3(1.0) * pow(max(dot(rfl, normalize(vec3(0.35,0.75,0.55))), 0.0), 60.0) * 0.8;', // 스펙
+    '  vec3 reflCol = vec3(0.05,0.055,0.085) + vec3(0.9,0.93,1.0) * band * 0.55 + vec3(0.4,0.5,0.9) * pow(max(rfl.y,0.0), 5.0) * 0.22;',
+    '  vec3 col = mix(trans, reflCol, clamp(fresnel * 0.5, 0.0, 1.0));',
+    '  col += vec3(1.0) * pow(max(dot(rfl, normalize(vec3(0.35,0.75,0.55))), 0.0), 70.0) * 0.4;', // 은은한 스펙
     '  gl_FragColor = vec4(col, 1.0);',
     '}'].join('\n');
 
@@ -139,7 +139,8 @@ window.initHeroSpace = function(){
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   var U = { time:gl.getUniformLocation(prog,'uTime'), res:gl.getUniformLocation(prog,'uRes'),
-            tilt:gl.getUniformLocation(prog,'uTilt'), text:gl.getUniformLocation(prog,'uText') };
+            tilt:gl.getUniformLocation(prog,'uTilt'), pos:gl.getUniformLocation(prog,'uPos'),
+            text:gl.getUniformLocation(prog,'uText') };
 
   // ---- 글자 뒤판 텍스처: DOM 과 같은 타이포를 캔버스로 그려 올림 (WebGL 켜지면 DOM 텍스트는 숨김) ----
   var textTex = gl.createTexture();
@@ -173,7 +174,7 @@ window.initHeroSpace = function(){
   if(center) center.classList.add('gl-on');   // 캔버스가 글자를 그리므로 DOM 텍스트 숨김(접근성 위해 DOM 은 유지)
   if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ makeTextTex(); kick(); }); }
 
-  var dpr = Math.min(devicePixelRatio || 1, innerWidth < 860 ? 1 : 1.4);
+  var dpr = Math.min(devicePixelRatio || 1, innerWidth < 860 ? 1.25 : 1.75);   // 고해상도에서 가장자리·글자 선명하게
   function resize(){
     var w = host.clientWidth, h = host.clientHeight;
     canvas.width = Math.max(1, Math.round(w * dpr));
@@ -184,18 +185,22 @@ window.initHeroSpace = function(){
   }
   resize(); addEventListener('resize', function(){ resize(); kick(); });
 
-  // 포인터 틸트 — 공식 TILT_RANGE(0.5rad)로 포인터 방향으로 기울고, ~0.6s 이즈
+  // 포인터: 링이 커서를 부드럽게 따라오고(0.22 lerp), 작은 범위로만 틸트. 이탈 시 중앙 복귀.
+  // 터치 기기: 리스너 없음 → 링은 중앙에 고정(투명해서 콘텐츠를 가리지 않음)
   var tx = 0, ty = 0, cx = 0, cy = 0;
+  var pmx = 0.5, pmy = 0.5, px = 0.5, py = 0.5;
   if(fine && !reduce){
     addEventListener('pointermove', function(e){
       if(e.pointerType && e.pointerType !== 'mouse') return;
       var r = host.getBoundingClientRect();
-      if(e.clientY < r.top || e.clientY > r.bottom) return;
-      tx = ((e.clientX - r.left) / r.width  - 0.5) * 0.5;
-      ty = ((e.clientY - r.top)  / r.height - 0.5) * 0.5;
+      if(e.clientY < r.top || e.clientY > r.bottom){ pmx = 0.5; pmy = 0.5; tx = 0; ty = 0; kick(); return; }
+      pmx = (e.clientX - r.left) / r.width;
+      pmy = 1 - (e.clientY - r.top) / r.height;
+      tx = (pmx - 0.5) * 0.3;
+      ty = (0.5 - pmy) * 0.3;
       kick();
     }, { passive:true });
-    document.addEventListener('mouseleave', function(){ tx = 0; ty = 0; kick(); });
+    document.addEventListener('mouseleave', function(){ pmx = 0.5; pmy = 0.5; tx = 0; ty = 0; kick(); });
   }
 
   var raf = 0, start = performance.now();
@@ -203,7 +208,9 @@ window.initHeroSpace = function(){
     gl.uniform1f(U.time, (now - start) / 1000);
     gl.uniform2f(U.res, canvas.width, canvas.height);
     cx += (tx - cx) * 0.07; cy += (ty - cy) * 0.07;
+    px += (pmx - px) * 0.22; py += (pmy - py) * 0.22;
     gl.uniform2f(U.tilt, cx, cy);
+    gl.uniform2f(U.pos, px, py);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, textTex);
     gl.uniform1i(U.text, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
