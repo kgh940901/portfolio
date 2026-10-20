@@ -159,6 +159,19 @@ function initSite(){
       let t; addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(draw, 200); });
     })();
 
+    // CTA 마퀴 속도 — 레퍼런스 실측 50px/s 등속을 트랙 폭과 무관하게 유지
+    (function(){
+      const tr = document.querySelector('.cb-track');
+      if(!tr) return;
+      function speed(){
+        const half = tr.scrollWidth / 2;
+        if(half > 0) tr.style.animationDuration = (half / 50).toFixed(1) + 's';
+      }
+      speed();
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(speed);
+      let t; addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(speed, 200); });
+    })();
+
     // 진행바
     const sprog = document.getElementById('sprog');
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
