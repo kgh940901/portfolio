@@ -39,19 +39,12 @@ a:focus-visible{ outline:2px solid currentColor; outline-offset:3px; }
 .dt-cover{ margin-top:clamp(36px,5vw,62px); border:1px solid var(--line-d); overflow:hidden; background:#10141d; }
 .dt-cover img{ width:100%; height:auto; }
 
-/* 본문 — 밝은 배경, 얇은 선으로 구획 */
-.dt-body{ padding:clamp(56px,8vw,104px) 0 clamp(64px,9vw,116px); }
+/* 본문 — 밝은 배경: 대표 비주얼에서 바로 작업 화면으로 이어짐 */
+.dt-body{ padding:clamp(44px,6vw,80px) 0 clamp(64px,9vw,116px); }
 .lab{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:var(--gray-ink); }
-.dt-grid{ display:grid; grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr); gap:clamp(34px,6vw,96px);
-  padding-bottom:clamp(44px,6vw,72px); border-bottom:1px solid var(--line-l); }
-.dt-ov p{ margin-top:18px; font-size:clamp(17px,1.55vw,21px); font-weight:500; line-height:1.78; color:#2b2b28; word-break:keep-all; }
-.dt-meta div{ display:grid; grid-template-columns:112px 1fr; gap:14px; padding:13px 2px; border-bottom:1px solid var(--line-l); }
-.dt-meta div:first-child{ border-top:1px solid var(--line-l); }
-.dt-meta dt{ font-size:12.5px; font-weight:700; letter-spacing:.06em; color:var(--gray-ink); padding-top:3px; }
-.dt-meta dd{ font-size:14.5px; font-weight:500; color:#2b2b28; line-height:1.6; }
 
 /* 작업 화면 — 긴 페이지는 자연스러운 페이지 스크롤로, 얇은 선 프레임만 */
-.dt-shots{ margin-top:clamp(44px,6vw,72px); }
+.dt-shots{ margin-top:0; }
 .dt-shots .shot{ margin-top:26px; border:1px solid var(--line-l); overflow:hidden; background:#fff; }
 .dt-shots .shot img{ width:100%; height:auto; }
 .dt-shots figcaption{ font-size:13px; color:var(--gray-ink); padding:10px 2px 0; }
@@ -80,8 +73,6 @@ a:focus-visible{ outline:2px solid currentColor; outline-offset:3px; }
 }
 
 @media(max-width:760px){
-  .dt-grid{ grid-template-columns:1fr; }
-  .dt-meta{ margin-top:6px; }
   .dt-nthumb{ display:none; }
   .dt-sub{ font-size:15.5px; }
 }
