@@ -184,7 +184,6 @@
     .logo-card:hover img.lg{ filter:grayscale(1) invert(1) brightness(1.15); }
     .logo-card:hover img.lg[src*="cafe24"]{ mix-blend-mode:screen; filter:grayscale(1) invert(1); }
     .logo-card:hover img.lg[src*="veo"]{ filter:grayscale(1) brightness(2); }
-    .logo-card:hover img.lg[src*="hangul"]{ filter:grayscale(1) brightness(2.2); }
   }
   /* 정지/재생 토글 — 목록 아래, 본문 오른쪽 정렬선. 아이콘은 작게, 클릭 영역은 44×44 */
   .tools-ctl{ display:flex; justify-content:flex-end; margin-top:0; }
