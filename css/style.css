@@ -258,12 +258,14 @@
   .svc-panel{ position:absolute; left:50%; top:50%; margin:0; background:#10141d;
     border:1px solid rgba(255,255,255,.13); overflow:hidden; will-change:transform; }
   .svc-panel img{ width:100%; height:100%; object-fit:cover; object-position:50% 0%; display:block; }
-  .svc-panel.pA{ width:58vw; aspect-ratio:16/10; }
-  .svc-panel.pB{ width:54vw; aspect-ratio:16/10; }
+  /* 프레임 비율 = 원본에서 보여줄 범위: pA/pB 는 각 시트의 Overview 직전까지(상단 히어로)만 노출 */
+  .svc-panel.pA{ width:58vw; aspect-ratio:1920/988; }   /* babipt1 상단 14.0% */
+  .svc-panel.pB{ width:54vw; aspect-ratio:1920/972; }   /* sense01 상단 12.3% */
   .svc-panel.pB2{ width:11vw; aspect-ratio:9/18; }
-  .svc-panel.pC{ width:24vw; aspect-ratio:9/14; }
-  .svc-panel.pD{ width:19vw; aspect-ratio:862/656; }
-  .svc-panel.pD img{ object-position:center; }
+  .svc-panel.pB2 img{ height:auto; object-fit:unset; will-change:transform; }  /* 내부 스크롤용 — 프레임은 고정 */
+  .svc-panel.pC{ width:24vw; aspect-ratio:470/888; }    /* 팝업 원본 비율 그대로 */
+  .svc-panel.pD{ width:17vw; aspect-ratio:470/640; }
+  .svc-panel.pE{ width:15vw; aspect-ratio:396/358; }
   /* 설명 — 우측 약 27% 폭, 진행률에 따라 짧은 상승+페이드 */
   .svc-copy{ position:absolute; left:66vw; top:50%; width:min(380px,28vw); z-index:7; opacity:0; }
   .svc-copy .k{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:var(--gray); }
@@ -280,8 +282,7 @@
   .svc-static .svc-head p{ font-size:16px; }
   .svc-static .svc-head br, .svc-static .svc-copy br{ display:none; }   /* 좁은 화면: 줄바꿈은 자연스럽게 */
   .svc-static .svc-panel{ position:static; width:100%; will-change:auto; }
-  .svc-static .svc-panel.pC{ width:min(420px,100%); aspect-ratio:9/12; }
-  .svc-static .svc-panel.pC img{ object-position:50% 12%; }   /* 시트 상단 소개 띠 건너뜀 */
+  .svc-static .svc-panel.pC{ width:min(340px,100%); }   /* 팝업 원본 비율 그대로 */
   .svc-static .svc-panel.sub{ display:none; }
   .svc-static .svc-copy{ position:static; transform:none !important; opacity:1 !important; width:auto; margin-top:-8px; }
   .svc-static .svc-copy p{ font-size:16px; }

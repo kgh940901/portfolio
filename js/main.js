@@ -216,7 +216,8 @@ function initSite(){
       const copies = Array.prototype.slice.call(stage.querySelectorAll('.svc-copy'));
       const panels = {};
       stage.querySelectorAll('.svc-panel').forEach(function(el){ panels[el.getAttribute('data-p')] = el; });
-      const cImg = panels.C ? panels.C.querySelector('img') : null;
+      const mobImg = document.getElementById('svcMobImg');
+      let mobMax = 0;   // 모바일 내부 스크롤 거리 = 이미지 표시 높이 - 프레임 높이 (끝에 빈 공간 없음)
 
       // 패널 키프레임 [p, x(vw), y(vh), scale, rotate(deg), opacity, z]
       // 장면 배분: 0~.15 진입 / .15~.35 Web Design / .42~.62 Publishing / .69~.89 Detail&Promo / .89~1 모음
@@ -226,15 +227,17 @@ function initSite(){
             [.89,-33,-31,.34, -2,.6, 1], [1,  -8,  6, .40,  0, 1, 3]],
         B: [[0,  23, 16, .36,2.5, 1, 2], [.15, 42, 16, .28,2.5,.40,1], [.35, 42, 16,.28,2.5,.40,1],
             [.42,-17,  2, 1,    0, 1, 5], [.62,-17,  2, 1,   0, 1, 5], [.69, 30,-30,.30,  2,.55,1],
-            [.89, 30,-30,.30,  2,.55,1], [1,  14,  8, .34,  0, 1, 2]],
+            [.89, 30,-30,.30,  2,.55,1], [1,  13,  8, .34,  0, 1, 2]],
         B2:[[0, 8.5,  4, .90,  0, 0, 6], [.40,8.5,  4, .90,  0, 0, 6], [.46,8.5,  4, 1,   0, 1, 6],
             [.62,8.5,  4, 1,    0, 1, 6], [.68,8.5,  4, .90,  0, 0, 6], [1,8.5, 4, .90, 0, 0, 6]],
         C: [[0, -25, 15, .62, -3, 1, 2], [.15,-40,  8, .45, -3,.5, 1], [.35,-40,  8,.45, -3,.5, 1],
             [.42,-40,  8, .45, -3,.45,1], [.62,-40,  8,.45, -3,.45,1], [.69,-19,  0, 1,   0, 1, 5],
             [.89,-19,  0, 1,    0, 1, 5], [1, -30,  9, .52,  0, 1, 2]],
         D: [[0,  11, 26, .75,  2, 1, 4], [.15, 42, 34, .60,  2,.40,1], [.35, 42, 34,.60,  2,.40,1],
-            [.42, 42, 34, .60,  2,.40,1], [.62, 42, 34,.60,  2,.40,1], [.69,  5, 16, 1,   0, 1, 6],
-            [.89,  5, 16, 1,    0, 1, 6], [1,  30, 11, .85,  0, 1, 2]]
+            [.42, 42, 34, .60,  2,.40,1], [.62, 42, 34,.60,  2,.40,1], [.69,  3,-12, 1,   0, 1, 6],
+            [.89,  3,-12, 1,    0, 1, 6], [1,  33, 11, .85,  0, 1, 2]],
+        E: [[0,   2, 24, .90,  0, 0, 4], [.72,  2, 24, .90,  0, 0, 4], [.78,  2, 20, 1,   0, 1, 4],
+            [.89,  2, 20, 1,    0, 1, 4], [1,  40, 16, .90,  0, 1, 2]]
       };
       function smooth(t){ return t * t * (3 - 2 * t); }
       function sample(kf, p){
@@ -278,10 +281,12 @@ function initSite(){
         head.style.visibility = ho > 0.01 ? 'visible' : 'hidden';
         const eo = p < .93 ? 0 : smooth(Math.min(1, (p - .93) / .06));
         endEl.style.opacity = eo.toFixed(3);
-        // 상세페이지 프레임 내부 팬 — 읽는 구간 동안 천천히 (시트 상단 소개 띠는 건너뜀)
-        if(cImg){
-          const ip = p < .70 ? 0 : (p > .88 ? 1 : (p - .70) / .18);
-          cImg.style.objectPosition = '50% ' + (8 + ip * 26).toFixed(1) + '%';
+        // 모바일 프레임 내부 스크롤 — 패널이 자리 잡은 뒤(.48)부터 짧은 구간(.60)에
+        // 긴 페이지가 위로 올라감. 경쾌하게 시작해 부드럽게 감속(ease-out), 진행률 연동이라 정지·역방향 모두 자연스러움
+        if(mobImg && mobMax > 0){
+          let t = p < .48 ? 0 : (p > .60 ? 1 : (p - .48) / .12);
+          t = 1 - Math.pow(1 - t, 3);
+          mobImg.style.transform = 'translateY(' + (-mobMax * t).toFixed(1) + 'px)';
         }
       }
       let start = 0, range = 1, raf = 0, dynamic = false;
@@ -289,6 +294,7 @@ function initSite(){
         const r = scrollEl.getBoundingClientRect();
         start = r.top + scrollY;
         range = Math.max(1, scrollEl.offsetHeight - innerHeight);
+        if(mobImg && panels.B2) mobMax = Math.max(0, mobImg.offsetHeight - panels.B2.clientHeight);
       }
       function onScroll(){
         if(!dynamic || raf) return;
@@ -300,7 +306,7 @@ function initSite(){
       function clearInline(){
         stage.querySelectorAll('.svc-panel, .svc-copy').forEach(function(el){ el.removeAttribute('style'); });
         head.removeAttribute('style'); endEl.removeAttribute('style');
-        if(cImg) cImg.style.objectPosition = '';
+        if(mobImg) mobImg.style.transform = '';
       }
       function decide(){
         const stat = matchMedia('(max-width:860px)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -313,6 +319,7 @@ function initSite(){
       addEventListener('scroll', onScroll, { passive:true });
       let rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(decide, 180); });
       addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
+      if(mobImg && !mobImg.complete) mobImg.addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
     })();
 
     // 로딩: 도트 매트릭스 [ PORTFOLIO ]
