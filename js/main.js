@@ -106,6 +106,72 @@ function initSite(){
       track.appendChild(dup);
     })();
 
+    // 툴 띠: 자동 이동 정지/재생 토글 — play-state 만 바꾸므로 멈춘 위치에서 그대로 이어짐
+    (function(){
+      const btn = document.getElementById('toolsToggle');
+      const strip = document.querySelector('.logo-strip');
+      if(!btn || !strip) return;
+      btn.addEventListener('click', function(){
+        const paused = strip.classList.toggle('paused');
+        btn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+        btn.setAttribute('aria-label', paused ? '도구 목록 자동 이동 재생' : '도구 목록 자동 이동 일시정지');
+      });
+    })();
+
+    // 툴 태그: 커서 근접 효과 — gerd-web.de menu-container 실측 이식.
+    // 가장 가까운 태그가 최대 scale(~1.05), 거리에 따라 감쇠하며 이웃은 커서 반대쪽으로 수 px 밀림.
+    // 인라인 transform 을 매 프레임 lerp — transform 뿐이라 레이아웃(주변 태그)은 밀리지 않고,
+    // 빠르게 오가도 목표값으로 수렴할 뿐 누적되지 않음. 이탈 시 모두 0/1 로 복귀.
+    (function(){
+      const strip = document.querySelector('.logo-strip');
+      if(!strip) return;
+      if(!matchMedia('(pointer:fine)').matches) return;
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const SIGMA = 120, AMP = 0.05, PUSH = 9;      // 영향 반경·최대 확대·이웃 밀림(px)
+      let cards = null, mx = 0, active = false, raf = 0;
+      function collect(){
+        cards = Array.prototype.slice.call(strip.querySelectorAll('.logo-card'))
+          .map(function(el){ return { el: el, s: 1, x: 0 }; });
+      }
+      function frame(){
+        raf = 0;
+        let settled = true;
+        for(let i = 0; i < cards.length; i++){
+          const c = cards[i];
+          let sT = 1, xT = 0;
+          if(active){
+            const r = c.el.getBoundingClientRect();
+            const cx = r.left + r.width / 2 - c.x;    // 자신의 밀림값을 빼서 원래 중심 기준으로 계산
+            const d = cx - mx;
+            if(Math.abs(d) < SIGMA * 2.6){
+              const g = Math.exp(-(d / SIGMA) * (d / SIGMA));
+              sT = 1 + AMP * g;
+              xT = (d > 0 ? 1 : -1) * PUSH * g * Math.min(Math.abs(d) / 40, 1); // 커서 바로 위는 밀림 0
+            }
+          }
+          c.s += (sT - c.s) * 0.16;
+          c.x += (xT - c.x) * 0.16;
+          if(Math.abs(c.s - 1) < 0.002 && Math.abs(c.x) < 0.05 && !active){ c.s = 1; c.x = 0; c.el.style.transform = ''; }
+          else{
+            c.el.style.transform = 'translateX(' + c.x.toFixed(2) + 'px) scale(' + c.s.toFixed(4) + ')';
+            settled = false;
+          }
+        }
+        if(active || !settled) raf = requestAnimationFrame(frame);
+      }
+      function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
+      strip.addEventListener('pointerenter', function(e){
+        if(e.pointerType && e.pointerType !== 'mouse') return;
+        if(!cards) collect();
+        mx = e.clientX; active = true; kick();
+      });
+      strip.addEventListener('pointermove', function(e){
+        if(e.pointerType && e.pointerType !== 'mouse') return;
+        mx = e.clientX; if(active) kick();
+      }, { passive: true });
+      strip.addEventListener('pointerleave', function(){ active = false; kick(); });
+    })();
+
     // (03) 점등 문장: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 밝아짐 (Fuel 의 흰→회색 진행)
     (function(){
       const stmt = document.getElementById('stmt2');
