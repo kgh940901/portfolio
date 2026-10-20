@@ -329,9 +329,8 @@
   .arow:hover .an{ transform:translateX(12px); }
   .arch:hover .arow{ opacity:.38; }
   .arch .arow:hover{ opacity:1; }
-  /* More Works 프리뷰는 레퍼런스(200×200)에 맞춘 정사각 박스 — 세로로 긴 원본(페이지 시트)은
-     상단 기준 크롭(비율 왜곡 없음), 제목과 주변 목록을 과도하게 가리지 않는 크기 */
-  .cs-cursor-img.sm{ width:min(240px,20vw); height:min(240px,20vw); object-fit:cover; object-position:center top; }
+  /* More Works 프리뷰 — 기존 썸네일과 같은 가로형(3:2)·중앙 크롭으로 대표 컷이 보이게 */
+  .cs-cursor-img.sm{ width:min(280px,22vw); aspect-ratio:3/2; height:auto; object-fit:cover; }
 
   /* ===== CTA 배너 — 작업물 공간 컷 배경 + 대형 마퀴 + Contact ===== */
   .ctaband{ position:relative; margin:0 24px; height:clamp(420px,66vh,620px); border-radius:4px; overflow:hidden;
