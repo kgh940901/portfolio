@@ -220,8 +220,8 @@ function initSite(){
       let mobMax = 0;   // 모바일 내부 스크롤 거리 = 이미지 표시 높이 - 프레임 높이 (끝에 빈 공간 없음)
       const popImg = document.getElementById('svcPopImg');
       let popStart = 0, popTravel = 0;   // 팝업 모음: 첫 줄(헤더 띠 제외)에서 시작 → 줄 단위로 아래 내용 노출
-      // pro1 시트 실측(px/8348): 첫 줄 위 여백 640, 마지막 표시 구간 상단 1690 (4~5행이 프레임에 맞게 끝남)
-      const POP_START_FRAC = 640 / 8348, POP_END_FRAC = 1690 / 8348;
+      // pro1 시트 실측(px/8348): 첫 줄 위 여백 640, 종료 지점은 6행 아래 여백(2954)에 맞춰 끝 화면이 깔끔하게
+      const POP_START_FRAC = 640 / 8348, POP_END_FRAC = 2054 / 8348;
 
       // 패널 키프레임 [p, x(vw), y(vh), scale, rotate(deg), opacity, z]
       // 장면 배분: 0~.15 진입 / .15~.35 Web Design / .42~.62 Publishing / .69~.89 Detail&Promo / .89~1 모음
@@ -293,7 +293,7 @@ function initSite(){
         // 팝업 모음 내부 스크롤 — 패널 정착(.69) 후 .72~.88 에서 차분하게 줄 단위 이동.
         // 항상 첫 줄 오프셋을 기본 적용해 어느 장면에서든 헤더 띠가 보이지 않음
         if(popImg && popTravel >= 0){
-          let t = p < .72 ? 0 : (p > .88 ? 1 : (p - .72) / .16);
+          let t = p < .71 ? 0 : (p > .89 ? 1 : (p - .71) / .18);
           popImg.style.transform = 'translateY(' + (-(popStart + popTravel * smooth(t))).toFixed(1) + 'px)';
         }
       }
