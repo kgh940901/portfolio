@@ -134,6 +134,31 @@ function initSite(){
       });
     })();
 
+    // CTA 배너 별빛 — 1회만 그리는 정적 캔버스 (렌더 루프 없음, 메인보다 낮은 밀도·밝기)
+    (function(){
+      const cv = document.querySelector('.cb-stars');
+      if(!cv) return;
+      function draw(){
+        const r = cv.getBoundingClientRect();
+        if(!r.width || !r.height) return;
+        const d = Math.min(devicePixelRatio || 1, 2);
+        cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d);
+        const ctx = cv.getContext('2d');
+        ctx.scale(d, d);
+        ctx.fillStyle = '#e8eeff';
+        const n = Math.round(r.width * r.height / 5200);
+        for(let i = 0; i < n; i++){
+          ctx.globalAlpha = 0.16 + Math.random() * 0.5;
+          ctx.beginPath();
+          ctx.arc(Math.random() * r.width, Math.random() * r.height, 0.3 + Math.random() * 0.9, 0, 6.283);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+      draw();
+      let t; addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(draw, 200); });
+    })();
+
     // 진행바
     const sprog = document.getElementById('sprog');
     function prog(){ const de = document.documentElement; const max = de.scrollHeight - de.clientHeight; if(sprog) sprog.style.transform = 'scaleX(' + (max>0 ? de.scrollTop/max : 0) + ')'; }
