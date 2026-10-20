@@ -3,66 +3,68 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Kids Pension — Web Design | 경가현 Portfolio</title>
-<meta name="description" content="Kids Pension — Web Design — 경가현(Gahyun Kyoung) 포트폴리오" />
+<title>Kids Pension — 실무 작업 | 경가현 Portfolio</title>
+<meta name="description" content="Kids Pension 실무 작업 프로젝트 — 경가현(Gahyun Kyoung) 포트폴리오" />
 <meta name="author" content="Gahyun Kyoung" />
-<style>
-  *{ margin:0; padding:0; box-sizing:border-box; }
-  html{ scroll-behavior:smooth; }
-  body{ background:#0a0a0a; color:#f4f4f2; line-height:1.6;
-    font-family:'Pretendard', system-ui, -apple-system, 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; -webkit-font-smoothing:antialiased; }
-  a{ color:inherit; text-decoration:none; }
-  img{ display:block; max-width:100%; }
-  .topbar{ position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
-    padding:16px 28px; backdrop-filter:blur(12px); background:rgba(10,10,10,.55); border-bottom:1px solid rgba(255,255,255,.08); }
-  .topbar .back{ font-size:13px; font-weight:600; letter-spacing:.5px; color:#c9c9c4; transition:.2s; }
-  .topbar .back:hover{ color:#fff; }
-  .topbar .brand{ font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
-  .head{ padding:130px 24px 54px; text-align:center; }
-  .head .cat{ color:#ff7a1a; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; }
-  .head h1{ font-size:clamp(34px,7vw,76px); font-weight:800; letter-spacing:-2px; line-height:1; }
-  .head p{ color:#8a8a86; max-width:560px; margin:18px auto 0; font-size:15px; }
-  .demos{ margin-top:26px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-  .head .demo{ display:inline-block; padding:12px 22px; border-radius:999px; border:1px solid rgba(255,255,255,.2);
-    font-size:13px; font-weight:700; letter-spacing:.5px; transition:.2s; }
-  .head .demo:hover{ background:#f4f4f2; color:#0a0a0a; }
-  .shots{ max-width:1080px; margin:0 auto; padding:10px 16px 90px; }
-  .shots img{ width:100%; border-radius:10px; margin-bottom:16px; }
-  /* 상단 버튼으로 이동했을 때 고정 topbar 에 이미지 윗부분이 가리지 않도록 */
-  .shots img[id], .shots .shot-main[id]{ scroll-margin-top:76px; }
-  .shots .shot-main{ display:block; position:relative; cursor:pointer; }
-  .shots .shot-main img{ transition:opacity .25s ease; }
-  .shots .shot-main:hover img{ opacity:.92; }
-  .shots .shot-main::after{ content:"라이브 데모 ↗"; position:absolute; top:16px; right:16px; padding:8px 14px; border-radius:999px; background:rgba(10,10,10,.7); backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,.18); font-size:12px; font-weight:700; letter-spacing:.4px; opacity:0; transition:opacity .25s ease; }
-  .shots .shot-main:hover::after{ opacity:1; }
-  footer{ text-align:center; padding:44px 24px 60px; color:#8a8a86; font-size:13px; border-top:1px solid rgba(255,255,255,.08); }
-  footer a{ border-bottom:1px solid rgba(255,255,255,.25); }
-  @media(max-width:680px){ .shots{ padding:6px 0 70px; } .shots img{ border-radius:0; margin-bottom:8px; } }
-</style>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="css/detail.css" />
 </head>
 <body>
-  <div class="topbar">
-    <a class="back" href="index.html#work">← Back to Portfolio</a>
-    <span class="brand">경가현 · Gahyun</span>
-  </div>
-
-  <header class="head">
-    <p class="cat">Web Design</p>
-    <h1>Kids Pension</h1>
-    <!-- 각 버튼은 아래 해당 작업물 이미지로 스크롤됩니다 (외부 링크 아님) -->
-    <div class="demos"><a class="demo" href="#kids-1">에스엔제이 ↓</a><a class="demo" href="#kids-2">벨로시 키즈풀빌라 ↓</a><a class="demo" href="#kids-3">유키즈 ↓</a></div>
+  <header class="dt-top">
+    <div class="wrap">
+      <a href="index.html#archive" aria-label="프로젝트 목록으로 돌아가기">&larr; Projects</a>
+      <a href="index.html">GAHYUN KYOUNG</a>
+    </div>
   </header>
 
-  <div class="shots">
-    <!-- campwithpet.co.kr 도메인이 만료되어(Non-existent domain) 링크를 걸지 않음 -->
-    <img id="kids-1" src="assets/company2/kids01.jpg" alt="에스엔제이 애견&amp;키즈 펜션 템플릿" />
-    <!-- 벨로시 키즈풀빌라는 라이브 사이트 주소가 없어 링크를 걸지 않음 -->
-    <img id="kids-2" src="assets/company2/kids02.jpg" alt="벨로시 키즈풀빌라 펜션 템플릿" loading="lazy" />
-    <a id="kids-3" class="shot-main" href="https://youkids.co.kr/" target="_blank" rel="noopener" aria-label="유키즈 라이브 데모 보기"><img src="assets/company2/kids03.jpg" alt="유키즈 펜션 템플릿" loading="lazy" /></a>
-  </div>
+  <section class="dt-hero">
+    <div class="wrap">
+      <p class="dt-kicker rv">A — 5 · 실무 작업</p>
+      <h1 class="dt-title rv">Kids Pension</h1>
+      <p class="dt-sub rv">아이와 함께 머무는 키즈 펜션 웹사이트를 디자인하고 퍼블리싱해 실제 운영 사이트로 구현했습니다.</p>
+      <div class="dt-ctas rv">
+        <a class="cta" href="https://youkids.co.kr/" target="_blank" rel="noopener" aria-label="Visit Live Site 실제 사이트 새 탭으로 열기">Visit Live Site &#8599;</a>
+      </div>
+      <figure class="dt-cover rv"><img src="assets/company2/kidsmain.jpg" alt="유키즈 펜션 웹사이트 메인 화면" width="3840" height="1680" /></figure>
+    </div>
+  </section>
 
-  <footer>© 2026 Gahyun Kyoung · <a href="index.html">Portfolio</a></footer>
-  <script src="js/scroll-nav.js" defer></script>
-  <script src="js/cursor.js" defer></script>
+  <section class="dt-body">
+    <div class="wrap">
+      <div class="dt-grid">
+        <div class="dt-ov rv">
+          <span class="lab">(Overview)</span>
+          <p>가족 고객이 필요한 정보에 쉽게 닿도록 객실·시설·예약 동선을 정리했습니다. 밝고 편안한 톤으로 화면을 디자인하고, 퍼블리싱을 거쳐 실제 운영 중인 사이트로 구현했습니다.</p>
+        </div>
+        <dl class="dt-meta rv">
+          <div><dt>Type</dt><dd>실무 작업</dd></div>
+          <div><dt>Role</dt><dd>웹 디자인 · 퍼블리싱</dd></div>
+          <div><dt>Scope</dt><dd>WEB · RESPONSIVE</dd></div>
+          <div><dt>Tools</dt><dd>Photoshop · HTML/CSS</dd></div>
+        </dl>
+      </div>
+      <div class="dt-shots">
+        <span class="lab rv">(Works)</span>
+        <figure class="shot rv"><img src="assets/company2/kids01.jpg" alt="" loading="lazy" /></figure>
+        <figure class="shot rv"><img src="assets/company2/kids02.jpg" alt="" loading="lazy" /></figure>
+        <figure class="shot rv"><img src="assets/company2/kids03.jpg" alt="" loading="lazy" /></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="dt-next">
+    <div class="wrap">
+      <span class="dt-nlab">Next Project</span>
+      <a class="dt-nlink" href="sensemom.html">
+        <span class="dt-ntitle">Sense Mom</span>
+        <img class="dt-nthumb" src="assets/work-sensemom.jpg" alt="" loading="lazy" />
+      </a>
+      <a class="dt-all" href="index.html#archive">전체 프로젝트 보기</a>
+    </div>
+  </section>
+
+  <footer class="dt-foot">© 2026 Gahyun Kyoung · <a href="index.html">Portfolio</a></footer>
+  <script src="js/detail.js" defer></script>
 </body>
 </html>
