@@ -206,6 +206,12 @@
     .logo-track{ padding:10px 0; }                                /* 모바일: 상승 효과 없음 — 여유 공간 불필요 */
   }
   @keyframes lsmarq{ to{ transform:translateX(-50%); } }
+
+  /* 프로젝트 코드 숫자 롤링 — 접두어 고정, 두 자리 숫자만 세로 롤링 (js/numroll.js) */
+  .njs{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .njs .nd{ display:inline-block; width:1ch; height:1em; overflow:hidden; line-height:1; vertical-align:-0.13em; }
+  .njs .nstack{ display:block; transition:transform .55s cubic-bezier(.18,.8,.28,1); }
+  .njs .nstack span{ display:block; height:1em; line-height:1; }
   @media(prefers-reduced-motion:reduce){
     .logo-strip{ overflow-x:auto; -webkit-mask-image:none; mask-image:none; cursor:auto; }  /* 자동 이동 대신 직접 탐색 */
     .logo-track{ animation:none; }

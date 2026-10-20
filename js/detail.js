@@ -12,3 +12,6 @@
   }, { threshold: .05, rootMargin: '0px 0px -8% 0px' });
   els.forEach(function(e){ io.observe(e); });
 })();
+
+// 상단 코드 숫자 롤링 (js/numroll.js)
+if(window.initNumRoll){ try{ window.initNumRoll(); }catch(e){} }

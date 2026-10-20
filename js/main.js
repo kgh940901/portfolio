@@ -180,6 +180,9 @@ function initSite(){
     // 히어로 우주 배경 + 커서 유리 렌즈 (js/space.js)
     if(window.initHeroSpace){ try{ window.initHeroSpace(); }catch(e){} }
 
+    // 프로젝트 코드 롤링 + 수치 카운트업 (js/numroll.js)
+    if(window.initNumRoll){ try{ window.initNumRoll(); }catch(e){} }
+
     // 툴 띠: 끊김 없는 루프를 위해 트랙 내용을 한 번 복제 (복제분은 스크린리더에서 제외)
     (function(){
       const track = document.getElementById('toolTrack');
