@@ -142,23 +142,31 @@
     .ab-row .lab, .ab-row .txt, .ab-res, .ab-cta, .ab-row .lab2{ grid-column:1; text-align:left; }
     .ab-photo{ grid-row:auto; }
   }
-  /* 사용 도구 띠 — 카드 없이 아이콘+이름만 얇게 흐름 */
-  .tools-label{ font-size:12.5px; font-weight:700; letter-spacing:.12em; color:var(--gray-ink); margin-top:clamp(48px,6vw,84px); }
-  .logo-strip{ margin-top:18px; overflow:hidden;
-    -webkit-mask-image:linear-gradient(90deg, transparent, #000 70px, #000 calc(100% - 70px), transparent);
-    mask-image:linear-gradient(90deg, transparent, #000 70px, #000 calc(100% - 70px), transparent); }
+  /* 사용 도구 띠 — 카드 없이 아이콘+이름만 또렷하게 흐름 */
+  .tools-label{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:#55554f; margin-top:clamp(40px,5vw,72px); }
+  .logo-strip{ margin-top:12px; overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); }
   .logo-strip:hover .logo-track{ animation-play-state:paused; }   /* PC: 올리면 부드럽게 정지, 벗어나면 이어서 */
-  .logo-track{ display:flex; align-items:center; width:max-content; animation:lsmarq 44s linear infinite; padding:12px 0; }
+  .logo-track{ display:flex; align-items:center; width:max-content; animation:lsmarq 44s linear infinite; padding:8px 0; }
   .logo-dup{ display:contents; }   /* 무한 루프용 복제 묶음 (aria-hidden) */
-  /* 항목: 아이콘+이름 가로 배치, 자연 너비. 간격은 flex gap 대신 균일 margin — 루프 접합부가 어긋나지 않게 */
-  .logo-card{ display:flex; align-items:center; gap:11px; margin-right:clamp(44px,4.4vw,62px);
-    font-size:15px; font-weight:600; letter-spacing:-.1px; color:#3f3f3a; white-space:nowrap; flex-shrink:0; }
-  .logo-card .lg{ width:30px; height:30px; object-fit:contain; display:block;
-    filter:grayscale(1); opacity:.72; transition:filter .25s ease, opacity .25s ease; }
-  .logo-card:hover .lg{ filter:none; opacity:1; }                 /* 해당 아이콘만 브랜드 색으로 */
+  /* 항목: 아이콘+이름 한 묶음, 자연 너비. 간격은 flex gap 대신 균일 margin — 루프 접합부가 어긋나지 않게 */
+  .logo-card{ display:flex; align-items:center; gap:13px; margin-right:clamp(58px,5.6vw,86px);
+    font-size:18px; font-weight:500; letter-spacing:-.1px; color:#2e2e2a; white-space:nowrap; flex-shrink:0; }
+  .logo-card .lg{ width:42px; height:42px; object-fit:contain; display:block; }
+  .logo-card .lg.up{ transform:scale(1.18); }                     /* 내부 여백이 큰 로고의 시각 크기 보정 */
+  /* 무채색 통일(투명도 없음): SVG는 fill 자체를 잉크색으로 — 호버 시 원래 브랜드 색 복귀 */
+  .logo-card svg.lg, .logo-card svg.lg *{ transition:fill .25s ease; }
+  .logo-card:not(:hover) svg.lg, .logo-card:not(:hover) svg.lg *{ fill:#3a3a35; }
+  .logo-card:not(:hover) svg.lg text{ fill:var(--paper); }        /* 2색 배지(Me)의 글자는 넉아웃처럼 */
+  /* PNG 로고: 회색화 + 밝은 것만 어둡게 보정 */
+  .logo-card img.lg{ filter:grayscale(1) brightness(.6); transition:filter .25s ease; }
+  .logo-card img.lg[src*="cafe24"]{ mix-blend-mode:multiply; filter:grayscale(1); } /* 흰 배경 제거 */
+  .logo-card img.lg[src*="kling"]{ filter:grayscale(1); }         /* 이미 검정 타일 */
+  .logo-card:hover img.lg{ filter:none; }                         /* 해당 아이콘만 브랜드 색으로 */
   @media(max-width:600px){
-    .logo-card{ gap:9px; margin-right:34px; font-size:13.5px; }
-    .logo-card .lg{ width:24px; height:24px; }
+    .logo-card{ gap:10px; margin-right:42px; font-size:15.5px; }
+    .logo-card .lg{ width:32px; height:32px; }
   }
   @keyframes lsmarq{ to{ transform:translateX(-50%); } }
   @media(prefers-reduced-motion:reduce){
