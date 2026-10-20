@@ -144,62 +144,73 @@
   }
   /* About 섹션은 툴 띠가 마지막 구성요소 — 아래 여백을 줄여 다음 섹션과 과하게 벌어지지 않게 */
   #about{ padding-bottom:clamp(56px,7vw,92px); }
-  /* ===== 사용 도구 — 알약형 태그 띠 (형태: Awwwards list-tags 실측 / 호버: gerd-web.de 근접 효과 실측 이식) ===== */
-  .tools-head{ display:flex; align-items:center; gap:14px; margin-top:clamp(32px,4vw,52px); }
-  .tools-label{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:#55554f; }
-  /* 자동 흐름 정지/재생 토글 — 태그와 같은 얇은 테두리 원형 */
-  .tools-toggle{ display:flex; align-items:center; justify-content:center; width:26px; height:26px;
-    border:1px solid rgba(17,17,17,.22); border-radius:50%; background:#fff; color:#222; cursor:pointer;
-    transition:background .25s, color .25s, border-color .25s; }
-  .tools-toggle:hover{ background:#141414; border-color:#141414; color:#fafafa; }
-  .tools-toggle svg{ width:9px; height:9px; display:block; fill:currentColor; }
+  /* ===== 사용 도구 — 알약형 태그 띠 (형태: Awwwards list-tags 실측 / 호버: 태그 상승) =====
+     구조: .logo-card(원래 자리에 고정된 래퍼 — 호버 감지 담당) > .tagi(알약 — 호버 시 위로 떠오름)
+     트랙 transform(가로 흐름)과 태그 상승 transform 이 서로 다른 요소라 충돌하지 않음 */
+  .logo-strip{ margin-top:clamp(32px,4vw,52px); overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
+  /* 정지는 항상 play-state 로만 — 멈춘 위치에서 그대로 이어짐. .paused(수동)는 이탈 후에도 유지 */
+  .logo-strip:hover .logo-track, .logo-strip.paused .logo-track{ animation-play-state:paused; }
+  /* 위 22px 는 떠오른 태그가 잘리지 않기 위한 공간 */
+  .logo-track{ display:flex; align-items:center; width:max-content; animation:lsmarq 52s linear infinite; padding:22px 0 10px; }
+  .logo-dup{ display:contents; }   /* 무한 루프용 복제 묶음 (aria-hidden) */
+  /* 래퍼: 간격은 flex gap 대신 균일 margin — 루프 접합부가 어긋나지 않게 */
+  .logo-card{ margin-right:14px; flex-shrink:0; }
+  /* 알약: 로고+이름 한 덩어리. 높이 통일, 너비는 내용대로 */
+  .tagi{ display:flex; align-items:center; gap:10px; height:54px; padding:0 22px;
+    border:1px solid rgba(17,17,17,.18); border-radius:999px; background:#fff;
+    font-size:15.5px; font-weight:500; letter-spacing:-.1px; color:#222; white-space:nowrap;
+    transition:transform .3s cubic-bezier(.22,.61,.36,1), background .3s ease, color .3s ease, border-color .3s ease; }
+  .tagi span{ line-height:1.05; }
+  .tagi .lg{ width:26px; height:26px; object-fit:contain; display:block; }
+  /* 시각 크기 보정 — 같은 26px 박스 안에서 여백 많은 로고는 키우고(up), 꽉 찬 사각 타일은 줄임(sq). 비율 왜곡 없음 */
+  .tagi .lg.up{ transform:scale(1.18); }
+  .tagi .lg.sq{ transform:scale(.9); }
+  .tagi img.lg[src*="cafe24"]{ width:38px; }                      /* 가로형 워드마크 — 높이 기준 보정 */
+  /* 기본 상태: 무채색이되 또렷하게 — SVG 는 fill 자체를 잉크색으로 */
+  .tagi svg.lg, .tagi svg.lg *{ fill:#26261f; transition:fill .3s ease; }
+  .tagi svg.lg text{ fill:#fff; }                                 /* 2색 배지(Me)의 글자는 넉아웃처럼 */
+  .tagi img.lg{ filter:grayscale(1) brightness(.55); transition:filter .3s ease; }
+  .tagi img.lg[src*="cafe24"]{ mix-blend-mode:multiply; filter:grayscale(1); } /* 흰 배경 제거 */
+  .tagi img.lg[src*="kling"]{ filter:grayscale(1); }              /* 이미 검정 타일 */
+  /* 호버(PC 전용): 래퍼는 제자리 — 알약 전체(로고·이름·테두리)가 위로 떠오르며 다크 반전.
+     감지는 고정된 래퍼가 하므로 태그가 올라가도 호버가 깜빡이지 않음 */
+  @media(hover:hover) and (pointer:fine){
+    .logo-strip{ cursor:none; }                                   /* 태그 영역에서는 포인터 숨김 */
+    .logo-card:hover .tagi{ transform:translateY(-16px); background:#141414; border-color:#141414; color:#f6f4ef; }
+    .logo-card:hover svg.lg, .logo-card:hover svg.lg *{ fill:#f6f4ef; }
+    .logo-card:hover svg.lg text{ fill:#141414; }
+    .logo-card:hover img.lg{ filter:grayscale(1) invert(1) brightness(1.15); }
+    .logo-card:hover img.lg[src*="cafe24"]{ mix-blend-mode:screen; filter:grayscale(1) invert(1); }
+    .logo-card:hover img.lg[src*="veo"]{ filter:grayscale(1) brightness(2); }
+    .logo-card:hover img.lg[src*="hangul"]{ filter:grayscale(1) brightness(2.2); }
+  }
+  /* 정지/재생 토글 — 목록 아래, 본문 오른쪽 정렬선. 아이콘은 작게, 클릭 영역은 44×44 */
+  .tools-ctl{ display:flex; justify-content:flex-end; margin-top:0; }
+  .tools-toggle{ position:relative; width:44px; height:44px; margin-right:-10px;  /* 원 중심을 정렬선에 */
+    display:flex; align-items:center; justify-content:center; background:none; border:0; padding:0;
+    color:#222; cursor:pointer; }
+  .tools-toggle::before{ content:""; position:absolute; inset:9px; border:1px solid rgba(17,17,17,.25);
+    border-radius:50%; transition:background .25s, border-color .25s; }
+  .tools-toggle:hover::before{ background:#141414; border-color:#141414; }
+  .tools-toggle:hover{ color:#fafafa; }
+  .tools-toggle svg{ position:relative; width:9px; height:9px; display:block; fill:currentColor; }
   .tools-toggle .ic-play{ display:none; }
   .tools-toggle[aria-pressed="true"] .ic-pause{ display:none; }
   .tools-toggle[aria-pressed="true"] .ic-play{ display:block; }
-  /* 띠: 양끝 페이드는 좁고 은은하게(마스크 — 배경색과 자동으로 일치) */
-  .logo-strip{ margin-top:16px; overflow:hidden;
-    -webkit-mask-image:linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent);
-    mask-image:linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
-  /* 정지는 항상 play-state 로만 — 멈춘 위치에서 그대로 이어짐 */
-  .logo-strip:hover .logo-track, .logo-strip.paused .logo-track{ animation-play-state:paused; }
-  .logo-track{ display:flex; align-items:center; width:max-content; animation:lsmarq 52s linear infinite; padding:10px 0; }
-  .logo-dup{ display:contents; }   /* 무한 루프용 복제 묶음 (aria-hidden) */
-  /* 태그: 로고+이름 한 알약. 높이는 통일, 너비는 내용대로. 간격은 flex gap 대신 균일 margin — 루프 접합부 유지.
-     JS 근접 효과가 transform 을 쓰므로 여기엔 transform transition 을 두지 않음 */
-  .logo-card{ display:flex; align-items:center; gap:10px; height:54px; padding:0 22px; margin-right:14px;
-    border:1px solid rgba(17,17,17,.18); border-radius:999px; background:#fff;
-    font-size:15.5px; font-weight:500; letter-spacing:-.1px; color:#222; white-space:nowrap; flex-shrink:0;
-    transition:background .3s ease, color .3s ease, border-color .3s ease; }
-  .logo-card span{ line-height:1.05; }
-  .logo-card .lg{ width:26px; height:26px; object-fit:contain; display:block; }
-  /* 시각 크기 보정 — 같은 26px 박스 안에서 여백 많은 로고는 키우고(up), 꽉 찬 사각 타일은 줄임(sq). 비율 왜곡 없음 */
-  .logo-card .lg.up{ transform:scale(1.18); }
-  .logo-card .lg.sq{ transform:scale(.9); }
-  .logo-card img.lg[src*="cafe24"]{ width:38px; }                 /* 가로형 워드마크 — 높이 기준 보정 */
-  /* 기본 상태: 무채색이되 또렷하게 — SVG 는 fill 자체를 잉크색으로 */
-  .logo-card svg.lg, .logo-card svg.lg *{ fill:#26261f; transition:fill .3s ease; }
-  .logo-card svg.lg text{ fill:#fff; }                            /* 2색 배지(Me)의 글자는 넉아웃처럼 */
-  .logo-card img.lg{ filter:grayscale(1) brightness(.55); transition:filter .3s ease; }
-  .logo-card img.lg[src*="cafe24"]{ mix-blend-mode:multiply; filter:grayscale(1); } /* 흰 배경 제거 */
-  .logo-card img.lg[src*="kling"]{ filter:grayscale(1); }         /* 이미 검정 타일 */
-  /* 활성 상태: 밝은 태그 → 짙은 태그 반전 (호버한 태그만, 크기 불변 — 주변이 밀리지 않음) */
-  .logo-card:hover{ background:#141414; border-color:#141414; color:#f6f4ef; }
-  .logo-card:hover svg.lg, .logo-card:hover svg.lg *{ fill:#f6f4ef; }
-  .logo-card:hover svg.lg text{ fill:#141414; }
-  .logo-card:hover img.lg{ filter:grayscale(1) invert(1) brightness(1.15); }
-  .logo-card:hover img.lg[src*="cafe24"]{ mix-blend-mode:screen; filter:grayscale(1) invert(1); }
-  .logo-card:hover img.lg[src*="veo"]{ filter:grayscale(1) brightness(2); }
-  .logo-card:hover img.lg[src*="hangul"]{ filter:grayscale(1) brightness(2.2); }
   @media(max-width:600px){
-    .logo-card{ gap:8px; height:44px; padding:0 16px; margin-right:11px; font-size:13.5px; }
-    .logo-card .lg{ width:22px; height:22px; }
-    .logo-card img.lg[src*="cafe24"]{ width:32px; }
+    .tagi{ gap:8px; height:44px; padding:0 16px; font-size:13.5px; }
+    .logo-card{ margin-right:11px; }
+    .tagi .lg{ width:22px; height:22px; }
+    .tagi img.lg[src*="cafe24"]{ width:32px; }
+    .logo-track{ padding:10px 0; }                                /* 모바일: 상승 효과 없음 — 여유 공간 불필요 */
   }
   @keyframes lsmarq{ to{ transform:translateX(-50%); } }
   @media(prefers-reduced-motion:reduce){
-    .logo-strip{ overflow-x:auto; -webkit-mask-image:none; mask-image:none; }   /* 자동 이동 대신 직접 탐색 */
+    .logo-strip{ overflow-x:auto; -webkit-mask-image:none; mask-image:none; cursor:auto; }  /* 자동 이동 대신 직접 탐색 */
     .logo-track{ animation:none; }
-    .tools-toggle{ display:none; }                                 /* 흐름 자체가 없으므로 토글 불필요 */
+    .tools-ctl{ display:none; }                                   /* 흐름 자체가 없으므로 토글 불필요 */
   }
 
   /* ===== (02) CASE STUDIES — 이름 중심 목록 (Signal-A 방식) =====
