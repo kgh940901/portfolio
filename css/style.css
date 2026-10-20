@@ -142,8 +142,10 @@
     .ab-row .lab, .ab-row .txt, .ab-res, .ab-cta, .ab-row .lab2{ grid-column:1; text-align:left; }
     .ab-photo{ grid-row:auto; }
   }
-  /* 사용 도구 띠 — 카드 없이 아이콘+이름만 또렷하게 흐름 */
-  .tools-label{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:#55554f; margin-top:clamp(40px,5vw,72px); }
+  /* About 섹션은 툴 띠가 마지막 구성요소 — 아래 여백을 줄여 다음 섹션과 과하게 벌어지지 않게 */
+  #about{ padding-bottom:clamp(56px,7vw,92px); }
+  /* 사용 도구 띠 — 카드 없이 아이콘+이름만 또렷하게 흐름. About 본문(Explore Now)과의 간격은 여기서 결정 */
+  .tools-label{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:#55554f; margin-top:clamp(32px,4vw,52px); }
   .logo-strip{ margin-top:12px; overflow:hidden;
     -webkit-mask-image:linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent);
     mask-image:linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); }
@@ -152,9 +154,12 @@
   .logo-dup{ display:contents; }   /* 무한 루프용 복제 묶음 (aria-hidden) */
   /* 항목: 아이콘+이름 한 묶음, 자연 너비. 간격은 flex gap 대신 균일 margin — 루프 접합부가 어긋나지 않게 */
   .logo-card{ display:flex; align-items:center; gap:13px; margin-right:clamp(58px,5.6vw,86px);
-    font-size:18px; font-weight:500; letter-spacing:-.1px; color:#2e2e2a; white-space:nowrap; flex-shrink:0; }
+    font-size:16px; font-weight:500; letter-spacing:-.1px; color:#3f3f3a; white-space:nowrap; flex-shrink:0; }
+  .logo-card span{ line-height:1.05; }                            /* 로고와 세로 중심 일치 */
   .logo-card .lg{ width:42px; height:42px; object-fit:contain; display:block; }
-  .logo-card .lg.up{ transform:scale(1.18); }                     /* 내부 여백이 큰 로고의 시각 크기 보정 */
+  /* 시각 크기 보정 — 같은 42px 박스 안에서 여백 많은 로고는 키우고(up), 꽉 찬 사각 타일은 줄임(sq) */
+  .logo-card .lg.up{ transform:scale(1.18); }
+  .logo-card .lg.sq{ transform:scale(.9); }
   /* 무채색 통일(투명도 없음): SVG는 fill 자체를 잉크색으로 — 호버 시 원래 브랜드 색 복귀 */
   .logo-card svg.lg, .logo-card svg.lg *{ transition:fill .25s ease; }
   .logo-card:not(:hover) svg.lg, .logo-card:not(:hover) svg.lg *{ fill:#3a3a35; }
@@ -165,7 +170,7 @@
   .logo-card img.lg[src*="kling"]{ filter:grayscale(1); }         /* 이미 검정 타일 */
   .logo-card:hover img.lg{ filter:none; }                         /* 해당 아이콘만 브랜드 색으로 */
   @media(max-width:600px){
-    .logo-card{ gap:10px; margin-right:42px; font-size:15.5px; }
+    .logo-card{ gap:10px; margin-right:42px; font-size:14.5px; }
     .logo-card .lg{ width:32px; height:32px; }
   }
   @keyframes lsmarq{ to{ transform:translateX(-50%); } }
@@ -175,7 +180,7 @@
 
   /* ===== (02) CASE STUDIES — 이름 중심 목록 (Signal-A 방식) =====
      기본: 작은 모노 정보만. 호버/포커스: 행 가운데 큰 제목 등장 + 커서를 따라다니는 프리뷰(main.js) */
-  .cs-list{ margin-top:34px; border-top:1px solid var(--line-l); }
+  .cs-list{ margin-top:34px; }   /* 목록 윗선 없음 — 섹션 헤더(shead) 선과 겹쳐 보이지 않게 */
   .cs-row{ position:relative; display:flex; flex-direction:column; justify-content:space-between; gap:14px;
     min-height:clamp(200px,25vw,310px); padding:16px 2px 14px; border-bottom:1px solid var(--line-l); color:var(--ink); }
   .cs-line{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
@@ -193,7 +198,8 @@
     pointer-events:none; opacity:0; transition:opacity .35s ease; will-change:transform; }
   .cs-cursor-img.on{ opacity:1; }
   .cs-thumb-m{ display:none; }
-  .cs-more{ margin-top:40px; }
+  /* Case Studies 바로 아래 More Works 가 이어지므로 섹션 아래 여백 축소 */
+  #work{ padding-bottom:clamp(40px,5vw,64px); }
   @media(max-width:860px){
     /* 터치: 호버 없음 — 큰 제목과 대표 이미지를 행 안에 항상 노출, 한 번 탭 = 상세 이동 */
     .cs-row{ min-height:0; }
@@ -277,12 +283,12 @@
   .q-stat em{ display:block; font-style:normal; font-size:12.5px; color:var(--gray-ink); margin-top:2px; }
   @media(max-width:860px){ .quote-grid{ grid-template-columns:1fr; } .q-foot{ justify-content:flex-start; gap:40px; } }
 
-  /* ===== (06) ARCHIVE — 연도/이름/썸네일 행 ===== */
-  .arch{ margin-top:46px; }
-  /* 3열 정렬: 분류 | 제목(화면 약 1/3 지점에서 시작) | 썸네일 */
+  /* ===== (03) MORE WORKS — 연도/이름/썸네일 행 (Case Studies 바로 아래에 이어짐) ===== */
+  .arch{ margin-top:34px; }
+  /* 3열 정렬: 분류 | 제목(화면 약 1/3 지점에서 시작) | 썸네일.
+     구분선은 Case Studies 행과 같은 방식(행 아래선만) — 두 목록이 한 영역처럼 읽히게 */
   .arow{ display:grid; grid-template-columns:minmax(90px,32%) minmax(0,1fr) minmax(120px,auto); align-items:center; gap:16px;
-    border-top:1px solid var(--line-l); padding:13px 2px; transition:background .3s, opacity .3s; }
-  .arch .arow:last-child{ border-bottom:1px solid var(--line-l); }
+    border-bottom:1px solid var(--line-l); padding:13px 2px; transition:background .3s, opacity .3s; }
   .arow .ay{ font-size:14px; font-weight:600; color:var(--ink); }
   /* 긴 제목(Promotion Design 등) 기준으로 크기·굵기 하향 */
   .arow .an{ font-size:clamp(20px,2.5vw,34px); font-weight:600; letter-spacing:-.015em; line-height:1.14; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
