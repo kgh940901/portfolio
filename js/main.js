@@ -95,10 +95,15 @@ function initSite(){
     // 히어로 우주 배경 + 커서 유리 렌즈 (js/space.js)
     if(window.initHeroSpace){ try{ window.initHeroSpace(); }catch(e){} }
 
-    // 툴 카드 마퀴: 끊김 없는 루프를 위해 트랙 내용을 한 번 복제
+    // 툴 띠: 끊김 없는 루프를 위해 트랙 내용을 한 번 복제 (복제분은 스크린리더에서 제외)
     (function(){
       const track = document.getElementById('toolTrack');
-      if(track) track.innerHTML += track.innerHTML;
+      if(!track) return;
+      const dup = document.createElement('div');
+      dup.className = 'logo-dup';
+      dup.setAttribute('aria-hidden', 'true');
+      dup.innerHTML = track.innerHTML;
+      track.appendChild(dup);
     })();
 
     // (03) 점등 문장: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 밝아짐 (Fuel 의 흰→회색 진행)
