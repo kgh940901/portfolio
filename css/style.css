@@ -266,7 +266,7 @@
   .svc-panel.pC{ width:56vw; aspect-ratio:1920/900; }   /* 팝업 모음 프레임 — 한 화면에 2줄(8종) */
   .svc-panel.pC img{ height:auto; object-fit:unset; will-change:transform; }   /* 내부 스크롤용 */
   .svc-panel .m-only{ display:none; }
-  .svc-panel.pD{ width:17vw; aspect-ratio:470/640; }
+  .svc-panel.pD{ width:17vw; aspect-ratio:471/680; }
   /* 설명 — 우측 약 27% 폭, 진행률에 따라 짧은 상승+페이드 */
   .svc-copy{ position:absolute; left:66vw; top:50%; width:min(380px,28vw); z-index:7; opacity:0; }
   .svc-copy .k{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:var(--gray); }

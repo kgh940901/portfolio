@@ -220,8 +220,8 @@ function initSite(){
       let mobMax = 0;   // 모바일 내부 스크롤 거리 = 이미지 표시 높이 - 프레임 높이 (끝에 빈 공간 없음)
       const popImg = document.getElementById('svcPopImg');
       let popStart = 0, popTravel = 0;   // 팝업 모음: 첫 줄(헤더 띠 제외)에서 시작 → 줄 단위로 아래 내용 노출
-      // pro1 시트 실측(px/8348): 첫 줄 위 여백 640, 종점은 큰 세로 팝업 블록 끝(5170)에 맞춰 끝 화면 정렬
-      const POP_START_FRAC = 640 / 8348, POP_END_FRAC = 4270 / 8348;
+      // pro1 시트 실측(px/8348): 첫 줄 위 여백 640 에서 시작해 시트 끝까지 — 종점은 코드에서 이미지 끝에 맞춰 캡
+      const POP_START_FRAC = 640 / 8348, POP_END_FRAC = 1;
 
       // 패널 키프레임 [p, x(vw), y(vh), scale, rotate(deg), opacity, z]
       // 장면 배분: 0~.15 진입 / .15~.35 Web Design / .42~.62 Publishing / .69~.89 Detail&Promo / .89~1 모음
