@@ -218,26 +218,28 @@ function initSite(){
       stage.querySelectorAll('.svc-panel').forEach(function(el){ panels[el.getAttribute('data-p')] = el; });
       const mobImg = document.getElementById('svcMobImg');
       let mobMax = 0;   // 모바일 내부 스크롤 거리 = 이미지 표시 높이 - 프레임 높이 (끝에 빈 공간 없음)
+      const popImg = document.getElementById('svcPopImg');
+      let popStart = 0, popTravel = 0;   // 팝업 모음: 첫 줄(헤더 띠 제외)에서 시작 → 줄 단위로 아래 내용 노출
+      // pro1 시트 실측(px/8348): 첫 줄 위 여백 640, 마지막 표시 구간 상단 1690 (4~5행이 프레임에 맞게 끝남)
+      const POP_START_FRAC = 640 / 8348, POP_END_FRAC = 1690 / 8348;
 
       // 패널 키프레임 [p, x(vw), y(vh), scale, rotate(deg), opacity, z]
       // 장면 배분: 0~.15 진입 / .15~.35 Web Design / .42~.62 Publishing / .69~.89 Detail&Promo / .89~1 모음
       const KF = {
         A: [[0,   0, 13, .50,  0, 1, 3], [.15,-17,  2, 1,    0, 1, 5], [.35,-17,  2, 1,   0, 1, 5],
             [.42,-28,-27, .42, -2,.85,2], [.62,-28,-27,.42, -2,.85,2], [.69,-33,-31,.34, -2,.6, 1],
-            [.89,-33,-31,.34, -2,.6, 1], [1,  -8,  6, .40,  0, 1, 3]],
+            [.89,-33,-31,.34, -2,.6, 1], [1,   0,  5, .40,  0, 1, 3]],
         B: [[0,  23, 16, .36,2.5, 1, 2], [.15, 42, 16, .28,2.5,.40,1], [.35, 42, 16,.28,2.5,.40,1],
             [.42,-17,  2, 1,    0, 1, 5], [.62,-17,  2, 1,   0, 1, 5], [.69, 30,-30,.30,  2,.55,1],
             [.89, 30,-30,.30,  2,.55,1], [1,  13,  8, .34,  0, 1, 2]],
         B2:[[0, 8.5,  4, .90,  0, 0, 6], [.40,8.5,  4, .90,  0, 0, 6], [.46,8.5,  4, 1,   0, 1, 6],
             [.62,8.5,  4, 1,    0, 1, 6], [.68,8.5,  4, .90,  0, 0, 6], [1,8.5, 4, .90, 0, 0, 6]],
-        C: [[0, -25, 15, .62, -3, 1, 2], [.15,-40,  8, .45, -3,.5, 1], [.35,-40,  8,.45, -3,.5, 1],
-            [.42,-40,  8, .45, -3,.45,1], [.62,-40,  8,.45, -3,.45,1], [.69,-19,  0, 1,   0, 1, 5],
-            [.89,-19,  0, 1,    0, 1, 5], [1, -30,  9, .52,  0, 1, 2]],
+        C: [[0, -24, 16, .40, -2.5, 1, 2], [.15,-42, 10, .32,-2.5,.5, 1], [.35,-42, 10,.32,-2.5,.5, 1],
+            [.42,-42, 10, .32,-2.5,.45,1], [.62,-42, 10,.32,-2.5,.45,1], [.69,-18, -2, 1,   0, 1, 5],
+            [.89,-18, -2, 1,    0, 1, 5], [1, -20,  8, .38,  0, 1, 3]],
         D: [[0,  11, 26, .75,  2, 1, 4], [.15, 42, 34, .60,  2,.40,1], [.35, 42, 34,.60,  2,.40,1],
-            [.42, 42, 34, .60,  2,.40,1], [.62, 42, 34,.60,  2,.40,1], [.69,  3,-12, 1,   0, 1, 6],
-            [.89,  3,-12, 1,    0, 1, 6], [1,  33, 11, .85,  0, 1, 2]],
-        E: [[0,   2, 24, .90,  0, 0, 4], [.72,  2, 24, .90,  0, 0, 4], [.78,  2, 20, 1,   0, 1, 4],
-            [.89,  2, 20, 1,    0, 1, 4], [1,  40, 16, .90,  0, 1, 2]]
+            [.42, 42, 34, .60,  2,.40,1], [.62, 42, 34,.60,  2,.40,1], [.69, 42, 34, .60,  2,.40,1],
+            [.89, 42, 34, .60,  2,.40,1], [1,  33, 11, .85,  0, 1, 2]]
       };
       function smooth(t){ return t * t * (3 - 2 * t); }
       function sample(kf, p){
@@ -288,6 +290,12 @@ function initSite(){
           t = 1 - Math.pow(1 - t, 3);
           mobImg.style.transform = 'translateY(' + (-mobMax * t).toFixed(1) + 'px)';
         }
+        // 팝업 모음 내부 스크롤 — 패널 정착(.69) 후 .72~.88 에서 차분하게 줄 단위 이동.
+        // 항상 첫 줄 오프셋을 기본 적용해 어느 장면에서든 헤더 띠가 보이지 않음
+        if(popImg && popTravel >= 0){
+          let t = p < .72 ? 0 : (p > .88 ? 1 : (p - .72) / .16);
+          popImg.style.transform = 'translateY(' + (-(popStart + popTravel * smooth(t))).toFixed(1) + 'px)';
+        }
       }
       let start = 0, range = 1, raf = 0, dynamic = false;
       function measure(){
@@ -295,6 +303,11 @@ function initSite(){
         start = r.top + scrollY;
         range = Math.max(1, scrollEl.offsetHeight - innerHeight);
         if(mobImg && panels.B2) mobMax = Math.max(0, mobImg.offsetHeight - panels.B2.clientHeight);
+        if(popImg && panels.C){
+          const ih = popImg.offsetHeight, fh = panels.C.clientHeight;
+          popStart = ih * POP_START_FRAC;
+          popTravel = Math.max(0, Math.min(ih * POP_END_FRAC, ih - fh) - popStart);
+        }
       }
       function onScroll(){
         if(!dynamic || raf) return;
@@ -307,6 +320,7 @@ function initSite(){
         stage.querySelectorAll('.svc-panel, .svc-copy').forEach(function(el){ el.removeAttribute('style'); });
         head.removeAttribute('style'); endEl.removeAttribute('style');
         if(mobImg) mobImg.style.transform = '';
+        if(popImg) popImg.style.transform = '';
       }
       function decide(){
         const stat = matchMedia('(max-width:860px)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -320,6 +334,7 @@ function initSite(){
       let rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(decide, 180); });
       addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
       if(mobImg && !mobImg.complete) mobImg.addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
+      if(popImg && !popImg.complete) popImg.addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
     })();
 
     // 로딩: 도트 매트릭스 [ PORTFOLIO ]

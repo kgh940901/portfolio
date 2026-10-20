@@ -16,9 +16,9 @@
           <p>홈페이지 디자인, 상세페이지·프로모션 제작부터 <br>퍼블리싱과 운영 유지보수까지 함께합니다.</p>
         </header>
 
-        <!-- 01 Web Design — 바비브라운 홈페이지 메인(시트 상단, Overview 직전까지만 노출 — 프레임 비율로 크롭) -->
+        <!-- 01 Web Design — 바비브라운 실제 메인 페이지 캡처(헤더+메인 비주얼, 1920×840 @2x = 3840px) -->
         <figure class="svc-panel pA" data-p="A">
-          <img src="assets/bobbi/babipt1.jpg" alt="바비브라운 홈페이지 메인 화면 디자인" loading="lazy" />
+          <img src="assets/bobbi/babimain.jpg" alt="바비브라운 홈페이지 메인 화면" loading="lazy" />
         </figure>
         <div class="svc-copy" data-c="0">
           <span class="k">01 / Web Design</span>
@@ -29,7 +29,8 @@
         <!-- 02 Web Publishing — 센스맘 자사몰(실무 운영): PC 는 Overview 직전까지 고정 노출,
              모바일 프레임은 내부의 긴 페이지(sense02)가 스크롤 연동으로 위로 올라감(main.js) -->
         <figure class="svc-panel pB" data-p="B">
-          <img src="assets/sensemom/sense01.jpg" alt="센스맘 자사몰 퍼블리싱 — PC 메인 화면" loading="lazy" />
+          <!-- 상단 히어로만 담은 전용 크롭(sensemain) — 거대 시트 전체 축소로 생기던 화질 저하 제거 -->
+          <img src="assets/sensemom/sensemain.jpg" alt="센스맘 자사몰 퍼블리싱 — PC 메인 화면" loading="lazy" />
         </figure>
         <figure class="svc-panel pB2 sub" data-p="B2" aria-hidden="true">
           <img id="svcMobImg" src="assets/sensemom/sense02.jpg" alt="" loading="lazy" />
@@ -40,15 +41,15 @@
           <p>HTML·CSS 기반의 화면 구현과 코드 수정을 통해 <br>사이트를 유지보수하고 사용성을 개선합니다.</p>
         </div>
 
-        <!-- 03 Promotion & Popup — 전 회사(자사몰 운영) 실제 팝업 제작물 (pro1 시트에서 크롭한 popup1~3) -->
+        <!-- 03 Promotion & Popup — 전 회사 팝업 모음(pro1)을 고정 프레임 안에서 스크롤 연동으로 탐색.
+             첫 줄(여름이불·COOLING·접이식 매트리스·마지막특가)부터 보이고, 내리면 다음 줄이 순서대로 올라옴(main.js).
+             모바일·정적 모드는 같은 첫 줄을 2열 그리드(popgrid-m)로 표시 -->
         <figure class="svc-panel pC" data-p="C">
-          <img src="assets/promotion/popup1.jpg" alt="자사몰 이벤트 팝업 디자인 — 토퍼 세트 특가" loading="lazy" />
+          <img id="svcPopImg" src="assets/promotion/pro1.jpg" alt="전 회사 자사몰 팝업·배너 제작물 모음" loading="lazy" />
+          <img class="m-only" src="assets/promotion/popgrid-m.jpg" alt="자사몰 팝업 디자인 4종" loading="lazy" />
         </figure>
         <figure class="svc-panel pD sub" data-p="D" aria-hidden="true">
           <img src="assets/promotion/popup2.jpg" alt="" loading="lazy" />
-        </figure>
-        <figure class="svc-panel pE sub" data-p="E" aria-hidden="true">
-          <img src="assets/promotion/popup3.jpg" alt="" loading="lazy" />
         </figure>
         <div class="svc-copy" data-c="2">
           <span class="k">03 / Promotion &amp; Popup</span>
