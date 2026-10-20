@@ -25,22 +25,22 @@ function initSite(){
     }, { threshold: 0.08, rootMargin: '0px 0px -10% 0px' });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-    // (02) Case Studies — 커서를 따라다니는 프로젝트 프리뷰 (Signal-A 방식)
+    // 커서를 따라다니는 프로젝트 프리뷰 (Signal-A 실측 방식 — Case Studies 목록과 award-item 목록 동일 메커니즘)
     // 확인된 레퍼런스 동작: position:fixed 이미지가 커서 중앙에 고정되어 따라오고,
     // 프로젝트별 엘리먼트가 각자 opacity 로 크로스페이드(이전 것은 마지막 위치에서 사라짐),
-    // 목록 이탈 시 모두 페이드아웃, 이미지는 글자 위(z 높음)·pointer-events 없음.
-    (function(){
-      const list = document.getElementById('csList');
+    // 목록 이탈 시 모두 페이드아웃, 이미지는 글자 위(z 높음)·pointer-events 없음 → 클릭/호버를 가로채지 않음.
+    function initCursorPreview(listId, rowSel, imgClass){
+      const list = document.getElementById(listId);
       if(!list) return;
-      const rows = Array.prototype.slice.call(list.querySelectorAll('.cs-row'));
+      const rows = Array.prototype.slice.call(list.querySelectorAll(rowSel));
       if(!rows.length) return;
-      if(!matchMedia('(pointer:fine)').matches) return;                    // 터치: CSS 모바일 레이아웃이 담당
-      if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // 모션 최소화: 큰 제목(CSS)만
+      if(!matchMedia('(pointer:fine)').matches) return;                    // 터치: 링크 이동이 우선
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // 모션 최소화: 텍스트 목록만
       // 프로젝트별 이미지 엘리먼트를 미리 만들어 로딩 — 첫 호버에 빈 화면 방지, 잘못된 이미지 교체 없음
       const imgs = rows.map(function(row){
         const im = document.createElement('img');
         im.src = row.getAttribute('data-img'); im.alt = '';
-        im.className = 'cs-cursor-img'; im.setAttribute('aria-hidden','true');
+        im.className = imgClass; im.setAttribute('aria-hidden','true');
         document.body.appendChild(im);
         return im;
       });
@@ -58,7 +58,7 @@ function initSite(){
       function kick(){ if(!raf) raf = requestAnimationFrame(frame); }
       function setActive(i){
         if(i === active) return;
-        if(active >= 0) imgs[active].classList.remove('on');   // 이전 프리뷰는 제자리에서 페이드아웃
+        if(active >= 0) imgs[active].classList.remove('on');   // 이전 프리뷰는 제자리에서 페이드아웃 — 누적 없음
         active = i;
         if(i >= 0){ placeActive(); imgs[i].classList.add('on'); }
         kick();
@@ -85,6 +85,53 @@ function initSite(){
       }, { passive:true });
       // 스크롤로 커서 밑 행이 바뀌면 상태가 어긋나므로 정리 (fixed 라 위치 자체는 어긋나지 않음)
       addEventListener('scroll', function(){ if(active >= 0) setActive(-1); }, { passive:true });
+    }
+    initCursorPreview('csList', '.cs-row', 'cs-cursor-img');
+    initCursorPreview('archList', '.arow', 'cs-cursor-img sm');   // More Works: 레퍼런스처럼 더 작은 프리뷰
+
+    // (03) More Works — 프로젝트명 스크램블 (scramble-hover 참고).
+    // 주의: 레퍼런스 실측에서 헤드리스 환경에선 텍스트 변화가 관찰되지 않아 리듬·시간은 보수적 자체값(450ms).
+    // 진입(pointerenter/focusin) 1회만 실행 — 같은 행 안에서 마우스를 움직여도 재시작 없음.
+    // 글자는 왼쪽부터 순차 복원되고 종료 시 원문 완전 복원. 공백·비ASCII(한글 등)는 치환하지 않아 자모 분리 없음.
+    // 행 이탈 시 진행 중이던 애니메이션은 즉시 취소 + 원문 복구. aria-label 이 행 이름을 고정 제공하므로 접근성 이름은 흔들리지 않음.
+    (function(){
+      const list = document.getElementById('archList');
+      if(!list) return;
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&';
+      const DUR = 450;
+      list.querySelectorAll('.arow').forEach(function(row){
+        const nm = row.querySelector('.an');
+        if(!nm) return;
+        const orig = nm.textContent;
+        let raf = 0, t0 = 0;
+        function stop(){ if(raf){ cancelAnimationFrame(raf); raf = 0; } nm.textContent = orig; }
+        function tick(now){
+          const p = Math.min((now - t0) / DUR, 1);
+          const keep = Math.floor(p * orig.length);
+          let out = '';
+          for(let i = 0; i < orig.length; i++){
+            const ch = orig[i];
+            if(i < keep || ch === ' ' || ch.charCodeAt(0) > 126){ out += ch; }  // 공백·한글 등은 그대로
+            else{ out += CHARS[(Math.random() * CHARS.length) | 0]; }
+          }
+          nm.textContent = out;
+          if(p < 1){ raf = requestAnimationFrame(tick); }
+          else{ raf = 0; nm.textContent = orig; }                 // 종료: 원문 정확 복원
+        }
+        function start(){
+          if(raf) cancelAnimationFrame(raf);                      // 빠른 재진입: 이전 것 정리 후 새로
+          t0 = performance.now();
+          raf = requestAnimationFrame(tick);
+        }
+        row.addEventListener('pointerenter', function(e){
+          if(e.pointerType && e.pointerType !== 'mouse') return;  // 터치 제외
+          start();
+        });
+        row.addEventListener('pointerleave', stop);
+        row.addEventListener('focusin', start);
+        row.addEventListener('focusout', stop);
+      });
     })();
 
     // 진행바
