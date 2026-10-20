@@ -246,28 +246,46 @@
     .cs-big{ transition:none; }
   }
 
-  /* ===== (03) SERVICES — 다크: 점등 문장 + 거대 번호 행 ===== */
-  #services .svc-intro{ display:flex; gap:26px; align-items:flex-start; margin-top:clamp(44px,6vw,90px); }
-  #services .svc-intro img{ width:min(178px,24vw); aspect-ratio:1/1.3; object-fit:cover; flex-shrink:0; }
-  .stmt-lit{ font-size:clamp(23px,3.5vw,46px); font-weight:500; letter-spacing:-.02em; line-height:1.32; word-break:keep-all; }
-  .stmt-lit .w{ color:#72726d; transition:color .35s ease; }   /* 점등 전에도 읽히는 명암 */
-  .stmt-lit .w.lit{ color:#f3f3f1; }
-  #services .svc-cta-row{ position:relative; margin:clamp(40px,5vw,70px) 0 clamp(60px,8vw,110px); }
-  #services .svc-cta-row .cx{ top:8px; }
-  #services .svc-cta-row .cx.k1{ left:44%; } #services .svc-cta-row .cx.k2{ left:68%; opacity:.5; transform:scale(.7); } #services .svc-cta-row .cx.k3{ right:2%; }
-  .svc-row{ display:grid; grid-template-columns:1fr 1.15fr 1.1fr; gap:26px; align-items:center;
-    background:var(--dark-card); border-top:1px solid var(--line-d); padding:clamp(26px,3.4vw,46px) clamp(18px,3vw,56px); }
-  .svc-row:last-of-type{ border-bottom:1px solid var(--line-d); }
-  .svc-no{ font-size:clamp(74px,10.2vw,144px); font-weight:700; line-height:.84; letter-spacing:-.03em; }
-  .svc-row img{ width:100%; max-width:410px; aspect-ratio:1.45/1; object-fit:cover; }
-  .svc-tx h3{ font-size:clamp(28px,3.3vw,46px); font-weight:600; letter-spacing:-.02em; line-height:1.08; margin-bottom:clamp(20px,3vw,48px); }
-  .svc-tx b{ display:block; font-size:16px; font-weight:700; margin-bottom:9px; }
-  .svc-tx p{ color:var(--gray); font-size:15.5px; font-weight:500; line-height:1.75; max-width:40ch; word-break:keep-all; }
-  @media(max-width:860px){
-    .svc-row{ grid-template-columns:1fr; gap:18px; }
-    .svc-no{ font-size:64px; }
-    #services .svc-intro{ flex-direction:column; }
-  }
+  /* ===== (04) SERVICES — 스크롤 연동 작업물 무대 =====
+     데스크톱: 560vh 스크롤 구간 + sticky 100vh 무대. 패널 transform/opacity 는 main.js 가 진행률로 계산.
+     정적 모드(.svc-static — 모바일·모션 감소): 무대를 일반 세로 흐름으로 전환 */
+  .svc-scroll{ position:relative; height:560vh; margin-top:10px; }
+  .svc-stage{ position:sticky; top:0; height:100vh; overflow:hidden; }
+  .svc-head{ position:absolute; left:50%; top:9vh; transform:translateX(-50%); width:min(820px,88vw); text-align:center; z-index:7; }
+  .svc-head h3{ font-size:clamp(34px,3.8vw,56px); font-weight:800; letter-spacing:-.015em; line-height:1.3; color:#f3f3f1; word-break:keep-all; }
+  .svc-head p{ margin-top:14px; font-size:16px; line-height:1.7; color:var(--gray); word-break:keep-all; }
+  /* 작업 패널 — 얇은 선, 장식 없음. 비율 고정(aspect-ratio)으로 로드 전에도 공간 확보 */
+  .svc-panel{ position:absolute; left:50%; top:50%; margin:0; background:#10141d;
+    border:1px solid rgba(255,255,255,.13); overflow:hidden; will-change:transform; }
+  .svc-panel img{ width:100%; height:100%; object-fit:cover; object-position:50% 0%; display:block; }
+  .svc-panel.pA{ width:58vw; aspect-ratio:16/10; }
+  .svc-panel.pB{ width:54vw; aspect-ratio:16/10; }
+  .svc-panel.pB2{ width:11vw; aspect-ratio:9/18; }
+  .svc-panel.pC{ width:24vw; aspect-ratio:9/14; }
+  .svc-panel.pD{ width:19vw; aspect-ratio:862/656; }
+  .svc-panel.pD img{ object-position:center; }
+  /* 설명 — 우측 약 27% 폭, 진행률에 따라 짧은 상승+페이드 */
+  .svc-copy{ position:absolute; left:66vw; top:50%; width:min(380px,28vw); z-index:7; opacity:0; }
+  .svc-copy .k{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:var(--gray); }
+  .svc-copy h4{ margin-top:14px; font-size:clamp(24px,2.3vw,34px); font-weight:700; letter-spacing:-.015em; line-height:1.34; color:#f3f3f1; word-break:keep-all; }
+  .svc-copy p{ margin-top:16px; font-size:15.5px; line-height:1.78; color:var(--gray); word-break:keep-all; }
+  .svc-end{ position:absolute; left:50%; bottom:8vh; transform:translateX(-50%); z-index:7; opacity:0;
+    font-size:clamp(22px,2.3vw,32px); font-weight:700; letter-spacing:-.01em; color:#f3f3f1; white-space:nowrap; }
+  /* 정적 모드 — 소개 → 이미지 → 설명 세로 흐름 (DOM 순서 그대로) */
+  .svc-scroll.svc-static{ height:auto; }
+  .svc-static .svc-stage{ position:static; height:auto; overflow:visible;
+    display:flex; flex-direction:column; gap:30px; padding:34px 24px 0; max-width:720px; margin:0 auto; }
+  .svc-static .svc-head{ position:static; transform:none; width:auto; text-align:left; }
+  .svc-static .svc-head h3{ font-size:clamp(30px,8vw,40px); }
+  .svc-static .svc-head p{ font-size:16px; }
+  .svc-static .svc-head br, .svc-static .svc-copy br{ display:none; }   /* 좁은 화면: 줄바꿈은 자연스럽게 */
+  .svc-static .svc-panel{ position:static; width:100%; will-change:auto; }
+  .svc-static .svc-panel.pC{ width:min(420px,100%); aspect-ratio:9/12; }
+  .svc-static .svc-panel.pC img{ object-position:50% 12%; }   /* 시트 상단 소개 띠 건너뜀 */
+  .svc-static .svc-panel.sub{ display:none; }
+  .svc-static .svc-copy{ position:static; transform:none !important; opacity:1 !important; width:auto; margin-top:-8px; }
+  .svc-static .svc-copy p{ font-size:16px; }
+  .svc-static .svc-end{ position:static; transform:none; opacity:1; white-space:normal; font-size:22px; margin:4px 0 14px; }
 
   /* ===== (04) EXPERIENCE — 프라이싱 스타일 카드 3장 + 상세 업무 아코디언 ===== */
   .xp-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:42px; }   /* stretch — 카드 높이 통일 */

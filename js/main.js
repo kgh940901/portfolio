@@ -204,31 +204,115 @@ function initSite(){
       });
     })();
 
-    // (03) 점등 문장: 스크롤 위치에 연동 — 내리는 만큼 단어가 순차로 밝아짐 (Fuel 의 흰→회색 진행)
+    // (04) Services — 스크롤 연동 작업물 무대.
+    // 진행률 p(0~1)의 순수 함수로 모든 상태를 계산: 멈추면 그 상태 유지, 역스크롤 자연 복원,
+    // 자동 재생·휠 가로채기 없음. 중간 진입/새로고침에도 현재 p 로 즉시 그려짐.
     (function(){
-      const stmt = document.getElementById('stmt2');
-      if(!stmt) return;
-      const lines = stmt.innerHTML.split(/<br\s*\/?>/i);
-      stmt.innerHTML = lines.map(function(line){
-        return line.trim().split(/\s+/).filter(Boolean).map(function(w){ return '<span class="w">' + w + '</span>'; }).join(' ');
-      }).join('<br>');
-      const spans = Array.prototype.slice.call(stmt.querySelectorAll('.w'));
-      if(matchMedia('(prefers-reduced-motion: reduce)').matches){ spans.forEach(s=>s.classList.add('lit')); return; }
-      let lit = -1;
-      function update(){
-        const r = stmt.getBoundingClientRect(), vh = innerHeight;
-        const start = vh * 0.86;
-        const end   = vh * 0.34;
-        let p = (start - r.top) / (start - end);
-        p = p < 0 ? 0 : (p > 1 ? 1 : p);
-        const n = Math.round(p * spans.length);
-        if(n === lit) return;
-        for(let i=0;i<spans.length;i++){ spans[i].classList.toggle('lit', i < n); }
-        lit = n;
+      const scrollEl = document.getElementById('svcScroll');
+      if(!scrollEl) return;
+      const stage = scrollEl.querySelector('.svc-stage');
+      const head = stage.querySelector('.svc-head');
+      const endEl = stage.querySelector('.svc-end');
+      const copies = Array.prototype.slice.call(stage.querySelectorAll('.svc-copy'));
+      const panels = {};
+      stage.querySelectorAll('.svc-panel').forEach(function(el){ panels[el.getAttribute('data-p')] = el; });
+      const cImg = panels.C ? panels.C.querySelector('img') : null;
+
+      // 패널 키프레임 [p, x(vw), y(vh), scale, rotate(deg), opacity, z]
+      // 장면 배분: 0~.15 진입 / .15~.35 Web Design / .42~.62 Publishing / .69~.89 Detail&Promo / .89~1 모음
+      const KF = {
+        A: [[0,   0, 13, .50,  0, 1, 3], [.15,-17,  2, 1,    0, 1, 5], [.35,-17,  2, 1,   0, 1, 5],
+            [.42,-28,-27, .42, -2,.85,2], [.62,-28,-27,.42, -2,.85,2], [.69,-33,-31,.34, -2,.6, 1],
+            [.89,-33,-31,.34, -2,.6, 1], [1,  -8,  6, .40,  0, 1, 3]],
+        B: [[0,  23, 16, .36,2.5, 1, 2], [.15, 42, 16, .28,2.5,.40,1], [.35, 42, 16,.28,2.5,.40,1],
+            [.42,-17,  2, 1,    0, 1, 5], [.62,-17,  2, 1,   0, 1, 5], [.69, 30,-30,.30,  2,.55,1],
+            [.89, 30,-30,.30,  2,.55,1], [1,  14,  8, .34,  0, 1, 2]],
+        B2:[[0, 8.5,  4, .90,  0, 0, 6], [.40,8.5,  4, .90,  0, 0, 6], [.46,8.5,  4, 1,   0, 1, 6],
+            [.62,8.5,  4, 1,    0, 1, 6], [.68,8.5,  4, .90,  0, 0, 6], [1,8.5, 4, .90, 0, 0, 6]],
+        C: [[0, -25, 15, .62, -3, 1, 2], [.15,-40,  8, .45, -3,.5, 1], [.35,-40,  8,.45, -3,.5, 1],
+            [.42,-40,  8, .45, -3,.45,1], [.62,-40,  8,.45, -3,.45,1], [.69,-19,  0, 1,   0, 1, 5],
+            [.89,-19,  0, 1,    0, 1, 5], [1, -30,  9, .52,  0, 1, 2]],
+        D: [[0,  11, 26, .75,  2, 1, 4], [.15, 42, 34, .60,  2,.40,1], [.35, 42, 34,.60,  2,.40,1],
+            [.42, 42, 34, .60,  2,.40,1], [.62, 42, 34,.60,  2,.40,1], [.69,  5, 16, 1,   0, 1, 6],
+            [.89,  5, 16, 1,    0, 1, 6], [1,  30, 11, .85,  0, 1, 2]]
+      };
+      function smooth(t){ return t * t * (3 - 2 * t); }
+      function sample(kf, p){
+        if(p <= kf[0][0]) return kf[0];
+        for(let i = 1; i < kf.length; i++){
+          if(p <= kf[i][0]){
+            const a = kf[i-1], b = kf[i];
+            const t = smooth((p - a[0]) / (b[0] - a[0] || 1));
+            const o = [p];
+            for(let j = 1; j < 7; j++) o[j] = a[j] + (b[j] - a[j]) * t;
+            return o;
+          }
+        }
+        return kf[kf.length - 1];
       }
-      addEventListener('scroll', update, { passive:true });
-      addEventListener('resize', update);
-      update();
+      // 설명 표시 창 [등장 시작, 완료, 퇴장 시작, 완료]
+      const CW = [[.16,.20,.35,.39], [.44,.48,.62,.66], [.70,.74,.89,.94]];
+      function fade(p, w){
+        if(p < w[0] || p > w[3]) return 0;
+        if(p < w[1]) return smooth((p - w[0]) / (w[1] - w[0]));
+        if(p > w[2]) return 1 - smooth((p - w[2]) / (w[3] - w[2]));
+        return 1;
+      }
+      function apply(p){
+        for(const k in KF){
+          const s = sample(KF[k], p), el = panels[k];
+          if(!el) continue;
+          el.style.transform = 'translate(calc(-50% + ' + s[1].toFixed(2) + 'vw), calc(-50% + ' + s[2].toFixed(2) + 'vh)) rotate(' + s[4].toFixed(2) + 'deg) scale(' + s[3].toFixed(3) + ')';
+          el.style.opacity = s[5].toFixed(3);
+          el.style.zIndex = Math.round(s[6]);
+        }
+        copies.forEach(function(c, i){
+          const o = fade(p, CW[i]);
+          c.style.opacity = o.toFixed(3);
+          c.style.transform = 'translateY(calc(-50% + ' + ((1 - o) * 22).toFixed(1) + 'px))';
+          c.style.visibility = o > 0.01 ? 'visible' : 'hidden';   // 빠른 스크롤에도 문장 겹침 없음
+        });
+        const ho = p < .06 ? 1 : (p > .13 ? 0 : 1 - smooth((p - .06) / .07));
+        head.style.opacity = ho.toFixed(3);
+        head.style.transform = 'translate(-50%, ' + (-(1 - ho) * 40).toFixed(1) + 'px)';
+        head.style.visibility = ho > 0.01 ? 'visible' : 'hidden';
+        const eo = p < .93 ? 0 : smooth(Math.min(1, (p - .93) / .06));
+        endEl.style.opacity = eo.toFixed(3);
+        // 상세페이지 프레임 내부 팬 — 읽는 구간 동안 천천히 (시트 상단 소개 띠는 건너뜀)
+        if(cImg){
+          const ip = p < .70 ? 0 : (p > .88 ? 1 : (p - .70) / .18);
+          cImg.style.objectPosition = '50% ' + (8 + ip * 26).toFixed(1) + '%';
+        }
+      }
+      let start = 0, range = 1, raf = 0, dynamic = false;
+      function measure(){
+        const r = scrollEl.getBoundingClientRect();
+        start = r.top + scrollY;
+        range = Math.max(1, scrollEl.offsetHeight - innerHeight);
+      }
+      function onScroll(){
+        if(!dynamic || raf) return;
+        raf = requestAnimationFrame(function(){
+          raf = 0;
+          apply(Math.min(1, Math.max(0, (scrollY - start) / range)));
+        });
+      }
+      function clearInline(){
+        stage.querySelectorAll('.svc-panel, .svc-copy').forEach(function(el){ el.removeAttribute('style'); });
+        head.removeAttribute('style'); endEl.removeAttribute('style');
+        if(cImg) cImg.style.objectPosition = '';
+      }
+      function decide(){
+        const stat = matchMedia('(max-width:860px)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(stat){ scrollEl.classList.add('svc-static'); dynamic = false; clearInline(); return; }
+        scrollEl.classList.remove('svc-static');
+        dynamic = true; measure(); onScroll();
+        apply(Math.min(1, Math.max(0, (scrollY - start) / range)));
+      }
+      decide();
+      addEventListener('scroll', onScroll, { passive:true });
+      let rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(decide, 180); });
+      addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
     })();
 
     // 로딩: 도트 매트릭스 [ PORTFOLIO ]
