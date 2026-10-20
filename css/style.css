@@ -125,17 +125,17 @@
 
   /* ===== (01) ABOUT — 대형 문장 + (Pre)/(+Post) + (=Results) + 툴 카드 띠 ===== */
   /* 한글은 영문보다 획 밀도가 높아 레퍼런스보다 가늘고(500) 행간을 넉넉히(1.28) */
-  .stmt-big{ margin-top:clamp(28px,4.2vw,64px); font-size:clamp(24px,3.9vw,50px); font-weight:500; letter-spacing:-.02em; line-height:1.3; word-break:keep-all; }
-  .stmt-big .ind{ display:inline-block; width:clamp(70px,22%,300px); }
+  /* 두 줄 모두 같은 왼쪽 기준선에서 시작 (들여쓰기 없음) */
+  .stmt-big{ margin-top:clamp(28px,4.2vw,64px); font-size:clamp(26px,4.2vw,54px); font-weight:500; letter-spacing:-.02em; line-height:1.34; word-break:keep-all; }
   .ab-row{ display:grid; grid-template-columns:minmax(200px,330px) 1fr minmax(260px,390px); gap:30px; align-items:start; margin-top:clamp(48px,6vw,90px); }
   .ab-row + .ab-row{ margin-top:70px; }
-  .ab-row .lab{ grid-column:2; text-align:center; font-size:14.5px; font-weight:700; }
+  .ab-row .lab{ grid-column:2; text-align:right; font-size:14.5px; font-weight:700; }   /* 본문 가까이 */
   .ab-row .txt{ grid-column:3; color:var(--body-ink); font-size:15.5px; font-weight:500; line-height:1.72; word-break:keep-all; }
   .ab-photo{ grid-column:1; grid-row:1 / span 4; width:min(330px,100%); aspect-ratio:3/4.1; object-fit:cover; }
   .ab-res{ grid-column:3; margin-top:46px; }
   .ab-res .r{ display:flex; justify-content:space-between; align-items:baseline; padding:13px 2px; border-bottom:1px solid var(--line-l); font-size:16.5px; font-weight:700; }
   .ab-res .r span{ color:var(--gray-ink); font-weight:600; }
-  .ab-row .lab2{ grid-column:2; text-align:center; font-size:14.5px; font-weight:700; margin-top:46px; }
+  .ab-row .lab2{ grid-column:2; text-align:right; font-size:14.5px; font-weight:700; margin-top:46px; }
   .ab-cta{ grid-column:3; margin-top:70px; }
   @media(max-width:860px){
     .ab-row{ grid-template-columns:1fr; }
@@ -224,17 +224,18 @@
   .cs-row{ position:relative; display:flex; flex-direction:column; justify-content:space-between; gap:14px;
     min-height:clamp(200px,25vw,310px); padding:16px 2px 14px; border-bottom:1px solid var(--line-l); color:var(--ink); }
   .cs-line{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
+  .cs-line.bot{ justify-content:flex-end; }   /* 작은 라벨 제거 후에도 SCOPE 는 우측 유지 */
   .cs-mono{ font-size:12.5px; font-weight:600; letter-spacing:.4px; line-height:1.7; }
   .cs-k{ color:var(--gray-ink); }
   .cs-v{ text-align:right; }
   .cs-meta{ display:flex; gap:clamp(26px,5vw,84px); align-items:flex-start; }
-  /* 호버 시 행 가운데에 떠오르는 큰 제목 (스크린리더용 실제 이름 — 작은 라벨이 aria-hidden) */
-  .cs-big{ position:absolute; left:0; right:0; top:50%; transform:translateY(calc(-50% + 14px));
+  /* 행 가운데 큰 제목 — 항상 표시 (호버와 무관하게 읽을 수 있어야 함) */
+  .cs-big{ position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
     font-size:clamp(38px,5.4vw,82px); font-weight:800; letter-spacing:-.02em; line-height:1; z-index:2;
-    opacity:0; transition:opacity .4s ease, transform .5s cubic-bezier(.2,.7,.2,1); pointer-events:none; }
-  .cs-row:hover .cs-big, .cs-row:focus-visible .cs-big{ opacity:1; transform:translateY(-50%); }
-  /* 커서 프리뷰 — fixed·커서 중앙·글자 위(z 90)·프로젝트별 엘리먼트 크로스페이드 (레퍼런스 s-a-image-cursor 방식) */
-  .cs-cursor-img{ position:fixed; left:0; top:0; width:min(320px,26vw); height:auto; z-index:90;
+    pointer-events:none; }
+  .cs-name{ display:none; }   /* 큰 제목이 항상 보이므로 작은 중복 라벨은 숨김 */
+  /* 커서 프리뷰 — fixed·커서 중앙·프로젝트별 크로스페이드. z 는 제목(z2)보다 낮게 — 이미지가 프로젝트명을 가리지 않음 */
+  .cs-cursor-img{ position:fixed; left:0; top:0; width:min(320px,26vw); height:auto; z-index:1;
     pointer-events:none; opacity:0; transition:opacity .35s ease; will-change:transform; }
   .cs-cursor-img.on{ opacity:1; }
   .cs-thumb-m{ display:none; }
@@ -243,10 +244,9 @@
   @media(max-width:860px){
     /* 터치: 호버 없음 — 큰 제목과 대표 이미지를 행 안에 항상 노출, 한 번 탭 = 상세 이동 */
     .cs-row{ min-height:0; }
-    .cs-big{ position:static; transform:none; opacity:1; order:2; font-size:clamp(28px,8vw,42px); }
+    .cs-big{ position:static; transform:none; order:2; font-size:clamp(28px,8vw,42px); }
     .cs-thumb-m{ display:block; width:100%; max-width:440px; order:3; }
     .cs-line.top{ order:1; } .cs-line.bot{ order:4; }
-    .cs-name{ display:none; }   /* 큰 제목이 항상 보이므로 중복 라벨 숨김 */
   }
   @media(prefers-reduced-motion:reduce){
     .cs-big{ transition:none; }
@@ -340,11 +340,7 @@
   .quote-grid{ display:grid; grid-template-columns:minmax(150px,220px) 1fr; gap:34px; margin-top:clamp(50px,6vw,90px); align-items:start; }
   .quote-grid > img{ width:100%; aspect-ratio:1/1.2; object-fit:cover; }
   .quote{ font-size:clamp(30px,4.7vw,64px); font-weight:600; letter-spacing:-.025em; line-height:1.12; word-break:keep-all; text-indent:clamp(40px,22%,300px); }
-  .q-foot{ display:flex; justify-content:flex-end; gap:clamp(44px,8vw,110px); margin-top:clamp(50px,6vw,80px); }
-  .q-stat b{ display:block; font-size:clamp(34px,3.4vw,46px); font-weight:700; letter-spacing:-.02em; line-height:1; }
-  .q-stat span{ display:block; font-size:14px; font-weight:700; margin-top:9px; }
-  .q-stat em{ display:block; font-style:normal; font-size:12.5px; color:var(--gray-ink); margin-top:2px; }
-  @media(max-width:860px){ .quote-grid{ grid-template-columns:1fr; } .q-foot{ justify-content:flex-start; gap:40px; } }
+  @media(max-width:860px){ .quote-grid{ grid-template-columns:1fr; } }
 
   /* ===== (03) MORE WORKS — 텍스트 목록 (signal-a award-item 방식: 기본은 글만, 호버 시 커서 프리뷰) ===== */
   .arch{ margin-top:34px; }
@@ -353,7 +349,8 @@
     border-bottom:1px solid var(--line-l); padding:17px 2px; transition:background .3s, opacity .3s; }
   .arow .ay{ font-size:14px; font-weight:600; color:var(--ink); }
   /* 긴 제목(Promotion Design 등) 기준으로 크기·굵기 하향 */
-  .arow .an{ font-size:clamp(20px,2.5vw,34px); font-weight:600; letter-spacing:-.015em; line-height:1.14; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
+  .arow .an{ position:relative; z-index:2;   /* 커서 프리뷰(z1)가 이름을 가리지 않게 */
+    font-size:clamp(20px,2.5vw,34px); font-weight:600; letter-spacing:-.015em; line-height:1.14; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
   .arow:hover .an{ transform:translateX(12px); }
   .arch:hover .arow{ opacity:.38; }
   .arch .arow:hover{ opacity:1; }
@@ -408,6 +405,7 @@
   .gfx-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-top:46px; align-items:start; }
   .gfx figure{ margin:0; }
   .gfx img{ width:100%; aspect-ratio:1/1.08; object-fit:cover; transition:transform .5s cubic-bezier(.2,.7,.2,1); }
+  .gfx img.pos-t{ object-position:50% 0%; }   /* 세로형 팝업 등 상단 기준 노출 */
   .gfx:hover img{ transform:scale(.975); }
   .gfx figcaption{ display:grid; grid-template-columns:auto 1fr auto; gap:12px; padding-top:10px; font-size:13px; font-weight:600; }
   .gfx figcaption em{ font-style:normal; display:block; color:var(--gray-ink); font-weight:500; }
@@ -417,10 +415,9 @@
 
   /* ===== (09) Q&A — 좌측 카드 + 에세이 아코디언 ===== */
   .qa-grid{ display:grid; grid-template-columns:minmax(220px,330px) 1fr; gap:clamp(30px,6vw,110px); margin-top:40px; align-items:start; }
-  .qa-card{ position:sticky; top:16vh; background:var(--paper-card); border-radius:8px; padding:4px; }
-  .qa-card img{ width:100%; aspect-ratio:1/0.92; object-fit:cover; border-radius:5px; }
-  .qa-card .qc-foot{ display:flex; justify-content:space-between; padding:11px 10px; font-size:13px; font-weight:700; }
-  .qa-card .qc-foot span{ color:var(--gray-ink); font-weight:600; }
+  /* 좌측 — 짧은 소개 문구 (상단 About 에 사진이 있으므로 반복 사진 카드 없음) */
+  .qa-intro{ position:sticky; top:18vh; }
+  .qa-say{ font-size:clamp(26px,2.6vw,38px); font-weight:700; letter-spacing:-.015em; line-height:1.42; word-break:keep-all; }
   .essay{ border-bottom:1px solid var(--line-l); }
   .essay summary{ list-style:none; cursor:pointer; display:flex; align-items:center; gap:16px; padding:27px 2px;
     font-size:clamp(17px,2.1vw,22px); font-weight:600; letter-spacing:-.01em; transition:opacity .25s; }
@@ -435,7 +432,7 @@
   .essay-body p{ color:var(--body-ink); font-size:15px; font-weight:500; line-height:1.85; word-break:keep-all; }
   .essay-body p + p{ margin-top:13px; }
   .qa-cta{ margin-top:46px; }
-  @media(max-width:820px){ .qa-grid{ grid-template-columns:1fr; } .qa-card{ position:static; max-width:340px; } }
+  @media(max-width:820px){ .qa-grid{ grid-template-columns:1fr; } .qa-intro{ position:static; } .qa-say br{ display:none; } }
 
   /* ===== FOOTER — 다크: 이메일 + 메뉴 + 크롭 워드마크 ===== */
   .foot{ position:relative; background:var(--dark); color:var(--text); padding:120px 24px 0; overflow:hidden;
