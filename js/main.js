@@ -220,6 +220,8 @@ function initSite(){
       const panels = {};
       stage.querySelectorAll('.svc-panel').forEach(function(el){ panels[el.getAttribute('data-p')] = el; });
       const mobImg = document.getElementById('svcMobImg');
+      const babImg = document.getElementById('svcBabImg');
+      let babMax = 0;   // 바비 메인 내부 스크롤 거리
       let mobMax = 0;   // 모바일 내부 스크롤 거리 = 이미지 표시 높이 - 프레임 높이 (끝에 빈 공간 없음)
       const popImg = document.getElementById('svcPopImg');
       let popStart = 0, popTravel = 0;   // 팝업 모음: 첫 줄(헤더 띠 제외)에서 시작 → 줄 단위로 아래 내용 노출
@@ -231,18 +233,18 @@ function initSite(){
       const KF = {
         A: [[0,   0, 13, .50,  0, 1, 3], [.15,-17,  2, 1,    0, 1, 5], [.35,-17,  2, 1,   0, 1, 5],
             [.42,-28,-27, .40, -2,.45,2], [.62,-28,-27,.40, -2,.45,2], [.69,-31,-30,.30, -2,.3, 1],
-            [.93,-31,-30,.30, -2,.3, 1], [1,   0,  5, .40,  0, 1, 3]],
+            [.94,-31,-30,.30, -2,.3, 1], [1,   0,  5, .40,  0, 1, 3]],
         B: [[0,  23, 16, .36,2.5, 1, 2], [.15, 36, 18, .26,2.5,.30,1], [.35, 36, 18,.26,2.5,.30,1],
             [.42,-17,  2, 1,    0, 1, 5], [.62,-17,  2, 1,   0, 1, 5], [.69, 33,-30,.26,  2,.3, 1],
-            [.93, 33,-30,.26,  2,.3, 1], [1,  13,  8, .34,  0, 1, 2]],
+            [.94, 33,-30,.26,  2,.3, 1], [1,  13,  8, .34,  0, 1, 2]],
         B2:[[0,   7,  6, .90,  0, 0, 6], [.40,  7,  6, .90,  0, 0, 6], [.46,  7,  6, 1,   0, 1, 6],
             [.62,  7,  6, 1,    0, 1, 6], [.68,  7,  6, .90,  0, 0, 6], [1,  7,  6, .90, 0, 0, 6]],
         C: [[0, -24, 16, .40, -2.5, 1, 2], [.15,-38, 12, .30,-2.5,.3, 1], [.35,-38, 12,.30,-2.5,.3, 1],
             [.42,-38, 12, .30,-2.5,.3, 1], [.62,-38, 12,.30,-2.5,.3, 1], [.69,-18, -2, 1,   0, 1, 5],
-            [.93,-18, -2, 1,    0, 1, 5], [1, -20,  8, .38,  0, 1, 3]],
+            [.94,-18, -2, 1,    0, 1, 5], [1, -20,  8, .38,  0, 1, 3]],
         D: [[0,  11, 26, .75,  2, 1, 4], [.15, 38, 32, .55,  2,.30,1], [.35, 38, 32,.55,  2,.30,1],
             [.42, 38, 32, .55,  2,.30,1], [.62, 38, 32,.55,  2,.30,1], [.69, 38, 32, .55,  2,.30,1],
-            [.93, 38, 32, .55,  2,.30,1], [1,  33, 11, .85,  0, 1, 2]]
+            [.94, 38, 32, .55,  2,.30,1], [1,  33, 11, .85,  0, 1, 2]]
       };
       function smooth(t){ return t * t * (3 - 2 * t); }
       function sample(kf, p){
@@ -259,7 +261,7 @@ function initSite(){
         return kf[kf.length - 1];
       }
       // 설명 표시 창 [등장 시작, 완료, 퇴장 시작, 완료]
-      const CW = [[.16,.20,.35,.39], [.44,.48,.62,.66], [.70,.74,.93,.965]];
+      const CW = [[.16,.20,.35,.39], [.44,.48,.62,.66], [.70,.74,.94,.97]];
       function fade(p, w){
         if(p < w[0] || p > w[3]) return 0;
         if(p < w[1]) return smooth((p - w[0]) / (w[1] - w[0]));
@@ -288,6 +290,11 @@ function initSite(){
         endEl.style.opacity = eo.toFixed(3);
         // 모바일 프레임 내부 스크롤 — 패널이 자리 잡은 뒤(.48)부터 짧은 구간(.60)에
         // 긴 페이지가 위로 올라감. 경쾌하게 시작해 부드럽게 감속(ease-out), 진행률 연동이라 정지·역방향 모두 자연스러움
+        // 바비 메인 내부 스크롤 — 장면1 안정 구간(.19~.34)에서 천천히 아래로
+        if(babImg && babMax > 0){
+          let bt = p < .19 ? 0 : (p > .34 ? 1 : (p - .19) / .15);
+          babImg.style.transform = 'translateY(' + (-babMax * smooth(bt)).toFixed(1) + 'px)';
+        }
         if(mobImg && mobMax > 0){
           let t = p < .48 ? 0 : (p > .60 ? 1 : (p - .48) / .12);
           t = 1 - Math.pow(1 - t, 3);
@@ -296,7 +303,7 @@ function initSite(){
         // 팝업 모음 내부 스크롤 — 패널 정착(.69) 후 .72~.88 에서 차분하게 줄 단위 이동.
         // 항상 첫 줄 오프셋을 기본 적용해 어느 장면에서든 헤더 띠가 보이지 않음
         if(popImg && popTravel >= 0){
-          let t = p < .70 ? 0 : (p > .93 ? 1 : (p - .70) / .23);
+          let t = p < .70 ? 0 : (p > .94 ? 1 : (p - .70) / .24);
           popImg.style.transform = 'translateY(' + (-(popStart + popTravel * smooth(t))).toFixed(1) + 'px)';
         }
       }
@@ -306,6 +313,7 @@ function initSite(){
         start = r.top + scrollY;
         range = Math.max(1, scrollEl.offsetHeight - innerHeight);
         if(mobImg && panels.B2) mobMax = Math.max(0, mobImg.offsetHeight - panels.B2.clientHeight);
+        if(babImg && panels.A) babMax = Math.max(0, babImg.offsetHeight - panels.A.clientHeight);
         if(popImg && panels.C){
           const ih = popImg.offsetHeight, fh = panels.C.clientHeight;
           popStart = ih * POP_START_FRAC;
@@ -323,6 +331,7 @@ function initSite(){
         stage.querySelectorAll('.svc-panel, .svc-copy').forEach(function(el){ el.removeAttribute('style'); });
         head.removeAttribute('style'); endEl.removeAttribute('style');
         if(mobImg) mobImg.style.transform = '';
+        if(babImg) babImg.style.transform = '';
         if(popImg) popImg.style.transform = '';
       }
       function decide(){
@@ -337,6 +346,7 @@ function initSite(){
       let rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(decide, 180); });
       addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
       if(mobImg && !mobImg.complete) mobImg.addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
+      if(babImg && !babImg.complete) babImg.addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
       if(popImg && !popImg.complete) popImg.addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
     })();
 

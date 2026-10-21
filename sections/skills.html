@@ -1,4 +1,4 @@
-﻿  <!-- (04) SERVICES — 스크롤 연동 작업물 무대 (FORMAT 의 크기 변화·겹침·장면 연결 참고)
+  <!-- (04) SERVICES — 스크롤 연동 작업물 무대 (FORMAT 의 크기 변화·겹침·장면 연결 참고)
        구조: .svc-scroll(560vh) > .svc-stage(sticky 100vh). 장면 진행은 js/main.js 의 initServicesScroll 이
        스크롤 진행률(0~1)로 계산 — 멈추면 그 상태, 역방향도 동일 함수라 자연 복원.
        DOM 순서는 정적 모드(모바일·모션 감소)의 읽기 순서: 소개 → 작업 이미지 → 해당 설명.
@@ -16,9 +16,9 @@
           <p>홈페이지 디자인, 상세페이지·프로모션 제작부터 <br>퍼블리싱과 운영 유지보수까지 함께합니다.</p>
         </header>
 
-        <!-- 01 Web Design — 바비브라운 실제 메인 페이지 캡처(헤더+메인 비주얼, 1920×840 @2x = 3840px) -->
+        <!-- 01 Web Design — 바비브라운 실제 메인(1920×2400 @2x) : 프레임은 히어로 비율 고정, 내부가 스크롤 연동으로 내려감(main.js) -->
         <figure class="svc-panel pA" data-p="A">
-          <img src="assets/bobbi/babimain.jpg" alt="바비브라운 홈페이지 메인 화면" loading="lazy" />
+          <img id="svcBabImg" src="assets/bobbi/babimain-tall.jpg" alt="바비브라운 홈페이지 메인 화면" loading="lazy" />
         </figure>
         <div class="svc-copy" data-c="0">
           <span class="k">01 / Web Design</span>
