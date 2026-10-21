@@ -383,18 +383,11 @@
   /* 타이포는 메인 PORTFOLIO 와 같은 계열(서체·굵기 유지), 크기·자간은 레퍼런스 밀도(100px/-.03em) 반영 */
   .cb-track span{ font-size:clamp(48px,7.7vw,100px); font-weight:800; letter-spacing:-.03em; line-height:1; color:#f3f3f1; }
   .ctaband .cta{ position:relative; z-index:2; margin-top:clamp(56px,10vw,130px); color:#fff; }
-  /* 텍스트 창 모서리의 + 마커 (레퍼런스의 Plus 디테일) */
-  .ctaband .cx{ position:absolute; color:#b9bfd0; opacity:.5; }
-  .ctaband .cx.b1{ left:calc(50% - min(400px,40vw) - 40px); top:40%; }
-  .ctaband .cx.b2{ left:calc(50% - min(400px,40vw) - 40px); top:58%; }
-  .ctaband .cx.b3{ right:calc(50% - min(400px,40vw) - 40px); top:40%; }
-  .ctaband .cx.b4{ right:calc(50% - min(400px,40vw) - 40px); top:58%; }
   @media(max-width:600px){
     .ctaband{ height:440px; }
     .cb-marq{ width:86vw; }
     .cb-track span{ font-size:42px; }
     .ctaband .cta{ margin-top:44px; }
-    .ctaband .cx{ display:none; }
   }
 
   /* ===== (07) STATS — 2×2 대형 숫자 ===== */
