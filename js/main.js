@@ -350,7 +350,7 @@ function initSite(){
       if(popImg && !popImg.complete) popImg.addEventListener('load', function(){ if(dynamic){ measure(); onScroll(); } });
     })();
 
-    // 로딩: 도트 매트릭스 [ PORTFOLIO ]
+    // 인트로 로더 제거 — 히어로 등장 상태(loaded)만 즉시 적용
     (function(){
       const loader = document.getElementById('loader');
       const canvas = document.getElementById('loaderCanvas');
