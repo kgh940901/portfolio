@@ -224,41 +224,67 @@ function initSite(){
       upd();
     })();
 
-    // (01) About — 양옆 광원 패럴랙스: 섹션 진입(pin)으로 중심이 바깥→안쪽 이동, 이탈(pout)로 감쇠.
-    // 진행도의 순수 함수 — 멈추면 그 상태, 역스크롤 자연 복원. 모션 감소 설정은 CSS 정적 광원 사용.
+    // (01) About — 양옆 광원: 제목 상단이 뷰포트 55%(TRIG)에 닿으면 바깥에서 '쓱' 등장(시간 기반 0.82s,
+    // 우측 90ms 시차, 스크롤을 멈춰도 끝까지 재생). 등장 전엔 opacity 0 — 완전히 숨김.
+    // 등장 후엔 스크롤 연동 보조 이동(기준점에서 0이라 등장 종점과 끊김 없이 이어짐).
+    // 역방향은 78%(RESET)에서 부드럽게 숨기고 초기화 — 히스테리시스로 기준점 왕복 깜빡임 방지.
     (function(){
       const sec = document.getElementById('about');
       if(!sec) return;
       const gl = sec.querySelector('.ab-glow.gl'), gr = sec.querySelector('.ab-glow.gr');
-      if(!gl || !gr) return;
+      const title = sec.querySelector('.stmt-big');
+      if(!gl || !gr || !title) return;
       if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const root = document.documentElement;
+      const TRIG = .55, RESET = .78;     // 제목 상단 기준(뷰포트 비율) — 조정 가능
+      const DUR = 820, LAG = 90, HIDE = 380;   // 등장 시간 / 우측 시차 / 숨김 시간(ms)
       let top = 0, hgt = 1, raf = 0;
+      let phase = 0, t0 = 0, h0L = 0, h0R = 0, eL = 0, eR = 0;   // 0 숨김 / 1 등장 중 / 2 표시 / 3 숨김 중
       function measure(){ const r = sec.getBoundingClientRect(); top = r.top + scrollY; hgt = sec.offsetHeight; }
-      function ease(t){ return t * t * (3 - 2 * t); }
-      function frame(){
+      function sm(t){ return t * t * (3 - 2 * t); }
+      function outC(t){ t = Math.min(1, Math.max(0, t)); return 1 - Math.pow(1 - t, 3); }
+      function frame(now){
         raf = 0;
         const vh = innerHeight, mob = innerWidth < 700;
-        const pin  = Math.min(1, Math.max(0, (scrollY + vh - top) / (vh * 1.25)));
-        const pout = Math.min(1, Math.max(0, (scrollY - (top + hgt - vh * .95)) / (vh * .75)));
-        const pl = ease(Math.min(1, pin * 1.08));                       // 좌우 진행 시점을 조금 다르게
-        const pr = ease(Math.min(1, Math.max(0, pin * 1.18 - .10)));
-        const o  = 1 - ease(pout);
-        // 중심 이동: 좌 -8vw→20vw / 우 108vw→86vw (모바일은 이동량·도달점 축소)
-        const xl = (mob ? -50 : -37) + ((mob ? -32 : -9) - (mob ? -50 : -37)) * pl;
-        const xr = (mob ?  43 :  33) + ((mob ?  28 : 11) - (mob ?  43 :  33)) * pr;
-        gl.style.transform = 'translate(' + xl.toFixed(2) + 'vw, ' + ((1 - pl) * 7).toFixed(2) + 'vh)';
-        gr.style.transform = 'translate(' + xr.toFixed(2) + 'vw, ' + ((1 - pr) * -6).toFixed(2) + 'vh)';
-        gl.style.opacity = (pl * o).toFixed(3);
-        gr.style.opacity = (pr * o).toFixed(3);
-        // About 광원이 보이는 동안 전역 사이드 글로우는 비례해 물러남 — 같은 자리 중복으로 탁해지지 않게
-        root.style.setProperty('--sgmul', (1 - .7 * Math.max(pl, pr) * o).toFixed(3));
+        const tt = title.getBoundingClientRect().top / vh;
+        if((phase === 0 || phase === 3) && tt <= TRIG){
+          t0 = now - eL * DUR; phase = 1;                       // 숨김 중 재진입도 현재 값에서 이어감
+        } else if((phase === 1 || phase === 2) && tt > RESET){
+          t0 = now; h0L = eL; h0R = eR; phase = 3;
+        }
+        if(phase === 1){
+          eL = outC((now - t0) / DUR);
+          eR = outC((now - t0 - LAG) / DUR);
+          if(eR >= 1){ phase = 2; }
+        } else if(phase === 3){
+          const f = 1 - outC((now - t0) / HIDE);
+          eL = h0L * f; eR = h0R * f;
+          if(f <= 0){ phase = 0; eL = 0; eR = 0; }
+        } else if(phase === 2){ eL = 1; eR = 1; }
+        else { eL = 0; eR = 0; }
+        // 등장 후 스크롤 연동 보조 이동 — TRIG 지점에서 0
+        const ps = sm(Math.min(1, Math.max(0, (TRIG - tt) / .8)));
+        const pout = sm(Math.min(1, Math.max(0, (scrollY - (top + hgt - vh * .95)) / (vh * .75))));
+        const o = 1 - pout;
+        const xlS = mob ? -69 : -59, xlE = mob ? -32 : -9;      // 좌 중심: 화면 밖 → 안쪽
+        const xrS = mob ?  60 :  55, xrE = mob ?  28 : 11;      // 우 중심: 화면 밖 → 안쪽
+        const xl = xlS + (xlE - xlS) * eL + (mob ? 2 : 3) * ps;
+        const xr = xrS + (xrE - xrS) * eR - (mob ? 2 : 3) * ps;
+        gl.style.transform = 'translate(' + xl.toFixed(2) + 'vw, ' + ((1 - eL) * 4 - ps * 2).toFixed(2) + 'vh)';
+        gr.style.transform = 'translate(' + xr.toFixed(2) + 'vw, ' + ((1 - eR) * -3 + ps * 2).toFixed(2) + 'vh)';
+        gl.style.opacity = (eL * o).toFixed(3);
+        gr.style.opacity = (eR * o).toFixed(3);
+        // 01 구간에서는 전역 사이드 글로우를 물러나게 — 등장 전 배경이 깨끗한 흰색이 되도록
+        const vIn  = Math.min(1, Math.max(0, (scrollY + vh - top) / (vh * .6)));
+        const vOut = 1 - sm(Math.min(1, Math.max(0, (scrollY - (top + hgt - vh * .5)) / (vh * .6))));
+        root.style.setProperty('--sgmul', (1 - .85 * vIn * vOut).toFixed(3));
+        if(phase === 1 || phase === 3){ raf = requestAnimationFrame(frame); }   // 시간 기반 구간은 계속 재생
       }
       function onScroll(){ if(!raf) raf = requestAnimationFrame(frame); }
       addEventListener('scroll', onScroll, { passive:true });
       addEventListener('resize', function(){ measure(); onScroll(); });
       addEventListener('load', function(){ measure(); onScroll(); });
-      measure(); frame();
+      measure(); requestAnimationFrame(frame);
     })();
 
     // (04) Services — 스크롤 연동 작업물 무대.
