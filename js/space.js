@@ -19,11 +19,14 @@ window.initHeroSpace = function(){
     'float noise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);',
     '  return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x), mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x), f.y); }',
     'float fbm(vec2 p){ float v=0., a=.5; for(int i=0;i<4;i++){ v+=a*noise(p); p*=2.03; a*=.5; } return v; }',
-    // 경계가 선명한 원이 아닌, fbm 으로 가장자리를 흔든 부드러운 빛 덩어리
-    'float blob(vec2 q, vec2 c, float r, float t){',
+    // 경계가 선명한 원이 아닌, fbm 으로 가장자리를 흔든 부드러운 빛 띠.
+    // an(기울기)·st(장축 비율)가 시간에 따라 변해 폭·높이·방향이 함께 흐름
+    'float blob(vec2 q, vec2 c, float r, float t, float an, float st){',
     '  vec2 d = q - c;',
+    '  float ca = cos(an), sa = sin(an);',
+    '  d = vec2(ca*d.x - sa*d.y, sa*d.x + ca*d.y);',
+    '  d.x *= st;',
     '  d += .34 * vec2(fbm(q*1.4 + t*.05) - .5, fbm(q*1.4 - t*.04 + 7.) - .5);',
-    '  d *= vec2(.84, 1.12);',   // 가로로 넓게 번지는 타원형 — 또렷한 원으로 보이지 않게
     '  return smoothstep(r, 0., length(d));',
     '}',
     'void main(){',
@@ -35,30 +38,35 @@ window.initHeroSpace = function(){
     // 화이트 → 아주 옅은 쿨그레이
     '  vec3 base = mix(vec3(.988,.990,.996), vec3(.958,.964,.982), uv.y);',
     '  vec3 col = base;',
-    // 빛 중심 3개 — 기본 모션은 시간만으로 도는 큰 궤도(이중 사인: 반복감 없이 계속 흐름),
+    // 빛 중심 3개 — 기본 모션은 시간만으로 도는 큰 궤도(주기가 다른 이중 사인: 반복감 없이 계속 흐름),
     // 마우스는 그 위에 작은 가중치로만 더해져 자동 모션을 덮어쓰지 않음.
     // c1(라벤더)·c2(블루)의 궤도는 중앙 부근에서 주기적으로 겹쳤다가 다시 분리됨.
-    '  vec2 c1 = m*.26 + vec2(-.22,.16) + .26*vec2(sin(t*.16), cos(t*.12)) + .07*vec2(sin(t*.051+1.7), cos(t*.073+4.2));',
-    '  vec2 c2 = m*.19 + vec2( .24,.12) + .26*vec2(sin(t*.12+2.1), sin(t*.17+.6)) + .08*vec2(cos(t*.043), sin(t*.066+3.));',
-    '  vec2 c3 = m*.12 + vec2( .00,.32) + .18*vec2(cos(t*.09+.8), sin(t*.14+2.4)) + .06*vec2(sin(t*.057), cos(t*.049+1.));',
-    // 반경과 농도도 천천히 숨 쉬듯 변화 — 빛의 형태·크기·밝기가 함께 달라짐
-    '  float b1 = blob(q, c1, .60 + .09*sin(t*.083+1.3), t);',
-    '  float b2 = blob(q, c2, .70 + .11*sin(t*.067+4.0), t + 13.);',
-    '  float b3 = blob(q, c3, .52 + .07*sin(t*.094+2.2), t + 31.);',
+    '  vec2 c1 = m*.26 + vec2(-.22,.16) + .26*vec2(sin(t*.23), cos(t*.17)) + .08*vec2(sin(t*.073+1.7), cos(t*.104+4.2));',
+    '  vec2 c2 = m*.19 + vec2( .24,.12) + .27*vec2(sin(t*.18+2.1), sin(t*.25+.6)) + .09*vec2(cos(t*.062), sin(t*.094+3.));',
+    '  vec2 c3 = m*.12 + vec2( .00,.30) + .20*vec2(cos(t*.14+.8), sin(t*.20+2.4)) + .07*vec2(sin(t*.081), cos(t*.07+1.));',
+    // 반경(±약 20%)·기울기·장축이 함께 숨 쉬듯 변화 — 크기·방향·곡선 형태가 달라짐
+    '  float r1 = .58*(1. + .20*sin(t*.12 +1.3));',
+    '  float r2 = .68*(1. + .22*sin(t*.096+4.0));',
+    '  float r3 = .50*(1. + .18*sin(t*.134+2.2));',
+    '  float b1 = blob(q, c1, r1, t,       .5*sin(t*.08),      .72 + .18*sin(t*.11+2.));',
+    '  float b2 = blob(q, c2, r2, t + 13., -.6*sin(t*.064+1.), .78 + .20*sin(t*.09));',
+    '  float b3 = blob(q, c3, r3, t + 31., .4*cos(t*.072),     .84 + .14*sin(t*.126+3.));',
     '  vec3 blue = vec3(.33,.45,1.0);',
     '  vec3 lav  = vec3(.63,.53,.97);',
     '  vec3 sky  = vec3(.56,.72,1.0);',
-    '  col = mix(col, blue, b2*(.54 + .08*sin(t*.047+2.6)));',
-    '  col = mix(col, lav , b1*(.50 + .07*sin(t*.055+ .9)));',
-    '  col = mix(col, sky , b3*(.36 + .06*sin(t*.061+4.4)));',
-    '  col = mix(col, blue*.80, b1*b2*.26);',            // 겹치는 곳의 깊이감
+    // 3단 구조: 퍼지는 중간부(b*w) + 확실히 보이는 중심부(smoothstep 코어). 가장자리는 아래 edge 로 흰색 복귀
+    '  col = mix(col, blue, min(1., b2*(.58 + .08*sin(t*.047+2.6)) + smoothstep(.62,1.,b2)*.30));',
+    '  col = mix(col, lav , min(1., b1*(.54 + .07*sin(t*.055+ .9)) + smoothstep(.62,1.,b1)*.28));',
+    '  col = mix(col, sky , b3*(.38 + .06*sin(t*.061+4.4)) + smoothstep(.66,1.,b3)*.18);',
+    '  col = mix(col, blue*.78, b1*b2*.30);',            // 겹치는 곳의 깊이감
     // 가장자리는 흰 배경으로 자연스럽게
     '  float edge = smoothstep(1.05, .42, length(q * vec2(.82, 1.12)));',
     '  col = mix(base, col, edge);',
     // 하단으로 갈수록 본문 배경색으로 옅어짐 (메인→본문 연결)
     '  col = mix(col, vec3(.980,.980,.976), smoothstep(.66, 1.0, 1.-uv.y));',
-    // 정적인 미세 grain — 그라데이션의 평면감만 덜어내고 깜빡임은 없음
-    '  col += (hash(gl_FragCoord.xy) - .5) * .014;',
+    // 정적인 미세 grain — 빛이 진한 곳에서 조금 더 느껴지는 고운 입자, 깜빡임 없음
+    '  float lum = clamp(b1*.6 + b2*.6 + b3*.4, 0., 1.);',
+    '  col += (hash(gl_FragCoord.xy) - .5) * (.011 + .026*lum);',
     '  gl_FragColor = vec4(col, 1.);',
     '}'
   ].join('\n');
@@ -102,6 +110,10 @@ window.initHeroSpace = function(){
     tx = e.clientX / innerWidth;
     ty = 1 - e.clientY / innerHeight;
   }, { passive:true });
+  // 포인터가 창을 벗어나면 기본 흐름으로 부드럽게 복귀 (lerp 가 완만하게 되돌림)
+  addEventListener('pointerout', function(e){
+    if(!e.relatedTarget){ tx = .5; ty = .55; }
+  });
 
   var visible = true;
   if('IntersectionObserver' in window){
