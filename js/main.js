@@ -207,6 +207,23 @@ function initSite(){
       });
     })();
 
+    // 전역 사이드 글로우 — 스크롤 진행에 따라 양옆 빛이 안쪽으로 스며듦 (css body::after 의 변수 갱신).
+    // 진행률의 순수 함수라 역스크롤도 같은 경로로 자연 복원, 위치별 세로 높이도 천천히 변화.
+    (function(){
+      const root = document.documentElement;
+      let raf = 0;
+      function upd(){
+        raf = 0;
+        const h = innerHeight || 1;
+        const p = Math.min(1, Math.max(0, (scrollY - h * .22) / (h * .9)));
+        root.style.setProperty('--sg', p.toFixed(3));
+        root.style.setProperty('--sy1', (36 + 13 * Math.sin(scrollY * .0004)).toFixed(1) + '%');
+        root.style.setProperty('--sy2', (63 + 11 * Math.cos(scrollY * .00033)).toFixed(1) + '%');
+      }
+      addEventListener('scroll', function(){ if(!raf) raf = requestAnimationFrame(upd); }, { passive:true });
+      upd();
+    })();
+
     // (04) Services — 스크롤 연동 작업물 무대.
     // 진행률 p(0~1)의 순수 함수로 모든 상태를 계산: 멈추면 그 상태 유지, 역스크롤 자연 복원,
     // 자동 재생·휠 가로채기 없음. 중간 진입/새로고침에도 현재 p 로 즉시 그려짐.
