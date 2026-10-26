@@ -35,9 +35,9 @@ window.initHeroSpace = function(){
     '  vec3 base = mix(vec3(.988,.990,.996), vec3(.958,.964,.982), uv.y);',
     '  vec3 col = base;',
     // 빛 중심 3개: 마우스를 서로 다른 비율로 따라오며 자체 드리프트
-    '  vec2 c1 = m*.52 + vec2(-.24 + .08*sin(t*.11),  .16 + .06*cos(t*.09));',
-    '  vec2 c2 = m*.34 + vec2( .32 + .09*sin(t*.07+2.), .03 + .07*sin(t*.13+1.));',
-    '  vec2 c3 = m*.20 + vec2( .02 + .06*cos(t*.06),  -.24 + .05*sin(t*.08));',
+    '  vec2 c1 = m*.52 + vec2(-.26 + .08*sin(t*.11),  .22 + .06*cos(t*.09));',
+    '  vec2 c2 = m*.34 + vec2( .30 + .09*sin(t*.07+2.), .14 + .07*sin(t*.13+1.));',
+    '  vec2 c3 = m*.20 + vec2( .02 + .06*cos(t*.06),  .34 + .05*sin(t*.08));',
     '  float b1 = blob(q, c1, .60, t);',
     '  float b2 = blob(q, c2, .70, t + 13.);',
     '  float b3 = blob(q, c3, .52, t + 31.);',
@@ -52,7 +52,7 @@ window.initHeroSpace = function(){
     '  float edge = smoothstep(1.05, .42, length(q * vec2(.82, 1.12)));',
     '  col = mix(base, col, edge);',
     // 하단으로 갈수록 본문 배경색으로 옅어짐 (메인→본문 연결)
-    '  col = mix(col, vec3(.980,.980,.976), smoothstep(.80, 1.0, 1.-uv.y));',
+    '  col = mix(col, vec3(.980,.980,.976), smoothstep(.66, 1.0, 1.-uv.y));',
     // 낮은 강도의 grain
     '  col += (hash(gl_FragCoord.xy + fract(t)) - .5) * .012;',
     '  gl_FragColor = vec4(col, 1.);',

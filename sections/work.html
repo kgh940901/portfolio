@@ -1,62 +1,64 @@
-  <!-- (02) WORK — 대표(SELECTED)·추가(MORE) 두 열 목록. 호버 시 커서 프리뷰(main.js), 코드 롤링(numroll).
-       행 데이터는 각 a.wk-row 에 집약: href(상세), data-img(프리뷰), 코드, 이름, 구분. -->
+  <!-- (02) CASE STUDIES — Signal-A 방식: 이름 중심 목록, 호버 시 큰 타이틀 등장 + 커서를 따라다니는 프리뷰
+       ▸ 프로젝트 데이터는 각 행(a.cs-row)의 속성에 모여 있음: href(상세), data-img(대표 이미지),
+         .cs-big(큰 제목), .cs-name(작은 라벨), WORK TYPE/PROJECT SCOPE 값. 행 추가·순서 변경은 행 블록만 복사/이동. -->
   <section id="work" class="sec-light">
     <div class="wrap">
-      <div class="shead"><span class="sl">(02)</span><span>(Work)</span><span class="sr">© 2026</span></div>
+      <div class="shead"><span class="sl">(02)</span><span>(Case Studies)</span><span class="sr">© 2026</span></div>
 
-      <div class="wk-grid" id="csList">
-        <div class="wk-col wk-main">
-          <span class="wk-collab">SELECTED</span>
-          <a class="wk-row" href="sensemom.html" data-img="assets/work-sensemom.jpg">
-            <span class="wk-code njs" data-pre="P — " data-num="1">P — 01</span>
-            <span class="wk-name">Sense Mom</span>
-            <span class="wk-type">실무 작업</span>
-          </a>
-          <a class="wk-row" href="bobbibrown.html" data-img="assets/work-bobbi.jpg">
-            <span class="wk-code njs" data-pre="P — " data-num="2">P — 02</span>
-            <span class="wk-name">Bobbi Brown</span>
-            <span class="wk-type">개인 리디자인</span>
-          </a>
-          <a class="wk-row" href="patagonia.html" data-img="assets/work-patagonia.jpg">
-            <span class="wk-code njs" data-pre="P — " data-num="3">P — 03</span>
-            <span class="wk-name">Patagonia</span>
-            <span class="wk-type">개인 리디자인</span>
-          </a>
-          <a class="wk-row" href="museum.html" data-img="assets/work-hermitage.jpg">
-            <span class="wk-code njs" data-pre="P — " data-num="4">P — 04</span>
-            <span class="wk-name">Hermitage Museum</span>
-            <span class="wk-type">개인 리디자인</span>
-          </a>
-        </div>
+      <div class="cs-list" id="csList">
 
-        <div class="wk-col wk-more" id="archive">
-          <span class="wk-collab">MORE</span>
-          <a class="wk-row sm" href="peony.html" data-img="assets/work-peony.jpg">
-            <span class="wk-code njs" data-pre="A — " data-num="1">A — 01</span>
-            <span class="wk-name">Peony Cake</span>
-            <span class="wk-type">개인 작업</span>
-          </a>
-          <a class="wk-row sm" href="promotion.html" data-img="assets/work-promotion.jpg">
-            <span class="wk-code njs" data-pre="A — " data-num="2">A — 02</span>
-            <span class="wk-name">Promotion Design</span>
-            <span class="wk-type">실무 · 개인</span>
-          </a>
-          <a class="wk-row sm" href="visual.html" data-img="assets/work-visual.jpg">
-            <span class="wk-code njs" data-pre="A — " data-num="3">A — 03</span>
-            <span class="wk-name">Visual Design</span>
-            <span class="wk-type">실무 · 개인</span>
-          </a>
-          <a class="wk-row sm" href="company.html" data-img="assets/work-pension.jpg">
-            <span class="wk-code njs" data-pre="A — " data-num="4">A — 04</span>
-            <span class="wk-name">Pension</span>
-            <span class="wk-type">실무 작업</span>
-          </a>
-          <a class="wk-row sm" href="company2.html" data-img="assets/work-kids.jpg">
-            <span class="wk-code njs" data-pre="A — " data-num="5">A — 05</span>
-            <span class="wk-name">Kids Pension</span>
-            <span class="wk-type">실무 작업</span>
-          </a>
-        </div>
+        <a class="cs-row" href="sensemom.html" data-img="assets/work-sensemom.jpg">
+          <span class="cs-line top">
+            <span class="cs-mono njs" data-pre="P — " data-num="1">P — 01</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">WORK TYPE</span><span class="cs-v">실무 작업<br>공식몰 리뉴얼·운영</span></span>
+          </span>
+          <span class="cs-big">Sense Mom</span>
+          <img class="cs-thumb-m" src="assets/work-sensemom.jpg" alt="" loading="lazy" />
+          <span class="cs-line bot">
+            <span class="cs-mono cs-name" aria-hidden="true">SENSE MOM</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">PROJECT SCOPE</span><span class="cs-v">UI/UX<br>Web Design<br>Publishing</span></span>
+          </span>
+        </a>
+
+        <a class="cs-row" href="bobbibrown.html" data-img="assets/work-bobbi.jpg">
+          <span class="cs-line top">
+            <span class="cs-mono njs" data-pre="P — " data-num="2">P — 02</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">WORK TYPE</span><span class="cs-v">개인 리디자인</span></span>
+          </span>
+          <span class="cs-big">Bobbi Brown</span>
+          <img class="cs-thumb-m" src="assets/work-bobbi.jpg" alt="" loading="lazy" />
+          <span class="cs-line bot">
+            <span class="cs-mono cs-name" aria-hidden="true">BOBBI BROWN</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">PROJECT SCOPE</span><span class="cs-v">Web Design<br>UI/UX</span></span>
+          </span>
+        </a>
+
+        <a class="cs-row" href="patagonia.html" data-img="assets/work-patagonia.jpg">
+          <span class="cs-line top">
+            <span class="cs-mono njs" data-pre="P — " data-num="3">P — 03</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">WORK TYPE</span><span class="cs-v">개인 리디자인</span></span>
+          </span>
+          <span class="cs-big">Patagonia</span>
+          <img class="cs-thumb-m" src="assets/work-patagonia.jpg" alt="" loading="lazy" />
+          <span class="cs-line bot">
+            <span class="cs-mono cs-name" aria-hidden="true">PATAGONIA</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">PROJECT SCOPE</span><span class="cs-v">Web Design<br>UI/UX</span></span>
+          </span>
+        </a>
+
+        <a class="cs-row" href="museum.html" data-img="assets/work-hermitage.jpg">
+          <span class="cs-line top">
+            <span class="cs-mono njs" data-pre="P — " data-num="4">P — 04</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">WORK TYPE</span><span class="cs-v">개인 리디자인</span></span>
+          </span>
+          <span class="cs-big">Hermitage Museum</span>
+          <img class="cs-thumb-m" src="assets/work-hermitage.jpg" alt="" loading="lazy" />
+          <span class="cs-line bot">
+            <span class="cs-mono cs-name" aria-hidden="true">HERMITAGE MUSEUM</span>
+            <span class="cs-meta cs-mono"><span class="cs-k">PROJECT SCOPE</span><span class="cs-v">Web Design<br>UI/UX</span></span>
+          </span>
+        </a>
+
       </div>
     </div>
   </section>
