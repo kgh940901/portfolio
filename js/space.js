@@ -35,9 +35,9 @@ window.initHeroSpace = function(){
     '  vec3 base = mix(vec3(.988,.990,.996), vec3(.958,.964,.982), uv.y);',
     '  vec3 col = base;',
     // 빛 중심 3개: 마우스를 서로 다른 비율로 따라오며 자체 드리프트
-    '  vec2 c1 = m*.72 + vec2(-.26 + .08*sin(t*.11),  .22 + .06*cos(t*.09));',
-    '  vec2 c2 = m*.50 + vec2( .30 + .09*sin(t*.07+2.), .14 + .07*sin(t*.13+1.));',
-    '  vec2 c3 = m*.32 + vec2( .02 + .06*cos(t*.06),  .34 + .05*sin(t*.08));',
+    '  vec2 c1 = m*.72 + vec2(-.26 + .15*sin(t*.17),  .22 + .11*cos(t*.14));',
+    '  vec2 c2 = m*.50 + vec2( .30 + .16*sin(t*.11+2.), .14 + .12*sin(t*.19+1.));',
+    '  vec2 c3 = m*.32 + vec2( .02 + .12*cos(t*.09),  .34 + .09*sin(t*.13));',
     '  float b1 = blob(q, c1, .60, t);',
     '  float b2 = blob(q, c2, .70, t + 13.);',
     '  float b3 = blob(q, c3, .52, t + 31.);',

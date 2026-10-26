@@ -22,6 +22,15 @@
   body{ font-family:var(--font); background:var(--bg); color:var(--text); line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
   /* 키보드 포커스 — 링크·아코디언 공통 */
   a:focus-visible, summary:focus-visible{ outline:2px solid currentColor; outline-offset:3px; border-radius:2px; }
+  /* 전역 글로우 — 스크롤해 내려가도 양옆에서 은은한 블루·라벤더 빛 (multiply: 글자 가독 유지, 클릭 통과) */
+  body::after{ content:""; position:fixed; inset:-22%; z-index:60; pointer-events:none; mix-blend-mode:multiply;
+    background:
+      radial-gradient(32% 28% at 10% 38%, rgba(112,124,255,.24), transparent 70%),
+      radial-gradient(28% 26% at 94% 62%, rgba(150,128,255,.20), transparent 70%),
+      radial-gradient(22% 20% at 3% 90%, rgba(99,112,255,.14), transparent 70%);
+    animation:glowdrift 24s ease-in-out infinite alternate; }
+  @keyframes glowdrift{ from{ transform:translate3d(-2.5%,-2%,0); } to{ transform:translate3d(2.5%,3%,0); } }
+  @media(prefers-reduced-motion:reduce){ body::after{ animation:none; } }
   @supports (overflow-x:clip){ body{ overflow-x:clip; } }
   a{ color:inherit; text-decoration:none; }
   img{ max-width:100%; display:block; }
