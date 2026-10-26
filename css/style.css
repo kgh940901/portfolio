@@ -80,29 +80,34 @@
       linear-gradient(180deg, #fbfcfe, #f4f6fb); }
   .hero-space{ position:absolute; inset:0; z-index:0; }
   .hero-space canvas{ display:block; width:100%; height:100%; }
-  /* 상단 — 좌 GAHYUN, 우 내비 */
+  /* 상단 — 좌 GAHYUN(+역할), 우 내비 */
   .hero-bar{ position:absolute; top:0; left:0; right:0; z-index:6; display:flex; justify-content:space-between;
     align-items:flex-start; gap:20px; padding:24px; }
-  .hb-logo{ font-size:16px; font-weight:800; letter-spacing:.12em; }
+  .hb-logo b{ display:block; font-size:16px; font-weight:800; letter-spacing:.12em; }
+  .hb-logo span{ display:block; margin-top:4px; font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--gray-ink); }
   .hb-menu{ display:flex; gap:clamp(20px,3.4vw,46px); padding-top:2px; }
   .hb-menu a{ font-size:13.5px; font-weight:600; transition:color .25s, opacity .25s; }
   .hb-menu:hover a{ opacity:.45; }
   .hb-menu a:hover, .hb-menu a:focus-visible{ opacity:1; color:#2f4bff; }
-  /* 중앙보다 조금 아래 — 큰 PORTFOLIO (Manrope, 폭 ≈ 화면 70%) + 서브 */
-  .hero-center{ position:absolute; left:0; right:0; top:54%; z-index:4; transform:translateY(-50%);
-    display:flex; flex-direction:column; align-items:center; gap:clamp(10px,1.4vw,18px);
-    text-align:center; pointer-events:none; }
-  .hero-name{ font-family:'Manrope', var(--font); font-weight:600; font-size:clamp(44px,12.6vw,176px);
-    letter-spacing:.012em; line-height:1; }
-  .hero-sub{ font-size:clamp(10px,1vw,13px); font-weight:600; letter-spacing:.18em; padding-left:.18em;
-    text-transform:uppercase; color:var(--body-ink); }
-  .hero-cta{ position:absolute; right:24px; bottom:28px; z-index:5; width:200px; color:var(--ink); }
-  @media(max-width:900px){ .hb-menu{ gap:18px; } .hb-menu a{ font-size:12.5px; } }
+  /* 하단 — 화면 폭을 크게 쓰는 the + Portfolio. (레퍼런스와 다른 서체: Manrope / Cormorant Garamond) */
+  .hero-bottom{ position:absolute; left:0; right:0; bottom:0; z-index:5; padding:0 24px clamp(16px,2.4vh,26px); }
+  .hero-title{ display:flex; align-items:baseline; justify-content:space-between; gap:3vw;
+    font-size:clamp(56px,12vw,172px); line-height:.92; white-space:nowrap; }
+  .ht-sans{ font-family:'Manrope', var(--font); font-weight:700; letter-spacing:-.02em; }
+  .ht-serif{ font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-style:italic; font-weight:600;
+    font-size:1.1em; letter-spacing:0; padding-right:.03em; }
+  .ht-serif .dot{ color:#2f4bff; }
+  .hero-foot{ margin-top:clamp(26px,3.6vh,42px); padding-top:13px; border-top:1px solid rgba(17,17,17,.16);
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    font-size:13px; font-weight:700; letter-spacing:.04em; color:var(--body-ink); }
+  .hero-foot .hf-cta{ color:var(--ink); padding:4px 2px; transition:color .25s; }
+  .hero-foot .hf-cta:hover, .hero-foot .hf-cta:focus-visible{ color:#2f4bff; }
+  @media(max-width:900px){ .hb-menu{ gap:18px; } .hb-menu a{ font-size:12.5px; } .hb-logo span{ display:none; } }
   @media(max-width:700px){
     .hero{ min-height:560px; }
-    .hero-name{ font-size:13.5vw; }
-    .hero-sub{ font-size:10px; letter-spacing:.14em; }
-    .hero-cta{ right:20px; bottom:24px; width:170px; font-size:13.5px; }
+    .hero-title{ flex-direction:column; align-items:flex-start; gap:0; white-space:normal;
+      font-size:clamp(56px,17.5vw,76px); }
+    .hero-foot{ font-size:12px; }
   }
   /* 진입 — 배경→타이포→정보 순의 짧은 등장 */
   .ha{ opacity:0; transform:translateY(26px); }
