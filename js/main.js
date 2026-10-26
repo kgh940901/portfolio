@@ -237,7 +237,7 @@ function initSite(){
       if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const root = document.documentElement;
       const TRIG = .55, RESET = .78;     // 제목 상단 기준(뷰포트 비율) — 조정 가능
-      const DUR = 2800, LAG = 140, HIDE = 600;   // 등장 시간 / 우측 시차 / 숨김 시간(ms)
+      const DUR = 2000, LAG = 120, HIDE = 500;   // 등장 시간 / 우측 시차 / 숨김 시간(ms)
       let top = 0, hgt = 1, raf = 0;
       let phase = 0, t0 = 0, h0L = 0, h0R = 0, eL = 0, eR = 0;   // 0 숨김 / 1 등장 중 / 2 표시 / 3 숨김 중
       function measure(){ const r = sec.getBoundingClientRect(); top = r.top + scrollY; hgt = sec.offsetHeight; }
