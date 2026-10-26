@@ -86,8 +86,7 @@ function initSite(){
       // 스크롤로 커서 밑 행이 바뀌면 상태가 어긋나므로 정리 (fixed 라 위치 자체는 어긋나지 않음)
       addEventListener('scroll', function(){ if(active >= 0) setActive(-1); }, { passive:true });
     }
-    initCursorPreview('csList', '.cs-row', 'cs-cursor-img');
-    initCursorPreview('archList', '.arow', 'cs-cursor-img sm');   // More Works: 레퍼런스처럼 더 작은 프리뷰
+    initCursorPreview('csList', '.wk-row', 'cs-cursor-img sm');
 
     // (03) More Works — 프로젝트명 스크램블 (scramble-hover 참고).
     // 주의: 레퍼런스 실측에서 헤드리스 환경에선 텍스트 변화가 관찰되지 않아 리듬·시간은 보수적 자체값(450ms).
@@ -95,13 +94,13 @@ function initSite(){
     // 글자는 왼쪽부터 순차 복원되고 종료 시 원문 완전 복원. 공백·비ASCII(한글 등)는 치환하지 않아 자모 분리 없음.
     // 행 이탈 시 진행 중이던 애니메이션은 즉시 취소 + 원문 복구. aria-label 이 행 이름을 고정 제공하므로 접근성 이름은 흔들리지 않음.
     (function(){
-      const list = document.getElementById('archList');
+      const list = document.getElementById('csList');
       if(!list) return;
       if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&';
       const DUR = 450;
-      list.querySelectorAll('.arow').forEach(function(row){
-        const nm = row.querySelector('.an');
+      list.querySelectorAll('.wk-row').forEach(function(row){
+        const nm = row.querySelector('.wk-name');
         if(!nm) return;
         const orig = nm.textContent;
         let raf = 0, t0 = 0;

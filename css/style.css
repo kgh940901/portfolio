@@ -19,7 +19,7 @@
   ::-webkit-scrollbar-thumb{ background:#9a9a9a; border-radius:999px; border:3px solid #2b2b2b; }
   ::-webkit-scrollbar-thumb:hover{ background:#c4c4c4; }
 
-  body{ font-family:var(--font); background:var(--bg); color:var(--text); line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+  body{ font-family:var(--font); background:var(--paper); color:var(--ink); line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
   /* 키보드 포커스 — 링크·아코디언 공통 */
   a:focus-visible, summary:focus-visible{ outline:2px solid currentColor; outline-offset:3px; border-radius:2px; }
   @supports (overflow-x:clip){ body{ overflow-x:clip; } }
@@ -29,8 +29,6 @@
   .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
 
   /* 전체 배경 — 어두운 텍스처 + 마우스 반응 WebGL 물결 (흰 섹션이 위를 덮음) */
-  #pageWater{ position:fixed; inset:0; z-index:-1; background:#0a0a0a url('../assets/hero-black.jpg') center/cover no-repeat; }
-  #pageWater canvas{ display:block; }
 
   /* 진행바 + 로더 */
   .scroll-progress{ position:fixed; top:0; left:0; height:2px; width:100%; transform:scaleX(0); transform-origin:left; z-index:100; background:#fff; will-change:transform; }
@@ -46,11 +44,6 @@
   .sec-dark .shead{ border-top:1px solid var(--line-d); }
   section{ padding:26px 0 120px; }
   .sec-light, .sec-dark{ position:relative; }
-  /* 사선 섹션 분할 — 이전 섹션 위를 비스듬히 덮으며 시작 (Fuel) */
-  .slant{
-    clip-path:polygon(0 var(--cut), 100% 0, 100% 100%, 0 100%);
-    margin-top:calc(var(--cut) * -1);
-    padding-top:calc(26px + var(--cut)); }
 
   /* 공통 — 코너 브래킷 CTA (텍스트 + 밑줄 + ┐) */
   .cta{ position:relative; display:block; width:min(250px,64vw); font-size:15px; font-weight:700; padding:8px 0 13px;
@@ -69,52 +62,43 @@
   .reveal{ opacity:0; transform:translateY(36px); transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
   .reveal.in{ opacity:1; transform:none; }
 
-  /* ===== HERO — 작업물 배경(마우스 유체 왜곡) + 상단 바 + 좌측 카피 + 크롭 워드마크 =====
-     레퍼런스처럼 히어로는 뷰포트에 고정(sticky)되고, 흰 About 섹션이 사선으로 그 위를 덮으며 올라옴.
-     margin-bottom:var(--cut) 은 About 의 음수 마진을 상쇄 — 첫 화면(y=0)에선 사선이 보이지 않게 함 */
-  .hero{ position:sticky; top:0; height:100vh; min-height:620px; overflow:hidden; padding:0;
-    margin-bottom:var(--cut);
-    /* WebGL 미지원 폴백 배경 — 딥 네이비 + 은은한 블루 글로우 */
+  /* ===== HERO — 밝은 배경 + 블루·라벤더 빛 흐름 + 하단 대형 타이포 ===== */
+  .hero{ position:relative; height:100vh; min-height:620px; overflow:hidden; padding:0;
+    /* WebGL 폴백/로딩 전 배경 — 같은 톤의 정적 그라데이션 */
     background:
-      radial-gradient(56% 46% at 68% 30%, rgba(70,95,190,.14), transparent 70%),
-      radial-gradient(60% 50% at 24% 78%, rgba(90,70,160,.10), transparent 72%),
-      linear-gradient(180deg, #06070c, #090b12 55%, #05060a); }
-  /* 우주 배경 + 커서 유리 렌즈 캔버스 (js/space.js) */
+      radial-gradient(42% 46% at 30% 30%, rgba(99,112,255,.16), transparent 70%),
+      radial-gradient(46% 50% at 74% 36%, rgba(142,120,255,.13), transparent 72%),
+      linear-gradient(180deg, #fbfcfe, #f4f6fb); }
   .hero-space{ position:absolute; inset:0; z-index:0; }
   .hero-space canvas{ display:block; width:100%; height:100%; }
-  /* 중앙 이름 — 배경 효과 위에서도 선명하게 */
-  .hero-center{ position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:clamp(7px,.85vw,10px); text-align:center; pointer-events:none; }
-  .hero-name{ font-size:clamp(32px,10vw,132px); font-weight:800; letter-spacing:-.025em; line-height:1; color:#fff;
-    text-shadow:0 2px 60px rgba(0,0,0,.55); }   /* 캔버스 텍스트와 동일 수치 (제목 폭 ≈ 화면 52%) */
-  .hero-sub{ font-size:clamp(10px,1vw,13px); font-weight:600; letter-spacing:.15em; padding-left:.15em; text-transform:uppercase;
-    color:rgba(255,255,255,.7); }
-  @media(max-width:700px){
-    .hero-name{ font-size:11vw; }
-    .hero-sub{ font-size:10px; }
+  /* 상단 왼쪽 — 이름·직무 */
+  .hero-top{ position:absolute; top:26px; left:24px; z-index:5; }
+  .hero-top b{ display:block; font-size:14.5px; font-weight:800; letter-spacing:.05em; }
+  .hero-top span{ display:block; margin-top:4px; font-size:12.5px; font-weight:600; letter-spacing:.03em; color:var(--gray-ink); }
+  /* 하단 — 화면 폭을 크게 쓰는 메인 타이포 + 얇은 선 + 전문분야·내비 */
+  .hero-bottom{ position:absolute; left:0; right:0; bottom:0; z-index:5; padding:0 24px clamp(18px,2.8vh,30px); }
+  .hero-title{ display:flex; align-items:baseline; justify-content:space-between; gap:3vw;
+    font-size:clamp(58px,12.3vw,176px); line-height:.92; white-space:nowrap; }
+  .ht-sans{ font-weight:800; letter-spacing:-.035em; }
+  .ht-serif{ font-family:'Playfair Display', Georgia, 'Times New Roman', serif; font-style:italic; font-weight:500;
+    letter-spacing:-.01em; font-size:1.02em; padding-right:.04em; }
+  .ht-serif .dot{ color:#2f4bff; font-style:italic; }
+  .hero-foot{ margin-top:clamp(14px,2.4vh,24px); padding-top:14px; border-top:1px solid rgba(17,17,17,.16);
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    font-size:13px; font-weight:700; letter-spacing:.05em; }
+  .hf-mid{ display:flex; gap:14px; color:var(--body-ink); white-space:nowrap; }
+  .hf-mid i{ font-style:normal; color:#c6c6c1; }
+  .hf-nav{ display:flex; gap:clamp(18px,3vw,40px); }
+  .hf-nav a{ padding:4px 2px; transition:color .25s; }
+  .hf-nav a:hover, .hf-nav a:focus-visible{ color:#2f4bff; }
+  @media(max-width:760px){
+    .hero{ min-height:560px; }
+    .hero-title{ flex-direction:column; align-items:flex-start; gap:2px; white-space:normal;
+      font-size:clamp(52px,17vw,72px); }
+    .hero-foot{ flex-wrap:wrap; gap:12px 20px; font-size:12px; }
+    .hf-mid{ gap:10px; }
   }
-  /* WebGL 이 글자를 캔버스로 그릴 땐 DOM 텍스트 숨김 (접근성 위해 DOM 은 유지)
-     body.loaded .ha 의 opacity:1 보다 우선해야 하므로 동일 체인으로 재선언 */
-  .hero-center.gl-on, body.loaded .hero-center.gl-on{ opacity:0; }
-  .hero-cta{ position:absolute; right:24px; bottom:26px; z-index:5; width:200px; color:#fff; }
-  @media(max-width:700px){ .hero-cta{ right:20px; bottom:70px; width:170px; font-size:13.5px; } }
-  .hero-bar{ position:absolute; top:0; left:0; right:0; z-index:6; display:grid; grid-template-columns:1fr auto 1fr; align-items:start; gap:20px; padding:22px 24px; }
-  .hb-menu{ grid-column:2; }
-  .hb-logo{ font-size:17px; font-weight:800; letter-spacing:.5px; display:flex; align-items:center; gap:8px; padding-top:9px; }
-  .hb-logo .px{ display:inline-block; width:14px; height:14px;
-    background:conic-gradient(from 90deg at 50% 50%, #fff 0 25%, transparent 0 50%, #fff 0 75%, transparent 0); }
-  .hb-logo sup{ font-size:9px; font-weight:700; }
-  .hb-menu{ display:flex; gap:clamp(22px,4.5vw,64px); padding-top:11px; }
-  .hb-menu a{ font-size:13.5px; font-weight:600; display:flex; gap:5px; align-items:flex-start; transition:opacity .25s; }
-  .hb-menu a sup{ font-size:9px; color:var(--gray); font-weight:700; padding-top:2px; }
-  .hb-menu:hover a{ opacity:.45; }
-  .hb-menu a:hover{ opacity:1; }
-  @media(max-width:900px){ .hb-menu{ display:none; } }
-  .hero-meta{ position:absolute; left:24px; bottom:26px; z-index:5; display:flex; align-items:center; gap:14px; font-size:13.5px; font-weight:600; }
-  .hero-ruler{ display:flex; gap:5px; align-items:center; }
-  .hero-ruler i{ display:block; width:1px; height:9px; background:rgba(255,255,255,.5); }
-  .hero-ruler i:nth-child(4n+1){ height:13px; }
-  /* 진입 애니메이션 */
+  /* 진입 — 배경→타이포→정보 순의 짧은 등장 */
   .ha{ opacity:0; transform:translateY(26px); }
   body.loaded .ha{ opacity:1; transform:none; transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
   body.loaded .ha.d1{ transition-delay:.08s; } body.loaded .ha.d2{ transition-delay:.16s; }
@@ -123,6 +107,9 @@
   /* ===== (01) ABOUT — 대형 문장 + (Pre)/(+Post) + (=Results) + 툴 카드 띠 ===== */
   /* 한글은 영문보다 획 밀도가 높아 레퍼런스보다 가늘고(500) 행간을 넉넉히(1.28) */
   /* 두 줄 모두 같은 왼쪽 기준선에서 시작 (들여쓰기 없음) */
+  .intro-sub{ margin-top:clamp(22px,2.4vw,32px); font-size:clamp(16px,1.3vw,18px); line-height:1.75; color:var(--body-ink); word-break:keep-all; }
+  #intro{ padding-bottom:clamp(60px,8vw,104px); }
+  @media(max-width:600px){ .intro-sub br, .stmt-big br{ display:none; } }
   .stmt-big{ margin-top:clamp(28px,4.2vw,64px); font-size:clamp(26px,4.2vw,54px); font-weight:500; letter-spacing:-.02em; line-height:1.34; word-break:keep-all; }
   .ab-row{ display:grid; grid-template-columns:minmax(200px,330px) 1fr minmax(260px,390px); gap:30px; align-items:start; margin-top:clamp(48px,6vw,90px); }
   .ab-row + .ab-row{ margin-top:70px; }
@@ -215,48 +202,39 @@
     .tools-ctl{ display:none; }                                   /* 흐름 자체가 없으므로 토글 불필요 */
   }
 
-  /* ===== (02) CASE STUDIES — 이름 중심 목록 (Signal-A 방식) =====
-     기본: 작은 모노 정보만. 호버/포커스: 행 가운데 큰 제목 등장 + 커서를 따라다니는 프리뷰(main.js) */
-  .cs-list{ margin-top:34px; }   /* 목록 윗선 없음 — 섹션 헤더(shead) 선과 겹쳐 보이지 않게 */
-  .cs-row{ position:relative; display:flex; flex-direction:column; justify-content:space-between; gap:14px;
-    min-height:clamp(200px,25vw,310px); padding:16px 2px 14px; border-bottom:1px solid var(--line-l); color:var(--ink); }
-  .cs-line{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
-  .cs-line.bot{ justify-content:flex-end; }   /* 작은 라벨 제거 후에도 SCOPE 는 우측 유지 */
-  .cs-mono{ font-size:12.5px; font-weight:600; letter-spacing:.4px; line-height:1.7; }
-  .cs-k{ color:var(--gray-ink); }
-  .cs-v{ text-align:right; }
-  .cs-meta{ display:flex; gap:clamp(26px,5vw,84px); align-items:flex-start; }
-  /* 행 가운데 큰 제목 — 항상 표시 (호버와 무관하게 읽을 수 있어야 함) */
-  .cs-big{ position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
-    font-size:clamp(38px,5.4vw,82px); font-weight:800; letter-spacing:-.02em; line-height:1; z-index:2;
-    pointer-events:none; }
-  .cs-name{ display:none; }   /* 큰 제목이 항상 보이므로 작은 중복 라벨은 숨김 */
-  /* 커서 프리뷰 — fixed·커서 중앙·프로젝트별 크로스페이드. z 는 제목(z2)보다 낮게 — 이미지가 프로젝트명을 가리지 않음 */
-  .cs-cursor-img{ position:fixed; left:0; top:0; width:min(320px,26vw); height:auto; z-index:1;
-    pointer-events:none; opacity:0; transition:opacity .35s ease; will-change:transform; }
+  /* ===== (02) WORK — 대표·추가 두 열 목록 + 커서 프리뷰 ===== */
+  .wk-grid{ display:grid; grid-template-columns:1.25fr 1fr; gap:clamp(34px,6vw,96px); margin-top:38px; align-items:start; }
+  .wk-collab{ display:block; font-size:12px; font-weight:700; letter-spacing:.08em; color:var(--gray-ink);
+    padding-bottom:10px; border-bottom:1px solid var(--line-l); }
+  .wk-row{ display:grid; grid-template-columns:64px 1fr auto; align-items:baseline; gap:16px;
+    padding:clamp(18px,2vw,26px) 2px; border-bottom:1px solid var(--line-l); color:var(--ink); transition:opacity .3s; }
+  .wk-code{ font-size:12.5px; font-weight:600; color:var(--gray-ink); }
+  .wk-name{ position:relative; z-index:2; letter-spacing:-.02em; line-height:1.1;
+    transition:transform .4s cubic-bezier(.2,.7,.2,1), color .25s; }
+  .wk-main .wk-name{ font-size:clamp(26px,2.9vw,44px); font-weight:800; }
+  .wk-more .wk-name{ font-size:clamp(19px,1.8vw,26px); font-weight:600; }
+  .wk-type{ font-size:12.5px; font-weight:600; color:var(--gray-ink); white-space:nowrap; }
+  .wk-row:hover .wk-name, .wk-row:focus-visible .wk-name{ transform:translateX(10px); color:#2f4bff; }
+  .wk-col:hover .wk-row{ opacity:.45; }
+  .wk-col .wk-row:hover{ opacity:1; }
+  /* 커서 프리뷰 — fixed·커서 중앙·크로스페이드. z 는 이름(z2)보다 낮게 */
+  .cs-cursor-img{ position:fixed; left:0; top:0; z-index:1; pointer-events:none; opacity:0;
+    transition:opacity .35s ease; will-change:transform; }
+  .cs-cursor-img.sm{ width:min(280px,22vw); aspect-ratio:3/2; height:auto; object-fit:cover; }
   .cs-cursor-img.on{ opacity:1; }
-  .cs-thumb-m{ display:none; }
-  /* Case Studies 바로 아래 More Works 가 이어지므로 섹션 아래 여백 축소 */
-  #work{ padding-bottom:clamp(40px,5vw,64px); }
   @media(max-width:860px){
-    /* 터치: 호버 없음 — 큰 제목과 대표 이미지를 행 안에 항상 노출, 한 번 탭 = 상세 이동 */
-    .cs-row{ min-height:0; }
-    .cs-big{ position:static; transform:none; order:2; font-size:clamp(28px,8vw,42px); }
-    .cs-thumb-m{ display:block; width:100%; max-width:440px; order:3; }
-    .cs-line.top{ order:1; } .cs-line.bot{ order:4; }
-  }
-  @media(prefers-reduced-motion:reduce){
-    .cs-big{ transition:none; }
+    .wk-grid{ grid-template-columns:1fr; gap:48px; }
+    .wk-row{ grid-template-columns:52px 1fr auto; }
   }
 
   /* ===== (04) SERVICES — 스크롤 연동 작업물 무대 =====
      데스크톱: 560vh 스크롤 구간 + sticky 100vh 무대. 패널 transform/opacity 는 main.js 가 진행률로 계산.
      정적 모드(.svc-static — 모바일·모션 감소): 무대를 일반 세로 흐름으로 전환 */
-  .svc-scroll{ position:relative; height:800vh; margin-top:10px; }   /* 프로모션 내부 스크롤에 더 긴 구간 배분 */
+  .svc-scroll{ position:relative; height:560vh; margin-top:10px; }   /* 프로모션 내부 스크롤에 더 긴 구간 배분 */
   .svc-stage{ position:sticky; top:0; height:100vh; overflow:hidden; }
   .svc-head{ position:absolute; left:50%; top:9vh; transform:translateX(-50%); width:min(820px,88vw); text-align:center; z-index:7; }
-  .svc-head h3{ font-size:clamp(34px,3.8vw,56px); font-weight:800; letter-spacing:-.015em; line-height:1.3; color:#f3f3f1; word-break:keep-all; }
-  .svc-head p{ margin-top:14px; font-size:16px; line-height:1.7; color:var(--gray); word-break:keep-all; }
+  .svc-head h3{ font-size:clamp(34px,3.8vw,56px); font-weight:800; letter-spacing:-.015em; line-height:1.3; color:var(--ink); word-break:keep-all; }
+  .svc-head p{ margin-top:14px; font-size:16px; line-height:1.7; color:var(--body-ink); word-break:keep-all; }
   /* 작업 패널 — 얇은 선, 장식 없음. 비율 고정(aspect-ratio)으로 로드 전에도 공간 확보 */
   .svc-panel{ position:absolute; left:50%; top:50%; margin:0; background:#10141d;
     border:1px solid rgba(255,255,255,.13); overflow:hidden; will-change:transform; }
@@ -273,11 +251,11 @@
   .svc-panel.pD{ width:17vw; aspect-ratio:471/680; }
   /* 설명 — 우측 약 27% 폭, 진행률에 따라 짧은 상승+페이드 */
   .svc-copy{ position:absolute; left:66vw; top:50%; width:min(380px,28vw); z-index:7; opacity:0; }
-  .svc-copy .k{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:var(--gray); }
-  .svc-copy h4{ margin-top:14px; font-size:clamp(24px,2.3vw,34px); font-weight:700; letter-spacing:-.015em; line-height:1.34; color:#f3f3f1; word-break:keep-all; }
-  .svc-copy p{ margin-top:16px; font-size:15.5px; line-height:1.78; color:var(--gray); word-break:keep-all; }
+  .svc-copy .k{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:var(--gray-ink); }
+  .svc-copy h4{ margin-top:14px; font-size:clamp(24px,2.3vw,34px); font-weight:700; letter-spacing:-.015em; line-height:1.34; color:var(--ink); word-break:keep-all; }
+  .svc-copy p{ margin-top:16px; font-size:15.5px; line-height:1.78; color:var(--body-ink); word-break:keep-all; }
   .svc-end{ position:absolute; left:50%; bottom:8vh; transform:translateX(-50%); z-index:7; opacity:0;
-    font-size:clamp(22px,2.3vw,32px); font-weight:700; letter-spacing:-.01em; color:#f3f3f1; white-space:nowrap; }
+    font-size:clamp(22px,2.3vw,32px); font-weight:700; letter-spacing:-.01em; color:var(--ink); white-space:nowrap; }
   /* 정적 모드 — 소개 → 이미지 → 설명 세로 흐름 (DOM 순서 그대로) */
   .svc-scroll.svc-static{ height:auto; }
   .svc-static .svc-stage{ position:static; height:auto; overflow:visible;
@@ -334,99 +312,10 @@
   .pj-group li::before{ content:"+"; position:absolute; left:0; color:var(--gray-ink); font-size:12px; }
   @media(max-width:680px){ .proj-body{ grid-template-columns:1fr; } .proj summary .pj-tag{ display:none; } }
 
-  /* ===== (05) MIND — 거대 인용 + 인물 카드 + 스탯 ===== */
-  /* ===== (06) DESIGN APPROACH — 짧은 문장, 같은 왼쪽 기준선, 타이포 중심 ===== */
-  .da-wrap{ margin-top:clamp(40px,5vw,72px); max-width:860px; }
-  .da-title{ font-size:clamp(32px,3.6vw,52px); font-weight:600; letter-spacing:-.015em; line-height:1.3; word-break:keep-all; }
-  .da-sub{ margin-top:clamp(24px,2.4vw,32px); font-size:clamp(16px,1.3vw,18px); line-height:1.7; color:#44443f; word-break:keep-all; }
-  #mind{ padding-bottom:clamp(64px,8vw,110px); }   /* 콘텐츠에 맞는 높이 — 억지로 채우지 않음 */
-  @media(max-width:600px){
-    .da-title{ font-size:clamp(30px,8.4vw,36px); }
-    .da-title br, .da-sub br{ display:none; }      /* 작은 화면: 의미 단위 자연 줄바꿈 */
-  }
 
-  /* ===== (03) MORE WORKS — 텍스트 목록 (signal-a award-item 방식: 기본은 글만, 호버 시 커서 프리뷰) ===== */
-  .arch{ margin-top:34px; }
-  /* 2열: 분류 | 제목. 구분선은 Case Studies 행과 같은 방식(행 아래선만) — 두 목록이 한 영역처럼 읽히게 */
-  .arow{ display:grid; grid-template-columns:minmax(90px,32%) minmax(0,1fr); align-items:center; gap:16px;
-    border-bottom:1px solid var(--line-l); padding:17px 2px; transition:background .3s, opacity .3s; }
-  .arow .ay{ font-size:14px; font-weight:600; color:var(--ink); }
-  /* 긴 제목(Promotion Design 등) 기준으로 크기·굵기 하향 */
-  .arow .an{ position:relative; z-index:2;   /* 커서 프리뷰(z1)가 이름을 가리지 않게 */
-    font-size:clamp(20px,2.5vw,34px); font-weight:600; letter-spacing:-.015em; line-height:1.14; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
-  .arow:hover .an{ transform:translateX(12px); }
-  .arch:hover .arow{ opacity:.38; }
-  .arch .arow:hover{ opacity:1; }
-  /* More Works 프리뷰 — 기존 썸네일과 같은 가로형(3:2)·중앙 크롭으로 대표 컷이 보이게 */
-  .cs-cursor-img.sm{ width:min(280px,22vw); aspect-ratio:3/2; height:auto; object-fit:cover; }
 
-  /* ===== CTA 배너 — 작업물 공간 컷 배경 + 대형 마퀴 + Contact ===== */
-  /* 밤하늘 배너 — 전체 폭, 직선 경계(다크 섹션들과 같은 방식). 색은 히어로 셰이더 값 재사용:
-     베이스 rgb(13,16,24)→rgb(22,24,36), 틸 글로우 vec3(.14,.30,.26), 바이올렛 vec3(.26,.20,.44) — 메인보다 낮은 강도 */
-  /* 비율·배치는 Fuel .framer-15ml58i 실측: 배너 1300×800(≈62%), 중앙 텍스트 창 800px,
-     좌측 등속 50px/s(속도는 main.js 가 트랙 폭 기준으로 설정), 창 양끝 ~5% 투명 마스크, 창 모서리 + 마커 */
-  .ctaband{ position:relative; display:flex; flex-direction:column; justify-content:center; align-items:center;
-    height:clamp(480px,62vw,800px); overflow:hidden; color:#f3f3f1;
-    background:
-      radial-gradient(44% 62% at 22% 28%, rgba(36,77,66,.30), transparent 70%),
-      radial-gradient(48% 66% at 76% 74%, rgba(66,51,112,.34), transparent 72%),
-      linear-gradient(to top, #0d1018, #161824); }
-  .cb-stars{ position:absolute; inset:0; width:100%; height:100%; }
-  /* 중앙의 제한된 창 — 배너보다 좁고, 양끝 5% 에서만 투명하게 사라짐(글자 자체는 선명) */
-  .cb-marq{ position:relative; width:min(800px,80vw); overflow:hidden; z-index:1;
-    -webkit-mask-image:linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
-    mask-image:linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
-  .cb-track{ display:flex; width:max-content; white-space:nowrap; animation:lsmarq 60s linear infinite; }
-  /* 타이포는 메인 PORTFOLIO 와 같은 계열(서체·굵기 유지), 크기·자간은 레퍼런스 밀도(100px/-.03em) 반영 */
-  .cb-track span{ font-size:clamp(48px,7.7vw,100px); font-weight:800; letter-spacing:-.03em; line-height:1; color:#f3f3f1; }
-  .ctaband .cta{ position:relative; z-index:2; margin-top:clamp(56px,10vw,130px); color:#fff; }
-  @media(max-width:600px){
-    .ctaband{ height:440px; }
-    .cb-marq{ width:86vw; }
-    .cb-track span{ font-size:42px; }
-    .ctaband .cta{ margin-top:44px; }
-  }
 
-  /* ===== (07) STATS — 2×2 대형 숫자 ===== */
-  .stats-grid{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(54px,8vw,110px) clamp(40px,8vw,110px); margin-top:clamp(48px,6.5vw,90px); }
-  .stat{ position:relative; }
-  .stat b{ display:block; font-size:clamp(66px,8.6vw,120px); font-weight:700; letter-spacing:-.035em; line-height:.92; padding-bottom:20px; border-bottom:1px solid var(--line-l); }
-  .stat b sup{ font-size:.5em; }
-  .stat::after{ content:""; position:absolute; right:0; top:4px; width:10px; height:10px; border-top:1.5px solid #111; border-right:1.5px solid #111; }
-  .stat h4{ font-size:17px; font-weight:700; margin-top:20px; }
-  .stat p{ color:var(--body-ink); font-size:14.5px; font-weight:500; margin-top:7px; max-width:40ch; line-height:1.6; word-break:keep-all; }
-  @media(max-width:680px){ .stats-grid{ grid-template-columns:1fr; gap:48px; } }
 
-  /* ===== (08) GRAPHICS — 이미지 카드 4열 ===== */
-  /* ===== (07) BEHIND THE WORK — 수정 전후를 편하게 비교하는 안정된 구성 ===== */
-  .btw-head{ margin-top:clamp(40px,5vw,70px); }
-  .btw-head h3{ font-size:clamp(26px,3.2vw,46px); font-weight:700; letter-spacing:-.015em; line-height:1.34; word-break:keep-all; }
-  .btw-head p{ margin-top:14px; font-size:15.5px; color:var(--body-ink); word-break:keep-all; }
-  .btw-case{ display:grid; grid-template-columns:minmax(0,65fr) minmax(280px,30fr); gap:clamp(28px,5vw,80px);
-    margin-top:clamp(36px,5vw,64px); padding-top:clamp(26px,3vw,40px); border-top:1px solid var(--line-l); align-items:start; }
-  /* 전후 캡처 — 구도가 다른 리뉴얼 전/후라 나란히 배치 (원본 비율 유지) */
-  .btw-media{ display:grid; grid-template-columns:590fr 800fr; gap:16px; align-items:start; }
-  .btw-media figure{ margin:0; }
-  .btw-tag{ display:block; font-size:12px; font-weight:700; letter-spacing:.06em; color:var(--gray-ink); padding-bottom:8px; }
-  .btw-media img{ width:100%; height:auto; border:1px solid var(--line-l); background:#fff; }
-  .btw-copy{ position:sticky; top:12vh; }
-  .btw-k{ font-size:12.5px; font-weight:700; letter-spacing:.08em; color:var(--gray-ink); }
-  .btw-copy h4{ margin-top:12px; font-size:clamp(22px,2.1vw,30px); font-weight:700; letter-spacing:-.015em; line-height:1.35; word-break:keep-all; }
-  .btw-copy dl{ margin-top:18px; }
-  .btw-copy dl div{ display:grid; grid-template-columns:56px 1fr; gap:12px; padding:13px 2px; border-bottom:1px solid var(--line-l); }
-  .btw-copy dl div:first-child{ border-top:1px solid var(--line-l); }
-  .btw-copy dt{ font-size:12.5px; font-weight:700; color:var(--gray-ink); padding-top:3px; }
-  .btw-copy dd{ font-size:14.5px; font-weight:500; line-height:1.7; color:#2b2b28; word-break:keep-all; }
-  .btw-src{ display:block; margin-top:16px; font-size:12.5px; color:var(--gray-ink); }
-  .btw-link{ display:inline-block; margin-top:12px; font-size:13.5px; font-weight:700;
-    border-bottom:1px solid currentColor; padding-bottom:3px; }
-  .btw-link:hover, .btw-link:focus-visible{ letter-spacing:.3px; }
-  @media(max-width:860px){
-    .btw-case{ grid-template-columns:1fr; }
-    .btw-media{ grid-template-columns:1fr; gap:22px; }   /* 좁은 화면: 전후를 세로로 */
-    .btw-copy{ position:static; }
-    .btw-head br{ display:none; }
-  }
 
   /* ===== (09) Q&A — 좌측 카드 + 에세이 아코디언 ===== */
   .qa-grid{ display:grid; grid-template-columns:minmax(220px,330px) 1fr; gap:clamp(30px,6vw,110px); margin-top:40px; align-items:start; }
