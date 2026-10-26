@@ -101,14 +101,12 @@
   .hb-menu a{ font-size:13.5px; font-weight:600; transition:color .25s, opacity .25s; }
   .hb-menu:hover a{ opacity:.45; }
   .hb-menu a:hover, .hb-menu a:focus-visible{ opacity:1; color:#2f4bff; }
-  /* 하단 — 화면 폭을 크게 쓰는 the + Portfolio. (레퍼런스와 다른 서체: Manrope / Cormorant Garamond) */
+  /* 하단 — Portfolio 단독, 가로 중앙 (서체는 기존 Cormorant Garamond 유지) */
   .hero-bottom{ position:absolute; left:0; right:0; bottom:0; z-index:5; padding:0 24px clamp(16px,2.4vh,26px); }
-  .hero-title{ display:flex; align-items:baseline; justify-content:space-between; gap:3vw;
-    font-size:clamp(56px,12vw,172px); line-height:.92; white-space:nowrap; }
-  .ht-sans{ font-family:'Manrope', var(--font); font-weight:700; letter-spacing:-.02em; }
+  .hero-title{ display:flex; align-items:baseline; justify-content:center;
+    font-size:clamp(62px,13vw,188px); line-height:.92; white-space:nowrap; }
   .ht-serif{ font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-style:italic; font-weight:600;
-    font-size:1.1em; letter-spacing:0; padding-right:.03em; }
-  .ht-serif .dot{ color:#2f4bff; }
+    letter-spacing:0; padding-right:.03em; }
   .hero-foot{ margin-top:clamp(26px,3.6vh,42px); padding-top:13px; border-top:1px solid rgba(17,17,17,.16);
     display:flex; align-items:center; justify-content:space-between; gap:24px;
     font-size:13px; font-weight:700; letter-spacing:.04em; color:var(--body-ink); }
@@ -117,8 +115,7 @@
   @media(max-width:900px){ .hb-menu{ gap:18px; } .hb-menu a{ font-size:12.5px; } .hb-logo span{ display:none; } }
   @media(max-width:700px){
     .hero{ min-height:560px; }
-    .hero-title{ flex-direction:column; align-items:flex-start; gap:0; white-space:normal;
-      font-size:clamp(56px,17.5vw,76px); }
+    .hero-title{ font-size:clamp(56px,19vw,86px); }
     .hero-foot{ font-size:12px; }
   }
   /* 진입 — 배경→타이포→정보 순의 짧은 등장 */
