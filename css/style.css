@@ -28,7 +28,7 @@
      스크롤 연동: main.js 가 --sg(0=메인, 1=본문)·--sy1/--sy2(세로 위치)를 갱신 —
      메인에서는 옅게 물러나 있다가, 내려가면 좌우 빛이 안쪽으로 퍼지고 높이도 천천히 달라짐. 역스크롤 자연 복원 */
   body::after{ content:""; position:fixed; inset:-22%; z-index:60; pointer-events:none; mix-blend-mode:multiply;
-    opacity:calc(.30 + .70*var(--sg,0));
+    opacity:calc((.30 + .70*var(--sg,0)) * var(--sgmul,1));   /* --sgmul: About 광원이 보이는 동안 물러남(main.js) */
     background:
       radial-gradient(34% 30% at calc(-7% + 16%*var(--sg,0)) var(--sy1,36%), rgba(108,120,255,.29), transparent 70%),
       radial-gradient(29% 27% at calc(107% - 14%*var(--sg,0)) var(--sy2,63%), rgba(150,128,255,.25), transparent 70%),
@@ -127,6 +127,26 @@
   body.loaded .ha{ opacity:1; transform:none; transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
   body.loaded .ha.d1{ transition-delay:.08s; } body.loaded .ha.d2{ transition-delay:.16s; }
   body.loaded .ha.d3{ transition-delay:.24s; } body.loaded .ha.d4{ transition-delay:.34s; }
+
+  /* (01) About — 스크롤 연동 양옆 광원. 섹션 진행도로 중심이 바깥→안쪽 이동, 지나가면 감쇠(main.js).
+     z-index:-1 + isolation: 섹션 배경 위·텍스트/사진 아래. 블러 대신 그라데이션 감쇠 — 중심은 선명, 가장자리는 흰 배경에 용해 */
+  #about{ isolation:isolate; overflow:hidden; overflow:clip; }   /* 화면 밖 광원이 가로 스크롤을 만들지 않게 */
+  .ab-glow{ position:absolute; z-index:-1; pointer-events:none; opacity:0; will-change:transform,opacity; }
+  .ab-glow.gl{ left:0; top:13%; width:58vw; height:46vw;   /* 좌: 블루+라벤더 */
+    background:radial-gradient(50% 50% at 50% 50%, rgba(93,98,245,.42), rgba(140,120,255,.22) 46%, rgba(140,120,255,0) 72%); }
+  .ab-glow.gr{ right:0; top:46%; width:50vw; height:42vw;  /* 우: 블루 중심, 가장자리 약한 라벤더 — 좌우 비대칭 */
+    background:
+      radial-gradient(50% 50% at 50% 50%, rgba(73,94,255,.33), rgba(99,112,255,.15) 52%, rgba(99,112,255,0) 73%),
+      radial-gradient(60% 60% at 62% 58%, rgba(150,128,255,.13), transparent 70%); }
+  @media(max-width:700px){
+    .ab-glow.gl{ width:88vw; height:70vw; top:9%; }
+    .ab-glow.gr{ width:78vw; height:62vw; top:46%; }
+  }
+  @media(prefers-reduced-motion:reduce){
+    .ab-glow{ opacity:.45 !important; transform:none !important; }   /* 정적인 연한 광원 */
+    .ab-glow.gl{ left:-20vw; }
+    .ab-glow.gr{ right:-8vw; }
+  }
 
   /* ===== (01) ABOUT — 대형 문장 + (Pre)/(+Post) + (=Results) + 툴 카드 띠 ===== */
   /* 한글은 영문보다 획 밀도가 높아 레퍼런스보다 가늘고(500) 행간을 넉넉히(1.28) */

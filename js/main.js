@@ -224,6 +224,43 @@ function initSite(){
       upd();
     })();
 
+    // (01) About — 양옆 광원 패럴랙스: 섹션 진입(pin)으로 중심이 바깥→안쪽 이동, 이탈(pout)로 감쇠.
+    // 진행도의 순수 함수 — 멈추면 그 상태, 역스크롤 자연 복원. 모션 감소 설정은 CSS 정적 광원 사용.
+    (function(){
+      const sec = document.getElementById('about');
+      if(!sec) return;
+      const gl = sec.querySelector('.ab-glow.gl'), gr = sec.querySelector('.ab-glow.gr');
+      if(!gl || !gr) return;
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const root = document.documentElement;
+      let top = 0, hgt = 1, raf = 0;
+      function measure(){ const r = sec.getBoundingClientRect(); top = r.top + scrollY; hgt = sec.offsetHeight; }
+      function ease(t){ return t * t * (3 - 2 * t); }
+      function frame(){
+        raf = 0;
+        const vh = innerHeight, mob = innerWidth < 700;
+        const pin  = Math.min(1, Math.max(0, (scrollY + vh - top) / (vh * 1.25)));
+        const pout = Math.min(1, Math.max(0, (scrollY - (top + hgt - vh * .95)) / (vh * .75)));
+        const pl = ease(Math.min(1, pin * 1.08));                       // 좌우 진행 시점을 조금 다르게
+        const pr = ease(Math.min(1, Math.max(0, pin * 1.18 - .10)));
+        const o  = 1 - ease(pout);
+        // 중심 이동: 좌 -8vw→20vw / 우 108vw→86vw (모바일은 이동량·도달점 축소)
+        const xl = (mob ? -50 : -37) + ((mob ? -32 : -9) - (mob ? -50 : -37)) * pl;
+        const xr = (mob ?  43 :  33) + ((mob ?  28 : 11) - (mob ?  43 :  33)) * pr;
+        gl.style.transform = 'translate(' + xl.toFixed(2) + 'vw, ' + ((1 - pl) * 7).toFixed(2) + 'vh)';
+        gr.style.transform = 'translate(' + xr.toFixed(2) + 'vw, ' + ((1 - pr) * -6).toFixed(2) + 'vh)';
+        gl.style.opacity = (pl * o).toFixed(3);
+        gr.style.opacity = (pr * o).toFixed(3);
+        // About 광원이 보이는 동안 전역 사이드 글로우는 비례해 물러남 — 같은 자리 중복으로 탁해지지 않게
+        root.style.setProperty('--sgmul', (1 - .7 * Math.max(pl, pr) * o).toFixed(3));
+      }
+      function onScroll(){ if(!raf) raf = requestAnimationFrame(frame); }
+      addEventListener('scroll', onScroll, { passive:true });
+      addEventListener('resize', function(){ measure(); onScroll(); });
+      addEventListener('load', function(){ measure(); onScroll(); });
+      measure(); frame();
+    })();
+
     // (04) Services — 스크롤 연동 작업물 무대.
     // 진행률 p(0~1)의 순수 함수로 모든 상태를 계산: 멈추면 그 상태 유지, 역스크롤 자연 복원,
     // 자동 재생·휠 가로채기 없음. 중간 진입/새로고침에도 현재 p 로 즉시 그려짐.
