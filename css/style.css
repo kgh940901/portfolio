@@ -132,12 +132,14 @@
      z-index:-1 + isolation: 섹션 배경 위·텍스트/사진 아래. 블러 대신 그라데이션 감쇠 — 중심은 선명, 가장자리는 흰 배경에 용해 */
   #about{ isolation:isolate; overflow:hidden; overflow:clip; }   /* 화면 밖 광원이 가로 스크롤을 만들지 않게 */
   .ab-glow{ position:absolute; z-index:-1; pointer-events:none; opacity:0; will-change:transform,opacity; }
-  .ab-glow.gl{ left:0; top:13%; width:58vw; height:46vw;   /* 좌: 블루+라벤더 */
-    background:radial-gradient(50% 50% at 50% 50%, rgba(93,98,245,.42), rgba(140,120,255,.22) 46%, rgba(140,120,255,0) 72%); }
-  .ab-glow.gr{ right:0; top:46%; width:50vw; height:42vw;  /* 우: 블루 중심, 가장자리 약한 라벤더 — 좌우 비대칭 */
+  .ab-glow.gl{ left:0; top:13%; width:64vw; height:50vw;   /* 좌: 블루+라벤더 — 다단 감쇠로 덩어리감 없이 넓게 번짐 */
+    background:radial-gradient(50% 50% at 50% 50%,
+      rgba(93,98,245,.42), rgba(110,104,250,.27) 34%, rgba(140,120,255,.15) 54%, rgba(140,120,255,.06) 68%, rgba(140,120,255,0) 82%); }
+  .ab-glow.gr{ right:0; top:46%; width:56vw; height:46vw;  /* 우: 블루 중심, 가장자리 약한 라벤더 — 좌우 비대칭 */
     background:
-      radial-gradient(50% 50% at 50% 50%, rgba(73,94,255,.33), rgba(99,112,255,.15) 52%, rgba(99,112,255,0) 73%),
-      radial-gradient(60% 60% at 62% 58%, rgba(150,128,255,.13), transparent 70%); }
+      radial-gradient(50% 50% at 50% 50%,
+        rgba(73,94,255,.35), rgba(86,101,255,.20) 36%, rgba(99,112,255,.11) 56%, rgba(99,112,255,.05) 70%, rgba(99,112,255,0) 84%),
+      radial-gradient(62% 62% at 62% 58%, rgba(150,128,255,.10), transparent 74%); }
   @media(max-width:700px){
     .ab-glow.gl{ width:88vw; height:70vw; top:9%; }
     .ab-glow.gr{ width:78vw; height:62vw; top:46%; }
