@@ -35,18 +35,18 @@ window.initHeroSpace = function(){
     '  vec3 base = mix(vec3(.988,.990,.996), vec3(.958,.964,.982), uv.y);',
     '  vec3 col = base;',
     // 빛 중심 3개: 마우스를 서로 다른 비율로 따라오며 자체 드리프트
-    '  vec2 c1 = m*.52 + vec2(-.26 + .08*sin(t*.11),  .22 + .06*cos(t*.09));',
-    '  vec2 c2 = m*.34 + vec2( .30 + .09*sin(t*.07+2.), .14 + .07*sin(t*.13+1.));',
-    '  vec2 c3 = m*.20 + vec2( .02 + .06*cos(t*.06),  .34 + .05*sin(t*.08));',
+    '  vec2 c1 = m*.72 + vec2(-.26 + .08*sin(t*.11),  .22 + .06*cos(t*.09));',
+    '  vec2 c2 = m*.50 + vec2( .30 + .09*sin(t*.07+2.), .14 + .07*sin(t*.13+1.));',
+    '  vec2 c3 = m*.32 + vec2( .02 + .06*cos(t*.06),  .34 + .05*sin(t*.08));',
     '  float b1 = blob(q, c1, .60, t);',
     '  float b2 = blob(q, c2, .70, t + 13.);',
     '  float b3 = blob(q, c3, .52, t + 31.);',
     '  vec3 blue = vec3(.33,.45,1.0);',
     '  vec3 lav  = vec3(.63,.53,.97);',
     '  vec3 sky  = vec3(.56,.72,1.0);',
-    '  col = mix(col, blue, b2*.40);',
-    '  col = mix(col, lav , b1*.36);',
-    '  col = mix(col, sky , b3*.26);',
+    '  col = mix(col, blue, b2*.50);',
+    '  col = mix(col, lav , b1*.46);',
+    '  col = mix(col, sky , b3*.34);',
     '  col = mix(col, blue*.82, b1*b2*.22);',            // 겹치는 곳의 깊이감
     // 가장자리는 흰 배경으로 자연스럽게
     '  float edge = smoothstep(1.05, .42, length(q * vec2(.82, 1.12)));',
@@ -120,8 +120,8 @@ window.initHeroSpace = function(){
       tx = .5 + .16 * Math.sin(t * .12);
       ty = .55 + .10 * Math.cos(t * .1);
     }
-    mx += (tx - mx) * .045;          // 지연 추종 — 멈추면 서서히 안정
-    my += (ty - my) * .045;
+    mx += (tx - mx) * .07;          // 지연 추종 — 멈추면 서서히 안정
+    my += (ty - my) * .07;
     draw(t);
   }
   requestAnimationFrame(frame);
