@@ -175,17 +175,19 @@
   /* 한글은 영문보다 획 밀도가 높아 레퍼런스보다 가늘고(500) 행간을 넉넉히(1.28) */
   /* 두 줄 모두 같은 왼쪽 기준선에서 시작 (들여쓰기 없음) */
   .stmt-big{ margin-top:clamp(28px,4.2vw,64px); font-size:clamp(26px,4.2vw,54px); font-weight:500; letter-spacing:-.02em; line-height:1.34; word-break:keep-all; }
-  .ab-row{ display:grid; grid-template-columns:minmax(200px,330px) 1fr minmax(260px,390px); gap:30px; align-items:start; margin-top:clamp(48px,6vw,90px); }
+  /* 사진·라벨·본문을 한 덩어리로 — 라벨 열은 내용 폭(auto), 본문 열은 넓게(560px), 전체 폭 고정으로
+     큰 화면에서도 가운데 빈 공간이 늘어나지 않음. 세 라벨·세 본문의 왼쪽 시작선 각각 통일 */
+  .ab-row{ display:grid; grid-template-columns:minmax(200px,330px) auto minmax(300px,560px); gap:30px clamp(36px,4.5vw,64px);
+    justify-content:start; align-items:start; margin-top:clamp(48px,6vw,90px); }
   .ab-row + .ab-row{ margin-top:70px; }
-  /* 라벨 — 위치는 본문 가까이(열 오른쪽) 유지하되, 세 라벨의 왼쪽 시작선을 통일 */
-  .ab-row .lab{ grid-column:2; justify-self:end; width:8.8em; text-align:left; font-size:14.5px; font-weight:700; white-space:nowrap; color:var(--acc); }
+  .ab-row .lab{ grid-column:2; justify-self:start; text-align:left; font-size:14.5px; font-weight:700; white-space:nowrap; color:var(--acc); }
   .ab-row .txt{ grid-column:3; color:var(--body-ink); font-size:15.5px; font-weight:500; line-height:1.72; word-break:keep-all; }
   .ab-row .txt.t2{ margin-top:46px; }   /* PC: 두 번째 본문을 라벨(lab2)과 같은 선상에 */
   .ab-photo{ grid-column:1; grid-row:1 / span 4; width:min(330px,100%); aspect-ratio:3/4.1; object-fit:cover; }
   .ab-res{ grid-column:3; margin-top:46px; }
   .ab-res .r{ display:flex; justify-content:space-between; align-items:baseline; padding:13px 2px; border-bottom:1px solid var(--line-l); font-size:16.5px; font-weight:700; }
   .ab-res .r span{ color:var(--gray-ink); font-weight:600; }
-  .ab-row .lab2{ grid-column:2; justify-self:end; width:8.8em; text-align:left; font-size:14.5px; font-weight:700; margin-top:46px; white-space:nowrap; color:var(--acc); }
+  .ab-row .lab2{ grid-column:2; justify-self:start; text-align:left; font-size:14.5px; font-weight:700; margin-top:46px; white-space:nowrap; color:var(--acc); }
   .ab-res .r .cnt, .ab-res .r .nacc{ color:var(--acc); }   /* 요약 숫자만 포인트 — 단위·설명은 회색 유지 */
   .ab-cta{ grid-column:3; margin-top:70px; }
   @media(max-width:860px){
@@ -275,7 +277,7 @@
      기본: 작은 모노 정보만. 호버/포커스: 행 가운데 큰 제목 등장 + 커서를 따라다니는 프리뷰(main.js) */
   .cs-list{ margin-top:34px; }   /* 목록 윗선 없음 — 섹션 헤더(shead) 선과 겹쳐 보이지 않게 */
   .cs-row{ position:relative; display:flex; flex-direction:column; justify-content:space-between; gap:14px;
-    min-height:clamp(200px,25vw,310px); padding:16px 2px 14px; border-bottom:1px solid var(--line-l); color:var(--ink); }
+    min-height:clamp(165px,20.5vw,250px); padding:16px 2px 14px; border-bottom:1px solid var(--line-l); color:var(--ink); }   /* 행 높이 약 19% 축소 — 패딩·글자 크기는 유지 */
   .cs-line{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
   .cs-line.bot{ justify-content:flex-end; }   /* 작은 라벨 제거 후에도 SCOPE 는 우측 유지 */
   .cs-mono{ font-size:12.5px; font-weight:600; letter-spacing:.4px; line-height:1.7; }
@@ -286,10 +288,11 @@
   /* 행 가운데 큰 제목 — 항상 표시 (호버와 무관하게 읽을 수 있어야 함) */
   .cs-big{ position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
     font-size:clamp(38px,5.4vw,82px); font-weight:800; letter-spacing:-.02em; line-height:1; z-index:2;
-    pointer-events:none; transition:color .25s ease; }
-  .cs-row:focus-visible .cs-big{ color:var(--acc); }
+    pointer-events:none; transition:color .25s ease, transform .45s cubic-bezier(.2,.7,.2,1); }
+  .cs-row:focus-visible .cs-big{ color:var(--acc); transform:translateY(-50%) translateX(10px); }
   @media(hover:hover) and (pointer:fine){
-    .cs-row:hover .cs-big{ color:var(--acc); }
+    /* 행 전체가 링크임이 드러나게 — More Works 와 같은 색·이동 반응 */
+    .cs-row:hover .cs-big{ color:var(--acc); transform:translateY(-50%) translateX(10px); }
   }
   .cs-name{ display:none; }   /* 큰 제목이 항상 보이므로 작은 중복 라벨은 숨김 */
   /* 커서 프리뷰 — fixed·커서 중앙·프로젝트별 크로스페이드. z 는 제목(z2)보다 낮게 — 이미지가 프로젝트명을 가리지 않음 */
@@ -308,6 +311,7 @@
     .cs-line{ flex-wrap:wrap; gap:10px 20px; }     /* 좁은 화면: 메타가 넘치지 않고 자연 줄바꿈 */
     .cs-meta{ gap:18px; min-width:0; }
     .cs-v{ word-break:keep-all; }
+    .cs-row:focus-visible .cs-big{ transform:none; }   /* 정적 배치에서는 이동 없음 */
   }
   @media(prefers-reduced-motion:reduce){
     .cs-big{ transition:none; }
@@ -316,7 +320,7 @@
   /* ===== (04) SERVICES — 스크롤 연동 작업물 무대 =====
      데스크톱: 560vh 스크롤 구간 + sticky 100vh 무대. 패널 transform/opacity 는 main.js 가 진행률로 계산.
      정적 모드(.svc-static — 모바일·모션 감소): 무대를 일반 세로 흐름으로 전환 */
-  .svc-scroll{ position:relative; height:800vh; margin-top:10px; }   /* 프로모션 내부 스크롤에 더 긴 구간 배분 */
+  .svc-scroll{ position:relative; height:640vh; margin-top:10px; }   /* 대기 구간 축소 — 장면 유지 구간은 main.js 재배분으로 보존 */
   .svc-stage{ position:sticky; top:0; height:100vh; overflow:hidden;
     /* 메인과 이어지는 밝은 무대 — 빛은 메인보다 옅게, 작품이 먼저 보이게 */
     background:
@@ -444,10 +448,13 @@
 
   /* ===== (03) MORE WORKS — 텍스트 목록 (signal-a award-item 방식: 기본은 글만, 호버 시 커서 프리뷰) ===== */
   .arch{ margin-top:34px; }
-  /* 2열: 분류 | 제목. 구분선은 Case Studies 행과 같은 방식(행 아래선만) — 두 목록이 한 영역처럼 읽히게 */
-  .arow{ display:grid; grid-template-columns:minmax(90px,32%) minmax(0,1fr); align-items:center; gap:16px;
+  /* 4열: 번호 | 제목 | 분류 | 화살표. 구분선은 Case Studies 행과 같은 방식(행 아래선만) */
+  .arow{ display:grid; grid-template-columns:minmax(90px,32%) minmax(0,1fr) auto 26px; align-items:center; gap:16px clamp(16px,2.5vw,34px);
     border-bottom:1px solid var(--line-l); padding:17px 2px; transition:background .3s, opacity .3s; }
   .arow .ay{ font-size:14px; font-weight:600; color:var(--acc); }   /* 프로젝트 번호 A—01 — 포인트 */
+  .arow .ak{ font-size:12.5px; font-weight:600; letter-spacing:.4px; color:var(--gray-ink); white-space:nowrap; text-align:right; }
+  .arow .aarw{ justify-self:end; font-size:18px; font-weight:600; line-height:1; color:var(--acc);
+    transition:transform .45s cubic-bezier(.2,.7,.2,1); }
   /* 긴 제목(Promotion Design 등) 기준으로 크기·굵기 하향 */
   .arow .an{ position:relative; z-index:2; min-width:0;   /* 커서 프리뷰(z1)가 이름을 가리지 않게 */
     font-size:clamp(20px,2.5vw,34px); font-weight:600; letter-spacing:-.015em; line-height:1.2;
@@ -456,12 +463,17 @@
   /* 호버 연출은 포인터 환경에서만 — 터치에서 흐림/이동 상태가 남지 않게 */
   @media(hover:hover) and (pointer:fine){
     .arow:hover .an{ transform:translateX(12px); color:var(--acc); }
+    .arow:hover .aarw{ transform:translateX(8px); }
     .arch:hover .arow{ opacity:.38; }
     .arch .arow:hover{ opacity:1; }
   }
   @media(max-width:600px){
-    .arow{ grid-template-columns:auto 1fr; gap:14px; padding:15px 2px; }   /* 번호 열 축소 — 제목 폭 확보 */
-    .arow .ay{ font-size:12.5px; }
+    /* 번호 | (제목 위, 분류 아래) | 화살표 — 겹침 없는 2단 재배치 */
+    .arow{ grid-template-columns:auto minmax(0,1fr) auto; gap:3px 14px; padding:15px 2px; }
+    .arow .ay{ font-size:12.5px; grid-column:1; grid-row:1; }
+    .arow .an{ grid-column:2; grid-row:1; }
+    .arow .ak{ grid-column:2; grid-row:2; text-align:left; }
+    .arow .aarw{ grid-column:3; grid-row:1 / span 2; align-self:center; }
   }
   /* More Works 프리뷰 — 기존 썸네일과 같은 가로형(3:2)·중앙 크롭으로 대표 컷이 보이게 */
   .cs-cursor-img.sm{ width:min(280px,22vw); aspect-ratio:3/2; height:auto; object-fit:cover; }
@@ -472,7 +484,7 @@
   /* 비율·배치는 Fuel .framer-15ml58i 실측: 배너 1300×800(≈62%), 중앙 텍스트 창 800px,
      좌측 등속 50px/s(속도는 main.js 가 트랙 폭 기준으로 설정), 창 양끝 ~5% 투명 마스크, 창 모서리 + 마커 */
   .ctaband{ position:relative; display:flex; flex-direction:column; justify-content:center; align-items:center;
-    height:clamp(480px,62vw,800px); overflow:hidden; color:var(--ink);
+    height:clamp(380px,44vw,560px); overflow:hidden; color:var(--ink);   /* 세로 공간 축소 — 마퀴·CTA 는 유지 */
     background:
       radial-gradient(46% 52% at 30% 26%, rgba(99,112,255,.20), transparent 70%),
       radial-gradient(48% 56% at 74% 64%, rgba(142,120,255,.16), transparent 72%),
@@ -485,7 +497,7 @@
   .cb-track{ display:flex; width:max-content; white-space:nowrap; animation:lsmarq 60s linear infinite; }
   /* 타이포는 메인 PORTFOLIO 와 같은 계열(서체·굵기 유지), 크기·자간은 레퍼런스 밀도(100px/-.03em) 반영 */
   .cb-track span{ font-size:clamp(48px,7.7vw,100px); font-weight:800; letter-spacing:-.03em; line-height:1; color:var(--ink); }
-  .ctaband .cta{ position:relative; z-index:2; margin-top:clamp(56px,10vw,130px); color:var(--ink); }
+  .ctaband .cta{ position:relative; z-index:2; margin-top:clamp(40px,7vw,80px); color:var(--ink); }
   @media(max-width:600px){
     section{ padding-bottom:64px; }          /* 모바일: 섹션 하단 공백 축소 */
     .ctaband{ height:320px; }
@@ -558,9 +570,9 @@
   @media(max-width:820px){ .qa-grid{ grid-template-columns:1fr; } .qa-intro{ position:static; } .qa-say br{ display:none; } }
 
   /* ===== FOOTER — 밝은 배경: 위 콘텐츠와 이어지는 마무리 (얇은 선 + 여백으로만 구분) ===== */
-  .foot{ position:relative; background:var(--paper); color:var(--head-c); padding:clamp(44px,6vw,64px) 24px 0; overflow:hidden;
+  .foot{ position:relative; background:var(--paper); color:var(--head-c); padding:clamp(28px,4vw,44px) 24px 0; overflow:hidden;
     padding-bottom:env(safe-area-inset-bottom, 0); }   /* 윗 여백 — CTA 배너와의 간격 축소 / 하단 안전영역 */
-  .foot-top{ max-width:var(--maxw); margin:0 auto; border-top:1px solid var(--line-l); padding-top:clamp(40px,6vw,76px);
+  .foot-top{ max-width:var(--maxw); margin:0 auto; border-top:1px solid var(--line-l); padding-top:clamp(32px,5vw,56px);
     display:grid; grid-template-columns:1.3fr 1fr; gap:50px; }
   /* 제목 + 이메일 = 한 그룹, 같은 왼쪽 기준선 */
   .foot-say{ font-size:clamp(32px,4.2vw,58px); font-weight:600; letter-spacing:-.025em; line-height:1.18; word-break:keep-all; }
