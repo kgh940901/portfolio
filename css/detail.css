@@ -69,16 +69,32 @@ a:focus-visible{ outline:2px solid currentColor; outline-offset:3px; }
 .njs .nstack{ display:block; transition:transform .55s cubic-bezier(.18,.8,.28,1); }
 .njs .nstack span{ display:block; height:1em; line-height:1; }
 
-/* 절제된 등장 모션 */
-.rv{ opacity:0; transform:translateY(22px);
+/* 절제된 등장 모션 — 초기 숨김은 html.js 에서만(JS 실패 시에도 본문이 보이게) */
+html.js .rv{ opacity:0; transform:translateY(22px);
   transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
-.rv.in{ opacity:1; transform:none; }
+html.js .rv.in{ opacity:1; transform:none; }
 @media(prefers-reduced-motion:reduce){
-  .rv{ opacity:1; transform:none; transition:none; }
+  html.js .rv{ opacity:1; transform:none; transition:none; }
   html{ scroll-behavior:auto; }
 }
 
+.dt-nlink{ min-width:0; }
+.dt-ntitle{ min-width:0; }
 @media(max-width:760px){
   .dt-nthumb{ display:none; }
   .dt-sub{ font-size:15.5px; }
+}
+/* 모바일 — 여백 20/16px, 긴 영문 제목도 320px 안에서 균형 있게 */
+@media(max-width:600px){
+  .wrap{ padding:0 20px; }
+}
+@media(max-width:480px){
+  .dt-title{ font-size:clamp(34px,11vw,46px); line-height:1.1; }
+  .dt-kicker{ line-height:1.8; }
+  .dt-ctas{ flex-direction:column; gap:10px; }
+  .dt-ctas .cta{ min-width:0; width:fit-content; }
+  .dt-ntitle{ font-size:clamp(26px,8.5vw,34px); }
+}
+@media(max-width:360px){
+  .wrap{ padding:0 16px; }
 }
