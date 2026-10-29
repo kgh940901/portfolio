@@ -233,7 +233,7 @@
   /* 호버(PC 전용): 래퍼는 제자리 — 알약 전체가 위로 떠오르며 라벤더 배경 + 청보라 글자.
      감지는 고정된 래퍼가 하므로 태그가 올라가도 호버가 깜빡이지 않음 */
   @media(hover:hover) and (pointer:fine){
-    .logo-strip{ cursor:none; }                                   /* 태그 영역에서는 포인터 숨김 */
+    .logo-strip{ cursor:default; }                                /* 클릭 기능 없는 태그 영역 — 기본 커서 유지(커스텀 커서 비활성 상태에서 cursor:none 금지) */
     .logo-card:hover .tagi{ transform:translateY(-16px); background:var(--acc-bg); border-color:rgba(88,84,214,.38); color:var(--acc); }
     .logo-card:hover svg.lg, .logo-card:hover svg.lg *{ fill:var(--acc); }
     .logo-card:hover svg.lg text{ fill:var(--acc-bg); }
