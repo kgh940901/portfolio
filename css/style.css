@@ -487,10 +487,11 @@
   .cb-track span{ font-size:clamp(48px,7.7vw,100px); font-weight:800; letter-spacing:-.03em; line-height:1; color:var(--ink); }
   .ctaband .cta{ position:relative; z-index:2; margin-top:clamp(56px,10vw,130px); color:var(--ink); }
   @media(max-width:600px){
-    .ctaband{ height:440px; }
+    section{ padding-bottom:64px; }          /* 모바일: 섹션 하단 공백 축소 */
+    .ctaband{ height:320px; }
     .cb-marq{ width:86vw; }
-    .cb-track span{ font-size:42px; }
-    .ctaband .cta{ margin-top:44px; }
+    .cb-track span{ font-size:38px; }
+    .ctaband .cta{ margin-top:30px; }
   }
 
   /* ===== (07) STATS — 2×2 대형 숫자 ===== */
